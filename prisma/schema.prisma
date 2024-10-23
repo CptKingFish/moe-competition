@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id           String        @id @default(cuid())
+    googleId     String        @unique
+    name         String
+    sessions     Session[]
+    role         Role
+    competitions Competition[]
+    projects     Project[]
+    votes        Vote[]
+}
+
+model Session {
+    id        String   @id
+    userId    String
+    expiresAt DateTime
+
+    user User @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+model Competition {
+    id          String    @id
+    name        String
+    description String
+    startDate   DateTime
+    endDate     DateTime
+    createdBy   User      @relation(fields: [createdById], references: [id])
+    createdById String
+    projects    Project[]
+    votes       Vote[]
+}
+
+model Project {
+    id            String      @id
+    name          String
+    description   String
+    submittedAt   DateTime
+    submittedBy   User        @relation(fields: [submittedById], references: [id])
+    submittedById String
+    author        String
+    authorEmail   String
+    competition   Competition @relation(fields: [competitionId], references: [id])
+    competitionId String
+    projectUrl    String
+    votes         Vote[]
+}
+
+model Vote {
+    id            String      @id
+    vote          Int
+    user          User        @relation(fields: [userId], references: [id])
+    project       Project     @relation(fields: [projectId], references: [id])
+    competition   Competition @relation(fields: [competitionId], references: [id])
+    userId        String
+    projectId     String
+    competitionId String
+}
+
+enum Role {
+    STUDENT
+    TEACHER
+    ADMIN
+}
+
+enum SubjectLevel {
+    G1
+    G2
+    G3
+}
+
+enum ProjectType {
+    SCRATCH
+    MICROBIT
+    OTHERS
+}
