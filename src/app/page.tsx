@@ -2,11 +2,14 @@ import Link from "next/link";
 
 import { LatestPost } from "@/app/_components/post";
 import { api, HydrateClient } from "@/trpc/server";
+import { getCurrentSession } from "@/lib/session";
 
 export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
+  const { user } = await getCurrentSession();
 
-  void api.post.getLatest.prefetch();
+  // const hello = await api.post.hello({ text: "from tRPC" });
+
+  // void api.post.getLatest.prefetch();
 
   return (
     <HydrateClient>
@@ -41,11 +44,12 @@ export default async function Home() {
           </div>
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
+              {user?.name ? `Hello, ${user.name}` : "You are not logged in."}
+              {/* {hello ? hello.greeting : "Loading tRPC query..."} */}
             </p>
           </div>
 
-          <LatestPost />
+          <LatestPost user={user} />
         </div>
       </main>
     </HydrateClient>
