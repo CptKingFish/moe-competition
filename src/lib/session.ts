@@ -5,13 +5,18 @@ import {
   encodeHexLowerCase,
 } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
-import type { User, Session } from "@/db/types";
+import type { User, Session as GeneratedSession } from "@/db/types";
 import { db } from "@/database";
 import { env } from "@/env";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { jsonObjectFrom } from "kysely/helpers/postgres";
+
+// temp fix
+type Session = Omit<GeneratedSession, "expiresAt"> & {
+  expiresAt: Date;
+};
 
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {

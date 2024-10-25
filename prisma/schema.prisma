@@ -27,7 +27,7 @@ model User {
 model Session {
     id        String   @id
     userId    String
-    expiresAt DateTime
+    expiresAt DateTime @db.Timestamptz
 
     user User @relation(references: [id], fields: [userId], onDelete: Cascade)
 }
@@ -36,8 +36,8 @@ model Competition {
     id          String    @id
     name        String
     description String
-    startDate   DateTime
-    endDate     DateTime
+    startDate   DateTime  @db.Timestamptz
+    endDate     DateTime  @db.Timestamptz
     createdBy   User      @relation(fields: [createdById], references: [id])
     createdById String
     projects    Project[]
@@ -48,7 +48,7 @@ model Project {
     id            String      @id
     name          String
     description   String
-    submittedAt   DateTime
+    submittedAt   DateTime    @db.Timestamptz
     submittedBy   User        @relation(fields: [submittedById], references: [id])
     submittedById String
     author        String

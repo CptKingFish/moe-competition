@@ -74,11 +74,7 @@ export async function GET(request: Request): Promise<Response> {
         Location: "/",
       },
     });
-    await setSessionTokenCookie(
-      response,
-      sessionToken,
-      session.expiresAt as Date,
-    );
+    await setSessionTokenCookie(response, sessionToken, session.expiresAt);
     return response;
   }
 
@@ -101,10 +97,6 @@ export async function GET(request: Request): Promise<Response> {
       Location: "/",
     },
   });
-  await setSessionTokenCookie(
-    response,
-    sessionToken,
-    session.expiresAt as Date,
-  );
+  await setSessionTokenCookie(response, sessionToken, session.expiresAt);
   return response;
 }
