@@ -5,10 +5,11 @@ import {
 } from "@/lib/session";
 import { google } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { createId } from "@paralleldrive/cuid2";
 
 import type { OAuth2Tokens } from "arctic";
 import { decodeIdToken } from "arctic";
-import { db } from "@/server/db";
+import { db } from "@/database";
 
 type DecodedToken = {
   sub: string;
@@ -52,13 +53,19 @@ export async function GET(request: Request): Promise<Response> {
 
   // TODO: Replace this with your own DB query.
   // const existingUser = await getUserFromGoogleId(googleUserId);
-  const existingUser = await db.user.findFirst({
-    where: {
-      googleId: googleUserId,
-    },
-  });
+  // const existingUser = await db.user.findFirst({
+  //   where: {
+  //     googleId: googleUserId,
+  //   },
+  // });
 
-  if (existingUser !== null) {
+  const existingUser = await db
+    .selectFrom("User")
+    .selectAll()
+    .where("User.googleId", "=", googleUserId)
+    .executeTakeFirst();
+
+  if (existingUser) {
     const sessionToken = await generateSessionToken();
     const session = await createSession(sessionToken, existingUser.id);
     const response = new Response(null, {
@@ -67,19 +74,24 @@ export async function GET(request: Request): Promise<Response> {
         Location: "/",
       },
     });
-    await setSessionTokenCookie(response, sessionToken, session.expiresAt);
+    await setSessionTokenCookie(
+      response,
+      sessionToken,
+      session.expiresAt as Date,
+    );
     return response;
   }
 
-  // TODO: Replace this with your own DB query.
-  // const user = await createUser(googleUserId, username);
-  const user = await db.user.create({
-    data: {
+  const user = await db
+    .insertInto("User")
+    .values({
       googleId: googleUserId,
       name: username,
       role: "STUDENT",
-    },
-  });
+      id: createId(),
+    })
+    .returning("id")
+    .executeTakeFirstOrThrow();
 
   const sessionToken = await generateSessionToken();
   const session = await createSession(sessionToken, user.id);
@@ -89,6 +101,10 @@ export async function GET(request: Request): Promise<Response> {
       Location: "/",
     },
   });
-  await setSessionTokenCookie(response, sessionToken, session.expiresAt);
+  await setSessionTokenCookie(
+    response,
+    sessionToken,
+    session.expiresAt as Date,
+  );
   return response;
 }

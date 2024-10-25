@@ -5,12 +5,13 @@ import {
   encodeHexLowerCase,
 } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
-import type { User, Session } from "@prisma/client";
-import { db } from "@/server/db";
+import type { User, Session } from "@/db/types";
+import { db } from "@/database";
 import { env } from "@/env";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { jsonObjectFrom } from "kysely/helpers/postgres";
 
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
@@ -49,14 +50,14 @@ export async function createSession(
   userId: string,
 ): Promise<Session> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-  const session: Session = {
+  const session = {
     id: sessionId,
     userId,
     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
   };
-  await db.session.create({
-    data: session,
-  });
+
+  await db.insertInto("Session").values(session).execute();
+
   return session;
 }
 
@@ -64,42 +65,45 @@ export async function validateSessionToken(
   token: string,
 ): Promise<SessionValidationResult> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-  const result = await db.session.findUnique({
-    where: {
-      id: sessionId,
-    },
-    include: {
-      user: true,
-    },
-  });
-  if (result === null) {
+  const result = await db
+    .selectFrom("Session")
+    .select((eb) => [
+      "Session.id",
+      "Session.userId",
+      "Session.expiresAt",
+      jsonObjectFrom(
+        eb
+          .selectFrom("User")
+          .select(["User.id", "User.name", "User.googleId", "User.role"])
+          .whereRef("User.id", "=", "Session.userId"),
+      ).as("user"),
+    ])
+    .where("Session.id", "=", sessionId)
+    .executeTakeFirst();
+
+  if (result?.user == null) {
     return { session: null, user: null };
   }
+
   const { user, ...session } = result;
+
   if (Date.now() >= session.expiresAt.getTime()) {
-    await db.session.delete({ where: { id: sessionId } });
+    await db.deleteFrom("Session").where("id", "=", sessionId).execute();
     return { session: null, user: null };
   }
   if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
     session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
-    await db.session.update({
-      where: {
-        id: session.id,
-      },
-      data: {
-        expiresAt: session.expiresAt,
-      },
-    });
+    await db
+      .updateTable("Session")
+      .set("expiresAt", session.expiresAt)
+      .where("id", "=", session.id)
+      .execute();
   }
   return { session, user };
 }
 
 export async function invalidateSession(sessionId: string): Promise<void> {
-  await db.session.delete({
-    where: {
-      id: sessionId,
-    },
-  });
+  await db.deleteFrom("Session").where("id", "=", sessionId).execute();
 }
 
 export async function setSessionTokenCookie(
