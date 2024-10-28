@@ -31,14 +31,10 @@ export const getCurrentSession = cache(
 
 export async function logoutUser() {
   const { session } = await getCurrentSession();
-  if (!session) {
-    return {
-      error: "Unauthorized",
-    };
+  if (session) {
+    await invalidateSession(session.id);
+    cookies().delete("session");
   }
-
-  await invalidateSession(session.id);
-  cookies().delete("session");
 
   redirect("/");
 }

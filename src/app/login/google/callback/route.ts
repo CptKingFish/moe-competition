@@ -71,7 +71,7 @@ export async function GET(request: Request): Promise<Response> {
     const response = new Response(null, {
       status: 302,
       headers: {
-        Location: "/",
+        Location: "/dashboard",
       },
     });
     await setSessionTokenCookie(response, sessionToken, session.expiresAt);
@@ -94,7 +94,7 @@ export async function GET(request: Request): Promise<Response> {
   const response = new Response(null, {
     status: 302,
     headers: {
-      Location: "/",
+      Location: "/dashboard",
     },
   });
   await setSessionTokenCookie(response, sessionToken, session.expiresAt);

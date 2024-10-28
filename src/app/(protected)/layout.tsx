@@ -1,15 +1,29 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { Suspense } from "react";
-import { getCurrentSession } from "@/lib/session";
+import { getCurrentSession, logoutUser } from "@/lib/session";
 import { Role as RoleTypes } from "@/db/enums";
+
+import { AppSidebar } from "@/components/app-sidebar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
 const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
   const { user } = await getCurrentSession();
 
   if (!user?.id || !user?.role) {
-    cookies().delete("session");
-    redirect("/");
+    return logoutUser();
   }
 
   const userRole = user.role;
@@ -29,19 +43,31 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
       <body className="flex h-screen flex-col font-sans">
-        {/* <Suspense fallback={<div>Loading...</div>}>
-          <NavBar navBarItems={navBarItems} session={session} />
-        </Suspense> */}
-        <div className="flex flex-1 overflow-hidden">
-          <div className="hidden h-full overflow-hidden md:block">
-            {/* <Suspense fallback={<div>Loading...</div>}>
-              <SideBar role={currentRole} id={session.user.id} />
-            </Suspense> */}
-          </div>
-          <div className="bg-light-purple flex-1 overflow-y-auto">
-            <main className="container mx-auto pt-5">{children}</main>
-          </div>
-        </div>
+        <SidebarProvider>
+          <AppSidebar user={user} />
+          <SidebarInset>
+            <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+              <div className="flex items-center gap-2 px-4">
+                <SidebarTrigger className="-ml-1" />
+                <Separator orientation="vertical" className="mr-2 h-4" />
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem className="hidden md:block">
+                      <BreadcrumbLink href="#">Previous Page</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden md:block" />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>Current Page</BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+            </header>
+            <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+              {children}
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
       </body>
     </html>
   );
