@@ -30,6 +30,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { User } from "@/db/types";
+import Image from "next/image";
 
 // This is sample data.
 
@@ -68,11 +69,6 @@ const navigation = [
         url: "/leaderboards",
         icon: Trophy,
       },
-      {
-        title: "Past Competitions",
-        url: "/history",
-        icon: History,
-      },
     ],
   },
   {
@@ -106,7 +102,8 @@ export function AppSidebar({
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={teams} />
+        <Image src="/Icon.svg" alt="Icon" width={120} height={100} />
+        {/* <TeamSwitcher teams={teams} /> */}
       </SidebarHeader>
       <SidebarContent>
         {navigation.map((navGroup) => {

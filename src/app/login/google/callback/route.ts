@@ -14,6 +14,8 @@ import { db } from "@/database";
 type DecodedToken = {
   sub: string;
   name: string;
+  email: string;
+  picture: string;
 };
 
 export async function GET(request: Request): Promise<Response> {
@@ -50,6 +52,8 @@ export async function GET(request: Request): Promise<Response> {
   const claims = decodeIdToken(tokens.idToken()) as DecodedToken;
   const googleUserId = claims.sub;
   const username = claims.name;
+  const email = claims.email;
+  const picture = claims.picture;
 
   // TODO: Replace this with your own DB query.
   // const existingUser = await getUserFromGoogleId(googleUserId);
@@ -84,6 +88,8 @@ export async function GET(request: Request): Promise<Response> {
       googleId: googleUserId,
       name: username,
       role: "STUDENT",
+      email,
+      picture,
       id: createId(),
     })
     .returning("id")

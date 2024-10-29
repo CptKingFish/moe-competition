@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { Suspense } from "react";
 import { getCurrentSession, logoutUser } from "@/lib/session";
 import { Role as RoleTypes } from "@/db/enums";
@@ -18,9 +18,17 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+
+const navigation = {
+  Main: [{ "/dashboard": "Dashboard" }, { "/leaderboards": "Leaderboards" }],
+  Management: [{ "/teacher": "Teacher" }, { "/admin ": "Admin" }],
+};
 
 const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
   const { user } = await getCurrentSession();
+  // const router = ();
 
   if (!user?.id || !user?.role) {
     return logoutUser();
@@ -52,12 +60,12 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <Breadcrumb>
                   <BreadcrumbList>
-                    <BreadcrumbItem className="hidden md:block">
-                      <BreadcrumbLink href="#">Previous Page</BreadcrumbLink>
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>Current Page</BreadcrumbPage>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator className="hidden md:block" />
                     <BreadcrumbItem>
-                      <BreadcrumbPage>Current Page</BreadcrumbPage>
+                      <BreadcrumbLink href="#">Dashboard Page</BreadcrumbLink>
                     </BreadcrumbItem>
                   </BreadcrumbList>
                 </Breadcrumb>

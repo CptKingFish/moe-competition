@@ -52,7 +52,7 @@ export function NavGroup({
               <Link href={item.url} passHref>
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
-                <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                {/* <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" /> */}
               </Link>
             </SidebarMenuButton>
             {/* </CollapsibleTrigger> */}

@@ -75,7 +75,7 @@ export async function validateSessionToken(
       jsonObjectFrom(
         eb
           .selectFrom("User")
-          .select(["User.id", "User.name", "User.googleId", "User.role"])
+          .select(["User.id", "User.name", "User.googleId", "User.role", "User.picture", "User.email"])
           .whereRef("User.id", "=", "Session.userId"),
       ).as("user"),
     ])

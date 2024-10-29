@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/sidebar";
 import { type User } from "@/db/types";
 import { logoutUser } from "@/lib/session";
+import { LoadingSpinner } from "./ui/loading-spinner";
+import { Skeleton } from "./ui/skeleton";
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
@@ -42,12 +44,19 @@ export function NavUser({ user }: { user: User }) {
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 {/* TO DO: REPLACE WITH GOOGLE AVATAR */}
-                <AvatarImage src="/avatars/shadcn.jpg" alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+
+                <AvatarImage
+                  src={user.picture}
+                  alt={user.name}
+                  referrerPolicy="no-referrer"
+                />
+                <AvatarFallback className="rounded-lg">
+                  <Skeleton className="h-10 w-10" />
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
-                <span className="truncate text-xs">{user.role}</span>
+                <span className="truncate text-xs text-gray-400">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -62,37 +71,21 @@ export function NavUser({ user }: { user: User }) {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   {/* TO DO: REPLACE WITH GOOGLE AVATAR */}
-                  <AvatarImage src="/avatars/shadcn.jpg" alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarImage
+                    src={user.picture}
+                    alt={user.name}
+                    referrerPolicy="no-referrer"
+                  />
+                  <AvatarFallback className="rounded-lg">
+                    <Skeleton className="h-10 w-10" />
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
-                  <span className="truncate text-xs">{user.role}</span>
+                  <span className="truncate text-xs text-gray-400">{user.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={async () => {
