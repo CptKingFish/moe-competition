@@ -75,7 +75,14 @@ export async function validateSessionToken(
       jsonObjectFrom(
         eb
           .selectFrom("User")
-          .select(["User.id", "User.name", "User.googleId", "User.role", "User.picture", "User.email"])
+          .select([
+            "User.id",
+            "User.name",
+            "User.googleId",
+            "User.role",
+            "User.picture",
+            "User.email",
+          ])
           .whereRef("User.id", "=", "Session.userId"),
       ).as("user"),
     ])
@@ -108,7 +115,6 @@ export async function invalidateSession(sessionId: string): Promise<void> {
 }
 
 export async function setSessionTokenCookie(
-  response: Response,
   token: string,
   expiresAt: Date,
 ): Promise<void> {
@@ -121,10 +127,6 @@ export async function setSessionTokenCookie(
       path: "/",
       secure: true,
     });
-    // response.headers.set(
-    //   "Set-Cookie",
-    //   `session=${token}; HttpOnly; SameSite=Lax; Expires=${expiresAt.toUTCString()}; Path=/; Secure;`,
-    // );
   } else {
     // When deployed over HTTP (localhost)
     cookies().set("session", token, {
@@ -133,31 +135,11 @@ export async function setSessionTokenCookie(
       expires: expiresAt,
       path: "/",
     });
-    // response.headers.set(
-    //   "Set-Cookie",
-    //   `session=${token}; HttpOnly; SameSite=Lax; Expires=${expiresAt.toUTCString()}; Path=/`,
-    // );
   }
 }
 
-export async function deleteSessionTokenCookie(
-  response: Response,
-): Promise<void> {
-  if (env.NODE_ENV === "production") {
-    // When deployed over HTTPS
-    cookies().delete("session");
-    // response.headers.set(
-    //   "Set-Cookie",
-    //   "session=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/; Secure;",
-    // );
-  } else {
-    // When deployed over HTTP (localhost)
-    cookies().delete("session");
-    // response.headers.set(
-    //   "Set-Cookie",
-    //   "session=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/",
-    // );
-  }
+export async function deleteSessionTokenCookie(): Promise<void> {
+  cookies().delete("session");
 }
 
 export type SessionValidationResult =
