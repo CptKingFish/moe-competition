@@ -37,7 +37,7 @@ export function NavGroup({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{title}</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-gray-400">{title}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           // <Collapsible
@@ -46,7 +46,10 @@ export function NavGroup({
           //   defaultOpen={item.isActive}
           //   className="group/collapsible"
           // >
-          <SidebarMenuItem key={item.title}>
+          <SidebarMenuItem
+            key={item.title}
+            className={`p-0.5 rounded-md transition-colors duration-200 hover:bg-gray-100`}
+          >
             {/* <CollapsibleTrigger asChild> */}
             <SidebarMenuButton tooltip={item.title} asChild>
               <Link href={item.url} passHref>

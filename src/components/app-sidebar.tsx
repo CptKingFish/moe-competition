@@ -11,6 +11,7 @@ import {
   GraduationCap,
   History,
   Home,
+  LucideIcon,
   Map,
   PieChart,
   Settings2,
@@ -32,28 +33,23 @@ import {
 import { User } from "@/db/types";
 import Image from "next/image";
 
-// This is sample data.
+type NavigationItem = {
+  url: string;
+  title: string;
+  icon: LucideIcon;
+  isActive?: boolean;
+  accessibleTo?: string[];
+};
 
-// Can put switching G1, G2, G3 tracks here?
-const teams = [
-  {
-    name: "Acme Inc",
-    logo: GalleryVerticalEnd,
-    plan: "Enterprise",
-  },
-  {
-    name: "Acme Corp.",
-    logo: AudioWaveform,
-    plan: "Startup",
-  },
-  {
-    name: "Evil Corp.",
-    logo: Command,
-    plan: "Free",
-  },
-];
+type NavigationGroup = {
+  title: string;
+  accessibleTo: string[];
+  items: NavigationItem[];
+};
 
-const navigation = [
+type Navigation = NavigationGroup[];
+
+export const navigation: Navigation = [
   {
     title: "Main",
     accessibleTo: ["STUDENT", "TEACHER", "ADMIN"],
@@ -72,24 +68,19 @@ const navigation = [
     ],
   },
   {
-    title: "Teachers",
+    title: "Management",
     accessibleTo: ["TEACHER", "ADMIN"],
     items: [
       {
         title: "Teachers' Panel",
-        url: "/teachers",
+        url: "/teacher",
         icon: GraduationCap,
       },
-    ],
-  },
-  {
-    title: "Admins",
-    accessibleTo: ["ADMIN"],
-    items: [
       {
         title: "Admin Panel",
         url: "/admin",
         icon: ShieldHalf,
+        accessibleTo: ["ADMIN"],
       },
     ],
   },
@@ -102,16 +93,33 @@ export function AppSidebar({
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <Image src="/Icon.svg" alt="Icon" width={120} height={100} />
-        {/* <TeamSwitcher teams={teams} /> */}
+        <Image
+          src="/Icon.svg"
+          alt="Icon"
+          width={0}
+          height={0}
+          style={{ width: "55%", height: "auto" }}
+          priority
+        />
       </SidebarHeader>
       <SidebarContent>
-        {navigation.map((navGroup) => {
-          if (!navGroup.accessibleTo.includes(user.role)) return null;
-          return <NavGroup key={navGroup.title} {...navGroup} />;
-        })}
-
-        {/* <NavProjects projects={data.projects} /> */}
+        {navigation
+          .filter((navGroup) => navGroup.accessibleTo.includes(user.role))
+          .map((navGroup) => (
+            <NavGroup
+              key={navGroup.title}
+              title={navGroup.title}
+              items={navGroup.items
+                .filter(
+                  (item) =>
+                    !item.accessibleTo || item.accessibleTo.includes(user.role),
+                )
+                .map((item) => ({
+                  ...item,
+                  icon: item.icon,
+                }))}
+            />
+          ))}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />

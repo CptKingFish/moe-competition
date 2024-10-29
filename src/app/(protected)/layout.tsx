@@ -4,14 +4,7 @@ import { getCurrentSession, logoutUser } from "@/lib/session";
 import { Role as RoleTypes } from "@/db/enums";
 
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -20,11 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-
-const navigation = {
-  Main: [{ "/dashboard": "Dashboard" }, { "/leaderboards": "Leaderboards" }],
-  Management: [{ "/teacher": "Teacher" }, { "/admin ": "Admin" }],
-};
+import { TopNavigation } from "./_components/top-navigation";
 
 const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
   const { user } = await getCurrentSession();
@@ -58,17 +47,7 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
               <div className="flex items-center gap-2 px-4">
                 <SidebarTrigger className="-ml-1" />
                 <Separator orientation="vertical" className="mr-2 h-4" />
-                <Breadcrumb>
-                  <BreadcrumbList>
-                    <BreadcrumbItem>
-                      <BreadcrumbPage>Current Page</BreadcrumbPage>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator className="hidden md:block" />
-                    <BreadcrumbItem>
-                      <BreadcrumbLink href="#">Dashboard Page</BreadcrumbLink>
-                    </BreadcrumbItem>
-                  </BreadcrumbList>
-                </Breadcrumb>
+                <TopNavigation />
               </div>
             </header>
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

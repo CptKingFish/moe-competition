@@ -12,7 +12,7 @@ const TeacherLayout = async ({ children }: { children: React.ReactNode }) => {
   const userRole = session.user.role;
   if (!allowedRoles.includes(userRole)) return redirect("/");
 
-  return <main className="p-8">{children}</main>;
+  return <main>{children}</main>;
 };
 
 export default TeacherLayout;
