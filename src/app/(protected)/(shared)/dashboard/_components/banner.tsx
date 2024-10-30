@@ -27,14 +27,14 @@ export function Banner() {
             <div className="p-1">
               <Card>
                 <CardContent className="p-0">
-                  <div className="flex flex-col md:flex-row">
-                    <div className="relative aspect-video w-full md:w-2/3">
+                  <div className="relative flex flex-col md:flex-row">
+                    <div className="aspect-video max-h-48 w-2/3">
                       <img
-                        src={"Icon.svg"}
+                        src={"https://cdn2.scratch.mit.edu/get_image/project/860625507_480x360.png"}
                         alt={"Icon.svg"}
-                        className="h-full w-full rounded-t-lg object-cover md:rounded-l-lg md:rounded-tr-none"
+                        className="w-10/12 rounded-t-lg object-cover md:rounded-l-lg md:rounded-tr-none"
                       />
-                      <div className="absolute inset-0 rounded-t-lg bg-gradient-to-t from-black/60 to-transparent md:rounded-l-lg md:rounded-tr-none" />
+                      <div className="absolute inset-0 bottom-1/2 left-0 right-0 rounded-t-lg bg-gradient-to-t from-black/60 to-transparent md:bottom-0 md:right-1/3 md:rounded-l-lg md:rounded-tr-none" />
                       <div className="absolute bottom-4 left-4 right-4">
                         <h2 className="mb-2 text-2xl font-bold text-white">
                           test
