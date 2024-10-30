@@ -23,7 +23,7 @@ import { type User } from "@/db/types";
 
 type DataTableProps<TValue> = {
   columns: ColumnDef<UserTableItem, TValue>[];
-  data: User[];
+  data: (User & { school: string })[];
   pageCount: number;
 };
 

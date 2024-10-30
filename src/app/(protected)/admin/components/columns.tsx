@@ -78,11 +78,11 @@ export const searchableColumns: DataTableSearchableColumn<UserTableItem>[] = [
 
 export const filterableColumns: DataTableFilterableColumn<UserTableItem>[] = [
   {
-    id: "roles",
-    title: "Roles",
+    id: "role",
+    title: "Role",
   },
   {
-    id: "schools",
-    title: "Schools",
+    id: "school",
+    title: "School",
   },
 ];

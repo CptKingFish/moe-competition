@@ -16,45 +16,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
 import DataTable from "./components/data-table";
+import { columns } from "./components/columns";
+import { User } from "@/db/types";
 
 // Mock user data
-const users = [
-  {
-    id: 1,
-    name: "Alice Johnson",
-    email: "alice@example.com",
-    role: "Admin",
-    avatar: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 2,
-    name: "Bob Smith",
-    email: "bob@example.com",
-    role: "User",
-    avatar: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 3,
-    name: "Charlie Brown",
-    email: "charlie@example.com",
-    role: "Editor",
-    avatar: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 4,
-    name: "David Lee",
-    email: "david@example.com",
-    role: "User",
-    avatar: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 5,
-    name: "Eva Martinez",
-    email: "eva@example.com",
-    role: "Admin",
-    avatar: "/placeholder.svg?height=40&width=40",
-  },
-];
+const users: (User & { school: string })[] = [];
 
 const AdminPanelPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,7 +39,7 @@ const AdminPanelPage = () => {
         </TabsList>
         <TabsContent value="users">
           <div className="mb-4">
-            <DataTable data={filteredUsers} />
+            <DataTable columns={columns} data={users} pageCount={0} />
           </div>
         </TabsContent>
         <TabsContent value="projects">
