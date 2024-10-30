@@ -13,6 +13,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    APP_URL: z.string().url(),
   },
 
   /**
@@ -33,6 +34,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    APP_URL: process.env.APP_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
