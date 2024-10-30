@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { TopNavigation } from "./_components/top-navigation";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
   const { user } = await getCurrentSession();
@@ -39,21 +40,21 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <html lang="en">
-      <body className="flex h-screen flex-col font-sans">
+      <body className="flex h-screen font-sans">
         <SidebarProvider>
-          <AppSidebar user={user} />
-          <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+          <AppSidebar user={user}className="z-20" />
+          <div className="flex flex-1 flex-col">
+            <header className="sticky border-b top-0 flex h-16 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
               <div className="flex items-center gap-2 px-4">
                 <SidebarTrigger className="-ml-1" />
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <TopNavigation />
               </div>
             </header>
-            <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-              {children}
-            </div>
-          </SidebarInset>
+            <ScrollArea className="flex-1 overflow-auto p-4 pt-4">
+              <div>{children}</div>
+            </ScrollArea>
+          </div>
         </SidebarProvider>
       </body>
     </html>
