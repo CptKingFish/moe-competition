@@ -8,7 +8,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 export const metadata: Metadata = {
   title: "MOE Competition",
   description: "Coding competitions for secondary students",
-  icons: [{ rel: "icon", url: "/Icon.svg" }],
+  icons: [{ rel: "icon", url: "/scratch.svg" }],
 };
 
 export default function RootLayout({

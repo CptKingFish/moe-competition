@@ -55,14 +55,6 @@ export async function GET(request: Request): Promise<Response> {
   const email = claims.email;
   const picture = claims.picture;
 
-  // TODO: Replace this with your own DB query.
-  // const existingUser = await getUserFromGoogleId(googleUserId);
-  // const existingUser = await db.user.findFirst({
-  //   where: {
-  //     googleId: googleUserId,
-  //   },
-  // });
-
   const existingUser = await db
     .selectFrom("User")
     .selectAll()

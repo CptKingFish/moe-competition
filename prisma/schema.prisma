@@ -16,14 +16,16 @@ datasource db {
 model User {
     id           String        @id @default(cuid())
     googleId     String        @unique
-    name         String        @unique
-    email        String
+    name         String
+    email        String        @unique
     picture      String
     sessions     Session[]
     role         Role
     competitions Competition[]
     projects     Project[]
     votes        Vote[]
+    school       School?       @relation(fields: [schoolId], references: [id])
+    schoolId     String?
 }
 
 model Session {
@@ -32,6 +34,12 @@ model Session {
     expiresAt DateTime @db.Timestamptz
 
     user User @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+model School {
+    id    String @id
+    name  String
+    users User[]
 }
 
 model Competition {

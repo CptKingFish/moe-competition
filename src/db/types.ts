@@ -25,6 +25,10 @@ export type Project = {
     competitionId: string;
     projectUrl: string;
 };
+export type School = {
+    id: string;
+    name: string;
+};
 export type Session = {
     id: string;
     userId: string;
@@ -37,6 +41,7 @@ export type User = {
     email: string;
     picture: string;
     role: Role;
+    schoolId: string | null;
 };
 export type Vote = {
     id: string;
@@ -48,6 +53,7 @@ export type Vote = {
 export type DB = {
     Competition: Competition;
     Project: Project;
+    School: School;
     Session: Session;
     User: User;
     Vote: Vote;

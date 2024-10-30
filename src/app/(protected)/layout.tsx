@@ -11,13 +11,11 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+
 import { TopNavigation } from "./_components/top-navigation";
 
 const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
   const { user } = await getCurrentSession();
-  // const router = ();
 
   if (!user?.id || !user?.role) {
     return logoutUser();
@@ -26,16 +24,6 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
   const userRole = user.role;
 
   if (!Object.values(RoleTypes).includes(userRole)) return redirect("/");
-
-  //   let navBarItems: SideBarItemType[] = [];
-
-  //   if (userRole === "ADMIN") {
-  //     navBarItems = adminMainNavItems;
-  //   } else if (userRole === "TEACHER") {
-  //     navBarItems = teacherMainNavItems;
-  //   } else if (userRole === "STUDENT") {
-  //     navBarItems = studentMainNavItems;
-  //   }
 
   return (
     <html lang="en">

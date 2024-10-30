@@ -22,7 +22,7 @@ import {
 import { NavGroup } from "@/components/nav-group";
 import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
+import { Branding } from "@/components/branding";
 import {
   Sidebar,
   SidebarContent,
@@ -31,7 +31,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { User } from "@/db/types";
-import Image from "next/image";
 
 type NavigationItem = {
   url: string;
@@ -86,6 +85,14 @@ export const navigation: Navigation = [
   },
 ];
 
+const teams = [
+  {
+    name: "ScratchOff!",
+    logo: GalleryVerticalEnd,
+    plan: "Free",
+  },
+];
+
 export function AppSidebar({
   user,
   ...props
@@ -93,14 +100,7 @@ export function AppSidebar({
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <Image
-          src="/Icon.svg"
-          alt="Icon"
-          width={0}
-          height={0}
-          style={{ width: "55%", height: "auto" }}
-          priority
-        />
+        <Branding name="ScratchOff!" imageUrl="/scratch.svg" />
       </SidebarHeader>
       <SidebarContent>
         {navigation
