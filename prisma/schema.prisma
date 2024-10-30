@@ -55,18 +55,22 @@ model Competition {
 }
 
 model Project {
-    id            String      @id
-    name          String
-    description   String
-    submittedAt   DateTime    @db.Timestamptz
-    submittedBy   User        @relation(fields: [submittedById], references: [id])
-    submittedById String
-    author        String
-    authorEmail   String
-    competition   Competition @relation(fields: [competitionId], references: [id])
-    competitionId String
-    projectUrl    String
-    votes         Vote[]
+    id                String          @id
+    name              String
+    description       String
+    submittedAt       DateTime        @db.Timestamptz
+    submittedBy       User            @relation(fields: [submittedById], references: [id])
+    submittedById     String
+    author            String
+    authorEmail       String
+    competition       Competition     @relation(fields: [competitionId], references: [id])
+    competitionId     String
+    projectUrl        String
+    votes             Vote[]
+    subjectLevel      SubjectLevel
+    projectType       ProjectType
+    projectCategory   ProjectCategory @relation(fields: [projectCategoryId], references: [id])
+    projectCategoryId String
 }
 
 model Vote {
@@ -78,6 +82,12 @@ model Vote {
     userId        String
     projectId     String
     competitionId String
+}
+
+model ProjectCategory {
+    id      String    @id
+    name    String    @unique
+    Project Project[]
 }
 
 enum Role {
