@@ -31,7 +31,7 @@ const AdminPanelPage = () => {
       user.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto">
       <Tabs defaultValue="users">
         <TabsList>
           <TabsTrigger value="users">Users</TabsTrigger>

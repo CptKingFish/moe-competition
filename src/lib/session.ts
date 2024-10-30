@@ -82,6 +82,7 @@ export async function validateSessionToken(
             "User.role",
             "User.picture",
             "User.email",
+            "User.schoolId",
           ])
           .whereRef("User.id", "=", "Session.userId"),
       ).as("user"),

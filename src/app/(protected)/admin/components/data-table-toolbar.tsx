@@ -6,7 +6,7 @@ import type { Table } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "@/components/ui/search";
-import roles from "./roles";
+import { Role } from "@/db/enums";
 import DataTableFacetedFilter from "./data-table-faceted-filter";
 import { api } from "@/trpc/react";
 
@@ -29,12 +29,17 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
   //     value: organisation.id,
   //   }));
   // }, [organisationsData]);
-  const formattedOrganisations = [
+  const formattedSchools = [
     {
-      label: "Organisation 1",
+      label: "School 1",
       value: "1",
     },
   ];
+
+  const roleOptions = Object.values(Role).map((role) => ({
+    label: role,
+    value: role,
+  }));
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -48,19 +53,19 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
           }}
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {table.getColumn("roles") && (
+        {table.getColumn("role") && (
           <DataTableFacetedFilter
-            column={table.getColumn("roles")}
-            title="Roles"
-            options={roles}
+            column={table.getColumn("role")}
+            title="Role"
+            options={roleOptions}
             table={table}
           />
         )}
-        {table.getColumn("organisations") && (
+        {table.getColumn("school") && (
           <DataTableFacetedFilter
-            column={table.getColumn("organisations")}
-            title="Organisations"
-            options={formattedOrganisations}
+            column={table.getColumn("school")}
+            title="School"
+            options={formattedSchools}
             table={table}
           />
         )}
