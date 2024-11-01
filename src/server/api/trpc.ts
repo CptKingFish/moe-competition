@@ -6,11 +6,13 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/database";
+import { getCurrentSession } from "@/lib/session";
+import { Role } from "@/db/enums";
 
 /**
  * 1. CONTEXT
@@ -96,6 +98,30 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   return result;
 });
 
+const enforceUserIsAuthenticated = t.middleware(async ({ ctx, next }) => {
+  const session = await getCurrentSession();
+  // check if session.user.role is in the allowed roles
+  if (
+    !session?.user?.role ||
+    !Object.values(Role).includes(session.user.role)
+  ) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next();
+});
+
+/** Reusable middleware that enforces users are logged in before running the procedure. - Written by Andy */
+const enforceUserRole = (allowedRoles: Role[]) => {
+  return t.middleware(async ({ ctx, next }) => {
+    const session = await getCurrentSession();
+    if (!session?.user?.role || !allowedRoles.includes(session.user.role)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+    return next();
+  });
+};
+
 /**
  * Public (unauthenticated) procedure
  *
@@ -104,3 +130,8 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+export const protectedProcedure = t.procedure.use(enforceUserIsAuthenticated);
+export const teacherProcedure = t.procedure.use(
+  enforceUserRole(["ADMIN", "TEACHER"]),
+);
+export const adminProcedure = t.procedure.use(enforceUserRole(["ADMIN"]));

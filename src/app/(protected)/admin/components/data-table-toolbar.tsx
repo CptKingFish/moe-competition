@@ -16,30 +16,24 @@ interface DataTableToolbarProps<TData> {
 
 const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
   const isFiltered = table.getState().columnFilters.length > 0;
-  // const { data: organisationsData } =
-  //   api.organisation.getAllOrganisationNames.useQuery();
+  const { data: schoolsData } = api.admin.getAllSchoolNames.useQuery();
 
-  // const formattedOrganisations = useMemo(() => {
-  //   if (!organisationsData) {
-  //     return [];
-  //   }
+  const formattedSchools = useMemo(() => {
+    if (!schoolsData) {
+      return [];
+    }
 
-  //   return organisationsData.map((organisation) => ({
-  //     label: organisation.name,
-  //     value: organisation.id,
-  //   }));
-  // }, [organisationsData]);
-  const formattedSchools = [
-    {
-      label: "School 1",
-      value: "1",
-    },
-  ];
+    return schoolsData.map((school) => ({
+      label: school.name,
+      value: school.id,
+    }));
+  }, [schoolsData]);
 
   const roleOptions = Object.values(Role).map((role) => ({
     label: role,
     value: role,
   }));
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">

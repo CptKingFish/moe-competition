@@ -17,7 +17,7 @@ export type UserTableItem = Pick<
   User,
   "id" | "picture" | "name" | "email" | "role"
 > & {
-  school: string;
+  school: string | null;
 };
 
 export const columns: ColumnDef<UserTableItem>[] = [
@@ -35,15 +35,29 @@ export const columns: ColumnDef<UserTableItem>[] = [
             {row.getValue("name")}
           </Link>
         </Button>
-        <div className="font-light">{row.original.email}</div>
+        <div className="font-light">{row.original.id}</div>
       </>
     ),
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => {
+      const email = row.original.email;
+      return (
+        <div>
+          <Badge variant="outline" className="mr-2">
+            {email}
+          </Badge>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "school",
     header: "School",
     cell: ({ row }) => {
-      const school = Object.values(row.original.school);
+      const school = row.original.school ?? "N/A";
       return (
         <div>
           <Badge variant="outline" className="mr-2">

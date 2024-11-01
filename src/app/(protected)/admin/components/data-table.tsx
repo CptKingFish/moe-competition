@@ -19,12 +19,12 @@ import {
   type UserTableItem,
 } from "./columns";
 
-import { type User } from "@/db/types";
+import { type RouterOutputs } from "@/trpc/react";
 
 type DataTableProps<TValue> = {
   columns: ColumnDef<UserTableItem, TValue>[];
-  data: (User & { school: string })[];
-  pageCount: number;
+  data: RouterOutputs["admin"]["getAllUsers"]["data"];
+  pageCount: RouterOutputs["admin"]["getAllUsers"]["pageCount"];
 };
 
 const DataTable = <TValue,>({

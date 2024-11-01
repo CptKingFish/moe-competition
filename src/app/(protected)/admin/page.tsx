@@ -1,35 +1,38 @@
-"use client";
-
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
 import DataTable from "./components/data-table";
 import { columns } from "./components/columns";
-import { User } from "@/db/types";
+import { api } from "@/trpc/server";
+import { type Role } from "@/db/enums";
 
-// Mock user data
-const users: (User & { school: string })[] = [];
+const AdminPanelPage = async ({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) => {
+  const {
+    page: pageIndex,
+    per_page: pageSize,
+    sort: sortBy,
+    name: searchName,
+    role: strRoles,
+    school: strSchoolIds,
+  } = searchParams;
 
-const AdminPanelPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const selectedRoles = strRoles ? (strRoles as string).split(",") : undefined;
+  const selectedSchoolIds = strSchoolIds
+    ? (strSchoolIds as string).split(",")
+    : undefined;
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const { data, pageCount } = await api.admin.getAllUsers({
+    pageIndex: Number(pageIndex) || 1,
+    pageSize: Number(pageSize) || 10,
+    sortBy: sortBy as string | undefined,
+    searchName: searchName as string | undefined,
+    selectedRoles: selectedRoles as Role[] | undefined,
+    selectedSchoolIds,
+  });
+
   return (
     <div className="container mx-auto">
       <Tabs defaultValue="users">
@@ -39,7 +42,7 @@ const AdminPanelPage = () => {
         </TabsList>
         <TabsContent value="users">
           <div className="mb-4">
-            <DataTable columns={columns} data={users} pageCount={0} />
+            <DataTable columns={columns} data={data} pageCount={pageCount} />
           </div>
         </TabsContent>
         <TabsContent value="projects">
