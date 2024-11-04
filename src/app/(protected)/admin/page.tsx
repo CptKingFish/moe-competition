@@ -34,7 +34,7 @@ const AdminPanelPage = async ({
   });
 
   return (
-    <div className="container mx-auto">
+    <div>
       <Tabs defaultValue="users">
         <TabsList>
           <TabsTrigger value="users">Users</TabsTrigger>

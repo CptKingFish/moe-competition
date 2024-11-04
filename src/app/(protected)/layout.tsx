@@ -30,9 +30,9 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
     <html lang="en">
       <body className="flex h-screen font-sans">
         <SidebarProvider>
-          <AppSidebar user={user}className="z-20" />
+          <AppSidebar user={user} className="z-20" />
           <div className="flex flex-1 flex-col">
-            <header className="sticky border-b top-0 flex h-16 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+            <header className="sticky top-0 flex h-16 items-center gap-2 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
               <div className="flex items-center gap-2 px-4">
                 <SidebarTrigger className="-ml-1" />
                 <Separator orientation="vertical" className="mr-2 h-4" />
@@ -40,7 +40,7 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
               </div>
             </header>
             <ScrollArea className="flex-1 overflow-auto p-4 pt-4">
-              <div>{children}</div>
+              <div className="container mx-auto">{children}</div>
             </ScrollArea>
           </div>
         </SidebarProvider>
