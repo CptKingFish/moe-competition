@@ -4,7 +4,9 @@ export default function DashboardPage() {
   return (
     <>
       <div className="flex justify-center">
-        <Banner />
+        <div className="hidden xl:block">
+          <Banner />
+        </div>
       </div>
     </>
   );

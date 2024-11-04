@@ -26,47 +26,47 @@ export function Banner() {
           <CarouselItem key={index}>
             <div className="p-1">
               <Card>
-                <CardContent className="p-0">
-                  <div className="relative flex flex-col md:flex-row">
-                    <div className="aspect-video max-h-48 w-2/3">
-                      <img
-                        src={"https://cdn2.scratch.mit.edu/get_image/project/860625507_480x360.png"}
-                        alt={"Icon.svg"}
-                        className="w-10/12 rounded-t-lg object-cover md:rounded-l-lg md:rounded-tr-none"
-                      />
-                      <div className="absolute inset-0 bottom-1/2 left-0 right-0 rounded-t-lg bg-gradient-to-t from-black/60 to-transparent md:bottom-0 md:right-1/3 md:rounded-l-lg md:rounded-tr-none" />
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <h2 className="mb-2 text-2xl font-bold text-white">
-                          test
-                        </h2>
-                        <Badge variant="secondary" className="text-sm">
-                          test
-                        </Badge>
-                      </div>
+                <CardContent className="relative flex h-48 flex-col p-0 md:flex-row">
+                  {/* Image Section */}
+                  <div className="h-2/3 basis-2/3 md:h-full">
+                    <img
+                      className="h-full w-full object-cover"
+                      src="https://via.placeholder.com/640x360"
+                      alt="banner"
+                    />
+                  </div>
+
+                  {/* Second Content Section */}
+                  <div className="flex w-full basis-1/3 flex-col justify-between p-4">
+                    <div>
+                      <h3 className="text-lg font-semibold">
+                        Project Title {index + 1}
+                      </h3>
+                      <p className="mt-1 line-clamp-2 text-sm text-gray-600">
+                        This is a brief description of the project. It showcases
+                        the main features and goals.
+                      </p>
                     </div>
-                    <div className="flex w-full flex-col justify-between rounded-b-lg bg-white p-6 md:w-1/3 md:rounded-r-lg">
-                      <div>
-                        <div className="mb-4 flex items-center">
-                          <Avatar className="mr-3 h-10 w-10">
-                            <AvatarImage src={"Icon.svg"} alt={"Icon.svg"} />
-                            <AvatarFallback>test</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="text-sm font-medium">test</p>
-                            <p className="text-xs text-muted-foreground">
-                              Project Creator
-                            </p>
-                          </div>
-                        </div>
-                        <p className="mb-4 text-sm text-muted-foreground">
-                          An innovative project pushing the boundaries of
-                          technology and creativity.
-                        </p>
+
+                    <div className="mt-2 flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage
+                            src={`https://i.pravatar.cc/150?u=${index}`}
+                            alt="Author"
+                          />
+                          <AvatarFallback>AU</AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs text-gray-500">
+                          by Author Name
+                        </span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">9 Likes</span>
-                        <Badge variant="outline" className="text-xs">
-                          Featured
+                      <div className="flex space-x-1">
+                        <Badge variant="secondary" className="text-xs">
+                          Tag 1
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          Tag 2
                         </Badge>
                       </div>
                     </div>
