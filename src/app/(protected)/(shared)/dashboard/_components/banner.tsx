@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 export function Banner() {
   return (
     <Carousel
-      className="relative w-full items-start"
+      className="mx-auto max-w-md lg:max-w-full"
       opts={{
         loop: true,
       }}
@@ -24,28 +24,35 @@ export function Banner() {
       <CarouselContent>
         {Array.from({ length: 5 }).map((_, index) => (
           <CarouselItem key={index}>
-            <div className="p-1">
+            <div>
               <Card>
-                <CardContent className="relative flex h-48 flex-col p-0 md:flex-row">
-                  {/* Image Section */}
+                <CardContent className="h-ful relative flex flex-col p-0 md:h-48 md:flex-row">
                   <div className="h-2/3 basis-2/3 md:h-full">
                     <img
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover rounded-t-xl md:rounded-s-xl"
                       src="https://via.placeholder.com/640x360"
                       alt="banner"
                     />
                   </div>
-
-                  {/* Second Content Section */}
-                  <div className="flex w-full basis-1/3 flex-col justify-between p-4">
+                  <div className="flex w-full basis-1/3 flex-col justify-between space-y-4 p-4">
                     <div>
-                      <h3 className="text-lg font-semibold">
+                      <h3 className="font-semibold">
                         Project Title {index + 1}
                       </h3>
                       <p className="mt-1 line-clamp-2 text-sm text-gray-600">
                         This is a brief description of the project. It showcases
                         the main features and goals.
                       </p>
+                    </div>
+                    <div>
+                      <div className="flex space-x-1">
+                        <Badge variant="secondary" className="text-xs">
+                          Tag 1
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          Tag 2
+                        </Badge>
+                      </div>
                     </div>
 
                     <div className="mt-2 flex items-center justify-between">
@@ -60,14 +67,6 @@ export function Banner() {
                         <span className="text-xs text-gray-500">
                           by Author Name
                         </span>
-                      </div>
-                      <div className="flex space-x-1">
-                        <Badge variant="secondary" className="text-xs">
-                          Tag 1
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                          Tag 2
-                        </Badge>
                       </div>
                     </div>
                   </div>
