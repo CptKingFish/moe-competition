@@ -27,8 +27,6 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
   if (!Object.values(RoleTypes).includes(userRole)) return redirect("/");
 
   return (
-    <html lang="en">
-      <body className="flex h-screen font-sans">
         <SidebarProvider>
           <AppSidebar user={user} className="z-20" />
           <div className="flex flex-1 flex-col">
@@ -44,8 +42,6 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
             </ScrollArea>
           </div>
         </SidebarProvider>
-      </body>
-    </html>
   );
 };
 

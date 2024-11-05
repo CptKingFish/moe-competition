@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "@/trpc/react";
+import ProgressBarProvider from "../components/progress-bar";
 
 export const metadata: Metadata = {
   title: "MOE Competition",
@@ -17,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <ProgressBarProvider>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </ProgressBarProvider>
       </body>
     </html>
   );
