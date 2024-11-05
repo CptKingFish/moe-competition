@@ -17,7 +17,6 @@ export default async function Home() {
     <HydrateClient>
       <main className="flex h-screen">
         {/* Left side - Image */}
-
         <div className="relative hidden h-screen bg-cover bg-center md:block md:w-1/2">
           <Image src="/login.png" alt="Login Graphic" className="" fill />
         </div>
