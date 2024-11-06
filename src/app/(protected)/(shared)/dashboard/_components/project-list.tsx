@@ -50,21 +50,22 @@ export function ProjectList({
   const [categoryValue, setCategoryValue] = useState("");
 
   return (
-    <div className="flex justify-end">
-      <ScrollArea className="max-w-sm">
+    <div className="flex justify-start lg:justify-end">
+      <ScrollArea className="max-w-[calc(100vw-4rem)] md:max-w-[calc(100vw-19rem)] lg:max-w-fit pb-4">
         <div className="flex flex-row space-x-4">
-          <Button
-            variant={"ghost"}
-            onClick={() => {
-              setSubjectValue("");
-              setCompetitionValue("");
-              setCategoryValue("");
-            }}
-            className={`${subjectValue || competitionValue || categoryValue ? "" : "hidden"}`}
-          >
-            Reset
-            <X />
-          </Button>
+          {(subjectValue || competitionValue || categoryValue) && (
+            <Button
+              variant={"ghost"}
+              onClick={() => {
+                setSubjectValue("");
+                setCompetitionValue("");
+                setCategoryValue("");
+              }}
+            >
+              Reset
+              <X />
+            </Button>
+          )}
           <DropdownBox
             open={subjectOpen}
             setOpen={setSubjectOpen}
