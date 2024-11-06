@@ -14,7 +14,8 @@ import { Badge } from "@/components/ui/badge";
 export function Banner() {
   return (
     <Carousel
-      className="mx-auto max-w-md lg:max-w-full"
+      // className="mx-auto max-w-sm md:max-w-md lg:max-w-full"
+      className="mx-auto max-w-[calc(100vw-2rem)] md:max-w-[calc(100vw-18rem)]"
       opts={{
         loop: true,
       }}
@@ -29,7 +30,7 @@ export function Banner() {
                 <CardContent className="h-ful relative flex flex-col p-0 md:h-48 md:flex-row">
                   <div className="h-2/3 basis-2/3 md:h-full">
                     <img
-                      className="h-full w-full object-cover rounded-t-xl md:rounded-s-xl"
+                      className="h-full w-full rounded-t-xl object-cover md:rounded-e-none md:rounded-s-xl"
                       src="https://via.placeholder.com/640x360"
                       alt="banner"
                     />
