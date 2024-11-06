@@ -23,7 +23,7 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
     <SidebarProvider>
       <AppSidebar user={user} />
       <div className="flex h-screen flex-1 flex-col">
-        <header className="sticky top-0 flex h-16 items-center gap-2 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+        <header className="sticky top-0 z-20 flex h-16 items-center gap-2 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -31,7 +31,9 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
           </div>
         </header>
         <ScrollArea className="h-[calc(100vh-4rem)] flex-1 overflow-x-auto overflow-y-auto p-4">
-          <div className="container mx-auto">{children}</div>
+          <div className="container mx-auto h-screen snap-y snap-mandatory">
+            {children}
+          </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
       </div>
