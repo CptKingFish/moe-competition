@@ -1,15 +1,17 @@
 import { Banner } from "./_components/banner";
 import { Separator } from "@/components/ui/separator";
-import { ProjectList } from "./_components/project-list";
+import ProjectList from "./_components/project-list";
+import { api } from "@/trpc/server";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const data = await api.projects.getFeaturedProjects();
   return (
-    <div>
-      <div className="w-full">
-        <Banner />
+    <div className="h-screen snap-y snap-mandatory">
+      <div className="w-full snap-center">
+        <Banner projects={data} />
       </div>
       <Separator className="mb-6 mt-8" />
-      <div className="w-full">
+      <div className="w-full snap-center">
         <div className="mb-2 space-y-0.5">
           <h1 className="text-2xl font-bold tracking-tight">
             Featured Projects
@@ -18,7 +20,11 @@ export default function DashboardPage() {
             Fun and Exciting Projects for you to play with!
           </p>
         </div>
-        <ProjectList categoryOptions={frameworks} competitionOptions={frameworks} subjectOptions={frameworks}/>
+        <ProjectList
+          categoryOptions={frameworks}
+          competitionOptions={frameworks}
+          subjectOptions={frameworks}
+        />
       </div>
     </div>
   );

@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import ProjectCard from "./project-card";
 
 interface ProjectListProps {
   subjectOptions: {
@@ -35,7 +36,7 @@ interface ProjectListProps {
   }[];
 }
 
-export function ProjectList({
+export default function ProjectList({
   categoryOptions,
   competitionOptions,
   subjectOptions,
@@ -50,49 +51,54 @@ export function ProjectList({
   const [categoryValue, setCategoryValue] = useState("");
 
   return (
-    <div className="flex justify-start lg:justify-end">
-      <ScrollArea className="max-w-[calc(100vw-4rem)] md:max-w-[calc(100vw-19rem)] lg:max-w-fit pb-4">
-        <div className="flex flex-row space-x-4">
-          {(subjectValue || competitionValue || categoryValue) && (
-            <Button
-              variant={"ghost"}
-              onClick={() => {
-                setSubjectValue("");
-                setCompetitionValue("");
-                setCategoryValue("");
-              }}
-            >
-              Reset
-              <X />
-            </Button>
-          )}
-          <DropdownBox
-            open={subjectOpen}
-            setOpen={setSubjectOpen}
-            options={subjectOptions}
-            value={subjectValue}
-            setValue={setSubjectValue}
-            text={"subject"}
-          />
-          <DropdownBox
-            open={competitionOpen}
-            setOpen={setCompetitionOpen}
-            options={competitionOptions}
-            value={competitionValue}
-            setValue={setCompetitionValue}
-            text={"competition"}
-          />
-          <DropdownBox
-            open={categoryOpen}
-            setOpen={setCategoryOpen}
-            options={categoryOptions}
-            value={categoryValue}
-            setValue={setCategoryValue}
-            text={"category"}
-          />
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+    <div>
+      <div className="flex justify-start lg:justify-end">
+        <ScrollArea className="max-w-[calc(100vw-3.5rem)] pb-4 md:max-w-[calc(100vw-19rem)] lg:max-w-fit mb-3">
+          <div className="flex flex-row space-x-4">
+            {(subjectValue || competitionValue || categoryValue) && (
+              <Button
+                variant={"ghost"}
+                onClick={() => {
+                  setSubjectValue("");
+                  setCompetitionValue("");
+                  setCategoryValue("");
+                }}
+              >
+                Reset
+                <X />
+              </Button>
+            )}
+            <DropdownBox
+              open={subjectOpen}
+              setOpen={setSubjectOpen}
+              options={subjectOptions}
+              value={subjectValue}
+              setValue={setSubjectValue}
+              text={"subject"}
+            />
+            <DropdownBox
+              open={competitionOpen}
+              setOpen={setCompetitionOpen}
+              options={competitionOptions}
+              value={competitionValue}
+              setValue={setCompetitionValue}
+              text={"competition"}
+            />
+            <DropdownBox
+              open={categoryOpen}
+              setOpen={setCategoryOpen}
+              options={categoryOptions}
+              value={categoryValue}
+              setValue={setCategoryValue}
+              text={"category"}
+            />
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      </div>
+      <div className="flex flex-row flex-wrap gap-5 justify-center">
+    
+      </div>
     </div>
   );
 }
