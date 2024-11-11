@@ -52,10 +52,8 @@ export type User = {
 };
 export type Vote = {
     id: string;
-    vote: number;
     userId: string;
     projectId: string;
-    competitionId: string;
 };
 export type DB = {
     Competition: Competition;

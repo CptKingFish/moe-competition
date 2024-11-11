@@ -30,7 +30,7 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
             <TopNavigation />
           </div>
         </header>
-        <ScrollArea className="h-[calc(100vh-4rem)] flex-1 overflow-x-auto overflow-y-auto p-4">
+        <ScrollArea id="scrollableDiv" className="h-[calc(100vh-4rem)] flex-1 overflow-x-auto overflow-y-auto p-4">
           <div className="container mx-auto h-screen snap-y snap-mandatory">
             {children}
           </div>

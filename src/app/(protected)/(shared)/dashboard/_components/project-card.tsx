@@ -10,11 +10,12 @@ import { Star } from "lucide-react";
 import { type SubjectLevel } from "@/db/enums";
 
 interface ProjectCardProps {
+  id: string;
   title: string;
   author: string;
   authorAvatar: string;
   projectUrl: string;
-  votes: number;
+  votes: string | number | bigint;
   category: string;
   competition: string;
   subjectLevel: SubjectLevel;
@@ -33,6 +34,7 @@ const Tag = ({
 );
 
 export default function ProjectCard({
+  id,
   title,
   author,
   authorAvatar,
@@ -42,12 +44,12 @@ export default function ProjectCard({
   subjectLevel,
 }: ProjectCardProps) {
   return (
-    <Card className="w-full grow overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 hover:cursor-pointer hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] md:w-[12rem] lg:w-[17rem] xl:w-[22rem]">
+    <Card className="min-w-0 overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 hover:cursor-pointer hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]">
       <CardHeader className="p-0">
         <img
           src={"Icon.svg"}
           alt={title}
-          className="h-28 w-full object-cover md:h-32 lg:h-44"
+          className="h-28 w-full object-cover md:h-32"
         />
       </CardHeader>
       <CardContent className="p-3">
