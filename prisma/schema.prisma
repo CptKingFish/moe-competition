@@ -51,7 +51,6 @@ model Competition {
     createdBy   User      @relation(fields: [createdById], references: [id])
     createdById String
     projects    Project[]
-    votes       Vote[]
 }
 
 model Project {
@@ -74,14 +73,11 @@ model Project {
 }
 
 model Vote {
-    id            String      @id
-    vote          Int
-    user          User        @relation(fields: [userId], references: [id])
-    project       Project     @relation(fields: [projectId], references: [id])
-    competition   Competition @relation(fields: [competitionId], references: [id])
-    userId        String
-    projectId     String
-    competitionId String
+    id        String  @id
+    user      User    @relation(fields: [userId], references: [id])
+    project   Project @relation(fields: [projectId], references: [id])
+    userId    String
+    projectId String
 }
 
 model ProjectCategory {

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import * as React from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,36 +18,6 @@ interface BannerProps {
 }
 
 export function Banner({ projects }: BannerProps) {
-  const [previewImages, setPreviewImages] = React.useState<string[]>([]);
-
-  React.useEffect(() => {
-    async function fetchPreviewImages() {
-      const images = await Promise.all(
-        projects.map(async (project) => {
-          try {
-            const response = await fetch(project.projectUrl);
-            const html = await response.text();
-
-            // Regex to extract Open Graph image URL using RegExp#exec
-            const ogImageRegex =
-              /<meta property="og:image" content="([^"]+)"\/?>/;
-            const match = ogImageRegex.exec(html);
-            return match ? match[1] : "https://via.placeholder.com/640x360";
-          } catch {
-            return "https://via.placeholder.com/640x360"; // Fallback if fetch fails
-          }
-        }),
-      );
-      setPreviewImages(
-        images.filter((image): image is string => image !== undefined),
-      );
-    }
-
-    fetchPreviewImages().catch((error) => {
-      console.error("Failed to fetch preview images:", error);
-    });
-  }, [projects]);
-
   return (
     <Carousel
       // className="mx-auto max-w-sm md:max-w-md lg:max-w-full"
@@ -67,7 +37,6 @@ export function Banner({ projects }: BannerProps) {
                   <div className="h-2/3 basis-2/3 md:h-full">
                     <img
                       className="h-full w-full rounded-t-xl object-cover md:rounded-e-none md:rounded-s-xl"
-                      src={previewImages[index]}
                       alt="banner"
                     />
                   </div>
@@ -93,7 +62,7 @@ export function Banner({ projects }: BannerProps) {
                       <div className="flex items-center space-x-2">
                         <Avatar className="h-6 w-6">
                           <AvatarImage
-                            src={`${project.picture}`}
+                            src={`${project.authorAvatar}`}
                             alt="Author"
                           />
                           <AvatarFallback>{project.author}</AvatarFallback>
