@@ -56,7 +56,7 @@ model Competition {
 model Project {
     id                String          @id
     name              String
-    description       String
+    description       String?
     submittedAt       DateTime        @db.Timestamptz
     submittedBy       User            @relation(fields: [submittedById], references: [id])
     submittedById     String

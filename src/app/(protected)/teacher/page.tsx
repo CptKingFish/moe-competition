@@ -10,6 +10,21 @@ const TeacherPanelPage = async ({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) => {
+  const projectData = await api.projects.getProjectById(
+    "se73xri91n9u0x6goraj7cgn",
+  );
+  console.log(projectData);
+
+  let imageSrc: string | null = null;
+  if (projectData.bannerImg) {
+    let mimeType = "image/jpeg";
+    if (projectData.bannerImgMimeType) {
+      mimeType = projectData.bannerImgMimeType;
+    }
+    // Assuming the image is in JPEG format; adjust if necessary
+    imageSrc = `data:${mimeType};base64,${projectData.bannerImg}`;
+  }
+
   // const {
   //   page: pageIndex,
   //   per_page: pageSize,
@@ -43,7 +58,8 @@ const TeacherPanelPage = async ({
         <TabsContent value="submissions">
           <div className="mb-4">
             {/* <DataTable columns={columns} data={data} pageCount={pageCount} /> */}
-            <p>Submissions content goes here.</p>
+            {/* <p>Submissions content goes here.</p> */}
+            {imageSrc && <img src={imageSrc} alt="Project Banner" />}
           </div>
         </TabsContent>
         <TabsContent value="submit">

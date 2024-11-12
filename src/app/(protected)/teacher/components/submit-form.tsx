@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { ProjectType, SubjectLevel } from "@/db/enums";
 import { useState } from "react";
 import ImageUpload from "./image-upload";
+import { api } from "@/trpc/react";
 
 const formSchema = z.object({
   projectTitle: z.string().min(3, {
@@ -76,6 +77,9 @@ const projectTypes = Object.values(ProjectType).map((projectType) => ({
 const SubmitForm = () => {
   const [openTrack, setOpenTrack] = useState(false);
   const [openProjectType, setOpenProjectType] = useState(false);
+
+  const { mutate: submitProject } = api.teacher.submitProject.useMutation();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -89,10 +93,17 @@ const SubmitForm = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
 
     if (!values.bannerImg) {
+      const inputData = {
+        ...values,
+        bannerImg: undefined,
+        competitionId: "1",
+        projectCategoryId: "1",
+      };
+      await submitProject(inputData);
       return;
     }
 
@@ -105,19 +116,13 @@ const SubmitForm = () => {
       const inputData = {
         ...values,
         bannerImg: base64data,
+        competitionId: "1",
+        projectCategoryId: "1",
       };
 
       console.log(inputData);
 
-      // Call tRPC mutation
-      //   trpc.project.create.mutate(inputData, {
-      //     onSuccess: () => {
-      //       console.log("Form submitted successfully");
-      //     },
-      //     onError: (error) => {
-      //       console.error("Form submission error:", error);
-      //     },
-      //   });
+      submitProject(inputData);
     };
 
     reader.onerror = (error) => {

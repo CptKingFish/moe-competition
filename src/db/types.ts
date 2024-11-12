@@ -17,7 +17,7 @@ export type Competition = {
 export type Project = {
     id: string;
     name: string;
-    description: string;
+    description: string | null;
     submittedAt: Timestamp;
     submittedById: string;
     author: string;

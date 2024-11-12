@@ -1,5 +1,7 @@
 import { SubjectLevel } from "@/db/enums";
+import { magicNumberToMimeType } from "@/lib/utils";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const projectsRouter = createTRPCRouter({
@@ -111,5 +113,80 @@ export const projectsRouter = createTRPCRouter({
       const projects = await query.execute();
 
       return projects;
+    }),
+  getProjectById: publicProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.db
+        .selectFrom("Project")
+        .leftJoin("User", "Project.authorEmail", "User.email")
+        .leftJoin(
+          "ProjectCategory",
+          "Project.projectCategoryId",
+          "ProjectCategory.id",
+        )
+        .leftJoin("Competition", "Project.competitionId", "Competition.id")
+        .leftJoin("Vote", "Project.id", "Vote.projectId")
+        .select([
+          "Project.id",
+          "Project.name",
+          "Project.description",
+          "Project.author",
+          "User.picture as authorAvatar",
+          "ProjectCategory.name as category",
+          "Competition.name as competition",
+          "Project.subjectLevel",
+          "Project.projectUrl",
+          "Project.youtubeUrl",
+          "Project.bannerImg",
+          ctx.db.fn.count("Vote.id").as("totalVotes"),
+        ])
+        .groupBy([
+          "Project.id",
+          "Project.name",
+          "Project.description",
+          "Project.author",
+          "User.picture",
+          "ProjectCategory.name",
+          "Competition.name",
+          "Project.subjectLevel",
+          "Project.projectUrl",
+          "Project.youtubeUrl",
+          "Project.bannerImg",
+        ])
+        .where("Project.id", "=", input)
+        .executeTakeFirst();
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // Encode the bannerImg if it exists
+      let encodedBannerImg: string | null = null;
+      let bannerImgMimeType: string | null = null;
+
+      if (project.bannerImg) {
+        const imageBuffer = Buffer.from(project.bannerImg);
+
+        // Determine MIME type using magic numbers
+        bannerImgMimeType = magicNumberToMimeType(imageBuffer);
+
+        if (bannerImgMimeType) {
+          // Encode the image data to base64
+          encodedBannerImg = imageBuffer.toString("base64");
+        } else {
+          // Handle unknown image format
+          console.warn("Unknown image format for project ID:", project.id);
+        }
+      }
+
+      return {
+        ...project,
+        bannerImg: encodedBannerImg,
+        bannerImgMimeType,
+      };
     }),
 });
