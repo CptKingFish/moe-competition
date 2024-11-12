@@ -35,12 +35,15 @@ import { cn } from "@/lib/utils";
 import { ProjectType, SubjectLevel } from "@/db/enums";
 import { useState } from "react";
 import ImageUpload from "./image-upload";
-import { api } from "@/trpc/react";
+import { api, RouterOutputs } from "@/trpc/react";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
+  competitionId: z.string(),
   projectTitle: z.string().min(3, {
     message: "Project title should be at least 3 characters long.",
   }),
+  projectCategoryId: z.string(),
   track: z.nativeEnum(SubjectLevel, {
     required_error: "Please select a track.",
   }),
@@ -74,16 +77,26 @@ const projectTypes = Object.values(ProjectType).map((projectType) => ({
   value: projectType,
 }));
 
-const SubmitForm = () => {
+const SubmitForm = ({
+  projectCategories,
+  competitions,
+}: {
+  projectCategories: RouterOutputs["projects"]["getProjectCategories"];
+  competitions: RouterOutputs["projects"]["getCompetitions"];
+}) => {
   const [openTrack, setOpenTrack] = useState(false);
   const [openProjectType, setOpenProjectType] = useState(false);
+  const [openProjectCategory, setOpenProjectCategory] = useState(false);
+  const [openCompetition, setOpenCompetition] = useState(false);
 
   const { mutate: submitProject } = api.teacher.submitProject.useMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      competitionId: undefined,
       projectTitle: "",
+      projectCategoryId: undefined,
       track: "G1",
       projectType: "SCRATCH",
       projectUrl: "",
@@ -100,10 +113,8 @@ const SubmitForm = () => {
       const inputData = {
         ...values,
         bannerImg: undefined,
-        competitionId: "1",
-        projectCategoryId: "1",
       };
-      await submitProject(inputData);
+      submitProject(inputData);
       return;
     }
 
@@ -116,8 +127,6 @@ const SubmitForm = () => {
       const inputData = {
         ...values,
         bannerImg: base64data,
-        competitionId: "1",
-        projectCategoryId: "1",
       };
 
       console.log(inputData);
@@ -138,6 +147,77 @@ const SubmitForm = () => {
             {/* <span className="font-semibold">Project Information</span> */}
             <FormField
               control={form.control}
+              name="competitionId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Competition</FormLabel>
+                  <Popover
+                    open={openCompetition}
+                    onOpenChange={setOpenCompetition}
+                  >
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value
+                            ? competitions.find(
+                                (competition) =>
+                                  competition.value === field.value,
+                              )?.label
+                            : "Select Competition"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Search Competition..." />
+                        <CommandList>
+                          <CommandEmpty>No competitions found.</CommandEmpty>
+                          <CommandGroup>
+                            {competitions.map((competition) => (
+                              <CommandItem
+                                value={competition.label}
+                                key={competition.value}
+                                onSelect={() => {
+                                  form.setValue(
+                                    "competitionId",
+                                    competition.value,
+                                  );
+                                  setOpenCompetition(false);
+                                }}
+                              >
+                                {competition.label}
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    competition.value === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {/* <FormDescription>
+                This is the language that will be used in the dashboard.
+              </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="projectTitle"
               render={({ field }) => (
                 <FormItem>
@@ -147,6 +227,76 @@ const SubmitForm = () => {
                   </FormControl>
                   {/* <FormDescription>
                 This is your public display name.
+              </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="projectCategoryId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Project Category</FormLabel>
+                  <Popover
+                    open={openProjectCategory}
+                    onOpenChange={setOpenProjectCategory}
+                  >
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value
+                            ? projectCategories.find(
+                                (category) => category.value === field.value,
+                              )?.label
+                            : "Select Category"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Search Category..." />
+                        <CommandList>
+                          <CommandEmpty>No categories found.</CommandEmpty>
+                          <CommandGroup>
+                            {projectCategories.map((category) => (
+                              <CommandItem
+                                value={category.label}
+                                key={category.value}
+                                onSelect={() => {
+                                  form.setValue(
+                                    "projectCategoryId",
+                                    category.value,
+                                  );
+                                  setOpenProjectCategory(false);
+                                }}
+                              >
+                                {category.label}
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    category.value === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {/* <FormDescription>
+                This is the language that will be used in the dashboard.
               </FormDescription> */}
                   <FormMessage />
                 </FormItem>
@@ -384,7 +534,7 @@ const SubmitForm = () => {
                 <FormItem>
                   <FormLabel>Project Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="Description" {...field} />
+                    <Textarea placeholder="Description" {...field} />
                   </FormControl>
                   {/* <FormDescription>
                 This is your public display name.

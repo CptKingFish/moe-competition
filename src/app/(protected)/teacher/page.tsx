@@ -11,18 +11,15 @@ const TeacherPanelPage = async ({
   searchParams: Record<string, string | string[] | undefined>;
 }) => {
   const projectData = await api.projects.getProjectById(
-    "se73xri91n9u0x6goraj7cgn",
+    "dsxwagjiwzzm4lhva9pniqp6",
   );
+  const projectCategories = await api.projects.getProjectCategories();
+  const competitions = await api.projects.getCompetitions();
   console.log(projectData);
 
   let imageSrc: string | null = null;
-  if (projectData.bannerImg) {
-    let mimeType = "image/jpeg";
-    if (projectData.bannerImgMimeType) {
-      mimeType = projectData.bannerImgMimeType;
-    }
-    // Assuming the image is in JPEG format; adjust if necessary
-    imageSrc = `data:${mimeType};base64,${projectData.bannerImg}`;
+  if (projectData.bannerImg && projectData.bannerImgMimeType) {
+    imageSrc = `data:${projectData.bannerImgMimeType};base64,${projectData.bannerImg}`;
   }
 
   // const {
@@ -63,7 +60,10 @@ const TeacherPanelPage = async ({
           </div>
         </TabsContent>
         <TabsContent value="submit">
-          <SubmitForm />
+          <SubmitForm
+            projectCategories={projectCategories}
+            competitions={competitions}
+          />
         </TabsContent>
       </Tabs>
     </div>
