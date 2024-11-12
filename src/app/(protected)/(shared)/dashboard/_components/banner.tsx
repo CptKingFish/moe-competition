@@ -21,7 +21,7 @@ export function Banner({ projects }: BannerProps) {
   return (
     <Carousel
       // className="mx-auto max-w-sm md:max-w-md lg:max-w-full"
-      className="mx-auto max-w-[calc(100vw-2rem)] md:max-w-[calc(100vw-18rem)] lg:max-w-full"
+      className="mx-auto max-w-[calc(100vw-2rem)] md:max-w-[calc(100vw-18rem)] 2xl:max-w-full"
       opts={{
         loop: true,
       }}
@@ -38,6 +38,7 @@ export function Banner({ projects }: BannerProps) {
                     <img
                       className="h-full w-full rounded-t-xl object-cover md:rounded-e-none md:rounded-s-xl"
                       alt="banner"
+                      src="Icon.svg"
                     />
                   </div>
                   <div className="flex w-full basis-1/3 flex-col justify-between space-y-4 p-4">

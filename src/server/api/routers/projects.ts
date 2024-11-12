@@ -112,4 +112,46 @@ export const projectsRouter = createTRPCRouter({
 
       return projects;
     }),
+  getTop10Projects: publicProcedure.query(async ({ ctx }) => {
+    const currentDate = new Date();
+
+    return ctx.db
+      .selectFrom("Project")
+      .leftJoin("User", "Project.authorEmail", "User.email")
+      .leftJoin(
+        "ProjectCategory",
+        "Project.projectCategoryId",
+        "ProjectCategory.id",
+      )
+      .leftJoin("Competition", "Project.competitionId", "Competition.id")
+      .leftJoin("Vote", "Project.id", "Vote.projectId")
+      .select([
+        "Project.id",
+        "Project.name",
+        "Project.description",
+        "Project.author",
+        "User.picture as authorAvatar",
+        "ProjectCategory.name as category",
+        "Competition.name as competition",
+        "Project.subjectLevel",
+        "Project.projectUrl",
+        ctx.db.fn.count("Vote.id").as("totalVotes"),
+      ])
+      .groupBy([
+        "Project.id",
+        "Project.name",
+        "Project.description",
+        "Project.author",
+        "User.picture",
+        "ProjectCategory.name",
+        "Competition.name",
+        "Project.subjectLevel",
+        "Project.projectUrl",
+      ])
+      .where("Competition.startDate", ">=", currentDate)
+      .where("Competition.endDate", "<=", currentDate)
+      .orderBy("totalVotes", "asc")
+      .limit(10)
+      .execute();
+  }),
 });
