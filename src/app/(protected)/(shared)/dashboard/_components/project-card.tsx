@@ -44,7 +44,7 @@ export default function ProjectCard({
   subjectLevel,
 }: ProjectCardProps) {
   return (
-    <Card className="min-w-0 overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 hover:cursor-pointer hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+    <Card className="min-w-0 overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 hover:cursor-pointer hover:shadow-lg">
       <CardHeader className="p-0">
         <img
           src={"Icon.svg"}
@@ -62,17 +62,16 @@ export default function ProjectCard({
           <span className="text-sm text-muted-foreground">{author}</span>
         </div>
         <div className="mb-2">
-          <Tag color="bg-purple-100 text-purple-800">{category}</Tag>
+          <Tag color="bg-cyan-100 text-cyan-800">{category}</Tag>
           <Tag color="bg-green-100 text-green-800">{competition}</Tag>
-          <Tag color={`bg-blue-100 text-blue-800`}>
+          <Tag color={`bg-orange-100 text-orange-800`}>
             {subjectLevel.toUpperCase()}
           </Tag>
         </div>
       </CardContent>
       <CardFooter className="flex justify-end p-4 pt-0">
         <div className="flex items-center space-x-1 text-muted-foreground">
-          <Star className="h-4 w-4 fill-current" />
-          <span className="text-sm">{votes}</span>
+          <span className="text-sm">{votes} Votes</span>
         </div>
       </CardFooter>
     </Card>
