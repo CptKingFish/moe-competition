@@ -58,8 +58,9 @@ const formSchema = z.object({
     .refine((file) => file.size <= 5 * 1024 * 1024, "Max file size is 5MB.")
     .refine(
       (file) => ["image/jpeg", "image/png"].includes(file.type),
-      "Only JPG and PNG files are allowed.",
-    ),
+      "Banner image can only be uploaded in JPEG or PNG format.",
+    )
+    .optional(),
 });
 
 const tracks = Object.values(SubjectLevel).map((track) => ({
@@ -89,9 +90,39 @@ const SubmitForm = () => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
     console.log(values);
+
+    if (!values.bannerImg) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(values.bannerImg); // Read file as Data URL (base64)
+
+    reader.onloadend = () => {
+      const base64data = reader.result as string;
+
+      const inputData = {
+        ...values,
+        bannerImg: base64data,
+      };
+
+      console.log(inputData);
+
+      // Call tRPC mutation
+      //   trpc.project.create.mutate(inputData, {
+      //     onSuccess: () => {
+      //       console.log("Form submitted successfully");
+      //     },
+      //     onError: (error) => {
+      //       console.error("Form submission error:", error);
+      //     },
+      //   });
+    };
+
+    reader.onerror = (error) => {
+      console.error("Error reading file:", error);
+    };
   }
 
   return (
@@ -307,13 +338,17 @@ const SubmitForm = () => {
             <Controller
               control={form.control}
               name="bannerImg"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
-                  <FormLabel>Upload Image</FormLabel>
+                  <FormLabel className={fieldState.error ? "text-red-500" : ""}>
+                    Upload Banner Image
+                  </FormLabel>
                   <FormControl>
                     <ImageUpload
                       value={field.value}
                       onChange={(value) => field.onChange(value)}
+                      onBlur={field.onBlur}
+                      error={fieldState.error}
                     />
                   </FormControl>
                   <FormMessage />

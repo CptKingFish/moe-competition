@@ -70,6 +70,8 @@ model Project {
     projectType       ProjectType
     projectCategory   ProjectCategory @relation(fields: [projectCategoryId], references: [id])
     projectCategoryId String
+    youtubeUrl        String?
+    bannerImg         Bytes?
 }
 
 model Vote {

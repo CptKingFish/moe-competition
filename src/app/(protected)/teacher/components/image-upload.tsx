@@ -6,14 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FieldError } from "react-hook-form";
 
 interface ImageUploadProps {
   value?: File | null;
   onChange: (file: File | null) => void;
   onBlur?: () => void;
-  error?: {
-    message: string;
-  };
+  error?: FieldError;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -36,7 +35,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   }, [value]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
+    const file = event.target.files?.[0] ?? null;
     onChange(file);
     if (onBlur) {
       onBlur();
@@ -52,7 +51,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       <CardContent className="p-6">
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="image-upload">Upload Banner Image</Label>
+            {/* <Label htmlFor="image-upload">Upload Banner Image</Label> */}
             <div className="flex items-center">
               <Input
                 id="image-upload"
