@@ -142,8 +142,8 @@ const SubmitForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="flex h-screen">
-          <div className="m-5 w-1/2 space-y-8">
+        <div className="flex min-h-screen flex-col items-center justify-center md:flex-row md:items-start">
+          <div className="w-full max-w-md space-y-8 py-5 md:m-5 md:w-1/2">
             {/* <span className="font-semibold">Project Information</span> */}
             <FormField
               control={form.control}
@@ -485,11 +485,11 @@ const SubmitForm = ({
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit">
+            {/* <Button className="w-full" type="submit">
               Submit
-            </Button>
+            </Button> */}
           </div>
-          <div className="m-5 w-1/2 space-y-8">
+          <div className="w-full max-w-md space-y-8 py-5 md:m-5 md:w-1/2">
             <Controller
               control={form.control}
               name="bannerImg"
@@ -543,6 +543,24 @@ const SubmitForm = ({
                 </FormItem>
               )}
             />
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center md:flex-row">
+          <div className="m-5 w-3/4 max-w-md md:w-1/2">
+            <Button className="w-full" type="submit">
+              Submit
+            </Button>
+          </div>
+
+          <div className="m-5 w-3/4 max-w-md md:w-1/2">
+            <Button
+              variant="secondary"
+              className="w-full"
+              type="reset"
+              onClick={() => form.reset()}
+            >
+              Reset
+            </Button>
           </div>
         </div>
       </form>
