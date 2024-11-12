@@ -27,6 +27,8 @@ export type Project = {
     subjectLevel: SubjectLevel;
     projectType: ProjectType;
     projectCategoryId: string;
+    youtubeUrl: string | null;
+    bannerImg: Buffer | null;
 };
 export type ProjectCategory = {
     id: string;
