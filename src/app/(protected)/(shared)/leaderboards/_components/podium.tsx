@@ -3,16 +3,19 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { RouterOutputs } from "@/trpc/react";
 
 interface Winner {
   name: string;
   position: number;
-  points: number;
-  prize: number;
-  avatar: string;
+  authorAvatar: string;
   project: string;
   projectImage: string;
   votes: number;
+}
+
+interface PodiumProps {
+    projects: RouterOutputs["projects"]["getTop10Projects"];
 }
 
 const podiumVariants = {
@@ -25,7 +28,7 @@ const podiumVariants = {
       stiffness: 200,
       damping: 20,
       duration: 1.2,
-      ease: "easeOut", // Smooth easing
+      ease: "easeOut",
     },
   },
 };
@@ -41,7 +44,7 @@ const avatarVariants = {
       damping: 12,
       duration: 0.9,
       delay: 0.2,
-      ease: "easeOut", // Smooth easing
+      ease: "easeOut",
     },
   },
 };
@@ -53,7 +56,7 @@ const projectImageVariants = {
     scale: 1,
     transition: {
       duration: 1.2,
-      ease: [0.25, 0.46, 0.45, 0.94], // Custom cubic-bezier easing for smoother fade-in
+      ease: [0.25, 0.46, 0.45, 0.94],
     },
   },
 };
@@ -63,19 +66,17 @@ export default function Podium() {
     {
       name: "Wade",
       position: 1,
-      points: 61,
-      prize: 100,
-      avatar: "/placeholder.svg?height=60&width=60",
+      authorAvatar: "/placeholder.svg?height=60&width=60",
       project: "AI Assistant",
-      projectImage: "https://cdn2.scratch.mit.edu/get_image/project/712358577_480x360.png",
+      projectImage:
+        "https://cdn2.scratch.mit.edu/get_image/project/712358577_480x360.png",
       votes: 1024,
     },
     {
       name: "Dianne",
       position: 3,
-      points: 54,
-      prize: 60,
-      avatar: "/placeholder.svg?height=60&width=60",
+
+      authorAvatar: "/placeholder.svg?height=60&width=60",
       project: "Smart Home",
       projectImage: "/placeholder.svg?height=80&width=80",
       votes: 986,
@@ -83,9 +84,7 @@ export default function Podium() {
     {
       name: "Esther",
       position: 2,
-      points: 52,
-      prize: 40,
-      avatar: "/placeholder.svg?height=60&width=60",
+      authorAvatar: "/placeholder.svg?height=60&width=60",
       project: "EcoTracker",
       projectImage: "/placeholder.svg?height=80&width=80",
       votes: 1002,
@@ -131,7 +130,10 @@ export default function Podium() {
                   animate="animate"
                 >
                   <Avatar className="h-10 w-10 border-2 border-white shadow-lg sm:h-12 sm:w-12">
-                    <AvatarImage src={winner?.avatar} alt={winner?.name} />
+                    <AvatarImage
+                      src={winner?.authorAvatar}
+                      alt={winner?.name}
+                    />
                     <AvatarFallback>{winner?.name[0]}</AvatarFallback>
                   </Avatar>
                 </motion.div>

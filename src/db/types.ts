@@ -10,15 +10,15 @@ export type Competition = {
     id: string;
     name: string;
     description: string;
-    startDate: Timestamp;
-    endDate: Timestamp;
+    startDate: Generated<Timestamp>;
+    endDate: Generated<Timestamp>;
     createdById: string;
 };
 export type Project = {
     id: string;
     name: string;
     description: string;
-    submittedAt: Timestamp;
+    submittedAt: Generated<Timestamp>;
     submittedById: string;
     author: string;
     authorEmail: string;
@@ -41,7 +41,7 @@ export type School = {
 export type Session = {
     id: string;
     userId: string;
-    expiresAt: Timestamp;
+    expiresAt: Generated<Timestamp>;
 };
 export type User = {
     id: string;

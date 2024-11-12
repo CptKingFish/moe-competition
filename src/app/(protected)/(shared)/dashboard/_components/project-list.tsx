@@ -48,9 +48,7 @@ export default function ProjectList({
   const [subjectValue, setSubjectValue] = useState<string | null>(null);
 
   const [competitionOpen, setCompetitionOpen] = useState(false);
-  const [competitionValue, setCompetitionValue] = useState<string | null>(
-    competitionOptions.find((option) => option.label === "2024")?.value ?? null,
-  );
+  const [competitionValue, setCompetitionValue] = useState<string | null>(null);
 
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categoryValue, setCategoryValue] = useState<string | null>(null);

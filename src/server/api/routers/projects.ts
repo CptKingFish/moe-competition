@@ -1,5 +1,6 @@
 import { SubjectLevel } from "@/db/enums";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { sql } from "kysely";
 import { z } from "zod";
 
 export const projectsRouter = createTRPCRouter({
@@ -36,6 +37,7 @@ export const projectsRouter = createTRPCRouter({
         "Project.projectUrl",
       ])
       .orderBy("totalVotes", "desc")
+      .orderBy("Project.submittedAt", "desc")
       .limit(5)
       .execute();
   }),
@@ -95,6 +97,7 @@ export const projectsRouter = createTRPCRouter({
           "Project.projectUrl",
         ])
         .orderBy("Project.submittedAt", "desc")
+        .orderBy("totalVotes", "desc")
         .offset(input.offSet)
         .limit(3);
 
@@ -136,6 +139,7 @@ export const projectsRouter = createTRPCRouter({
         "Project.subjectLevel",
         "Project.projectUrl",
         ctx.db.fn.count("Vote.id").as("totalVotes"),
+        sql<string>`RANK() OVER (ORDER BY COUNT(Vote.id) DESC)`.as("position"),
       ])
       .groupBy([
         "Project.id",
@@ -148,9 +152,9 @@ export const projectsRouter = createTRPCRouter({
         "Project.subjectLevel",
         "Project.projectUrl",
       ])
-      .where("Competition.startDate", ">=", currentDate)
-      .where("Competition.endDate", "<=", currentDate)
-      .orderBy("totalVotes", "asc")
+      .where("Competition.startDate", "<=", currentDate)
+      .where("Competition.endDate", ">=", currentDate)
+      .orderBy("totalVotes", "desc")
       .limit(10)
       .execute();
   }),

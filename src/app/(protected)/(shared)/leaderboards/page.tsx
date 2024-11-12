@@ -7,7 +7,7 @@ const page = async () => {
 
   const projects = await api.projects.getTop10Projects();
 
-  console.log(projects)
+  console.log(projects);
 
   return (
     <div>
