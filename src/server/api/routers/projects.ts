@@ -168,28 +168,25 @@ export const projectsRouter = createTRPCRouter({
       }
 
       // Encode the bannerImg if it exists
-      let encodedBannerImg: string | null = null;
-      let bannerImgMimeType: string | null = null;
+      let imageSrc: string | null = null;
 
       if (project.bannerImg) {
         const imageBuffer = Buffer.from(project.bannerImg);
+        const encodedBannerImg = imageBuffer.toString("base64");
 
         // Determine MIME type using magic numbers
-        bannerImgMimeType = magicNumberToMimeType(imageBuffer);
+        const bannerImgMimeType = magicNumberToMimeType(imageBuffer);
 
         if (bannerImgMimeType) {
-          // Encode the image data to base64
-          encodedBannerImg = imageBuffer.toString("base64");
+          imageSrc = `data:${bannerImgMimeType};base64,${encodedBannerImg}`;
         } else {
-          // Handle unknown image format
           console.warn("Unknown image format for project ID:", project.id);
         }
       }
 
       return {
         ...project,
-        bannerImg: encodedBannerImg,
-        bannerImgMimeType,
+        imageSrc,
       };
     }),
   getTop10Projects: publicProcedure.query(async ({ ctx }) => {

@@ -37,6 +37,7 @@ import { useState } from "react";
 import ImageUpload from "./image-upload";
 import { api, RouterOutputs } from "@/trpc/react";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   competitionId: z.string(),
@@ -89,7 +90,8 @@ const SubmitForm = ({
   const [openProjectCategory, setOpenProjectCategory] = useState(false);
   const [openCompetition, setOpenCompetition] = useState(false);
 
-  const { mutate: submitProject } = api.teacher.submitProject.useMutation();
+  const { mutate: submitProject, isPending: isSubmittingProject } =
+    api.teacher.submitProject.useMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -114,7 +116,14 @@ const SubmitForm = ({
         ...values,
         bannerImg: undefined,
       };
-      submitProject(inputData);
+      try {
+        submitProject(inputData);
+        toast.success("Project submitted successfully.");
+        form.reset();
+      } catch (error) {
+        console.error("Error submitting project:", error);
+        toast.error("Error submitting project.");
+      }
       return;
     }
 
@@ -131,11 +140,19 @@ const SubmitForm = ({
 
       console.log(inputData);
 
-      submitProject(inputData);
+      try {
+        submitProject(inputData);
+        toast.success("Project submitted successfully.");
+        form.reset();
+      } catch (error) {
+        console.error("Error submitting project:", error);
+        toast.error("Error submitting project.");
+      }
     };
 
     reader.onerror = (error) => {
       console.error("Error reading file:", error);
+      toast.error("Error reading file.");
     };
   }
 
@@ -547,7 +564,11 @@ const SubmitForm = ({
         </div>
         <div className="flex flex-col items-center justify-center md:flex-row">
           <div className="m-5 w-3/4 max-w-md md:w-1/2">
-            <Button className="w-full" type="submit">
+            <Button
+              className="w-full"
+              type="submit"
+              disabled={isSubmittingProject}
+            >
               Submit
             </Button>
           </div>
@@ -557,6 +578,7 @@ const SubmitForm = ({
               variant="secondary"
               className="w-full"
               type="reset"
+              disabled={isSubmittingProject}
               onClick={() => form.reset()}
             >
               Reset

@@ -5,6 +5,7 @@ import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import ProgressBarProvider from "../components/progress-bar";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "MOE Competition",
@@ -20,6 +21,7 @@ export default function RootLayout({
       <body>
         <ProgressBarProvider>
           <TRPCReactProvider>{children}</TRPCReactProvider>
+          <Toaster />
         </ProgressBarProvider>
       </body>
     </html>

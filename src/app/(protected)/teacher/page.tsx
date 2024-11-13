@@ -11,16 +11,11 @@ const TeacherPanelPage = async ({
   searchParams: Record<string, string | string[] | undefined>;
 }) => {
   const projectData = await api.projects.getProjectById(
-    "dsxwagjiwzzm4lhva9pniqp6",
+    "sr2xguzhbx31192ip88xxh1u",
   );
   const projectCategories = await api.projects.getProjectCategories();
   const competitions = await api.projects.getCompetitions();
   console.log(projectData);
-
-  let imageSrc: string | null = null;
-  if (projectData.bannerImg && projectData.bannerImgMimeType) {
-    imageSrc = `data:${projectData.bannerImgMimeType};base64,${projectData.bannerImg}`;
-  }
 
   // const {
   //   page: pageIndex,
@@ -56,7 +51,9 @@ const TeacherPanelPage = async ({
           <div className="mb-4">
             {/* <DataTable columns={columns} data={data} pageCount={pageCount} /> */}
             {/* <p>Submissions content goes here.</p> */}
-            {imageSrc && <img src={imageSrc} alt="Project Banner" />}
+            {projectData.imageSrc && (
+              <img src={projectData.imageSrc} alt="Project Banner" />
+            )}
           </div>
         </TabsContent>
         <TabsContent value="submit">
