@@ -192,7 +192,7 @@ export const projectsRouter = createTRPCRouter({
   getTop10Projects: publicProcedure.query(async ({ ctx }) => {
     const currentDate = new Date();
 
-    return ctx.db
+    const rankedProjectsCTE = ctx.db
       .selectFrom("Project")
       .leftJoin("User", "Project.authorEmail", "User.email")
       .leftJoin(
@@ -213,7 +213,7 @@ export const projectsRouter = createTRPCRouter({
         "Project.subjectLevel",
         "Project.projectUrl",
         ctx.db.fn.count("Vote.id").as("totalVotes"),
-        sql<string>`RANK() OVER (ORDER BY COUNT(Vote.id) DESC)`.as("position"),
+        sql`DENSE_RANK() OVER (ORDER BY COUNT("Vote"."id") DESC)`.as("rank"),
       ])
       .groupBy([
         "Project.id",
@@ -227,9 +227,16 @@ export const projectsRouter = createTRPCRouter({
         "Project.projectUrl",
       ])
       .where("Competition.startDate", "<=", currentDate)
-      .where("Competition.endDate", ">=", currentDate)
-      .orderBy("totalVotes", "desc")
-      .limit(10)
+      .where("Competition.endDate", ">=", currentDate);
+
+    return ctx.db
+      .with("RankedProjects", (cte) =>
+        cte.selectFrom(rankedProjectsCTE.as("sub")).selectAll(),
+      )
+      .selectFrom("RankedProjects")
+      .selectAll()
+      .where("RankedProjects.rank", "<=", 10)
+      .orderBy("RankedProjects.rank", "asc")
       .execute();
   }),
 });
