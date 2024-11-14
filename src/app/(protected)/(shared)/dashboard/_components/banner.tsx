@@ -38,7 +38,7 @@ export function Banner({ projects }: BannerProps) {
                     <img
                       className="h-full w-full rounded-t-xl object-cover md:rounded-e-none md:rounded-s-xl"
                       alt="banner"
-                      src="Icon.svg"
+                      src={project.bannerImg ?? ""}
                     />
                   </div>
                   <div className="flex w-full basis-1/3 flex-col justify-between space-y-4 p-4">

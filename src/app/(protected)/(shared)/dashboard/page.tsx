@@ -12,7 +12,6 @@ export default async function DashboardPage() {
     value: SubjectLevel[key as keyof typeof SubjectLevel],
     label: SubjectLevel[key as keyof typeof SubjectLevel],
   }));
-  console.log(projects);
   return (
     <div className="h-screen snap-y snap-mandatory">
       <div className="w-full snap-center">
