@@ -31,7 +31,7 @@ const TeacherPanelPage = async ({
   //   ? (strSchoolIds as string).split(",")
   //   : undefined;
 
-  // const { data, pageCount } = await api.admin.getAllUsers({
+  // const { data, pageCount } = await api.admin.getUsers({
   //   pageIndex: Number(pageIndex) || 1,
   //   pageSize: Number(pageSize) || 10,
   //   sortBy: sortBy as string | undefined,

@@ -5,22 +5,17 @@ import { type ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import DataTableColumnHeader from "./data-table-column-header";
+import DataTableColumnHeader from "@/app/(protected)/admin/components/data-table-column-header";
 
-import { type User } from "@/db/types";
 import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
-} from "../hooks/use-data-table";
+} from "@/app/(protected)/admin/hooks/use-data-table";
+import { RouterOutputs } from "@/trpc/react";
 
-export type UserTableItem = Pick<
-  User,
-  "id" | "picture" | "name" | "email" | "role"
-> & {
-  school: string | null;
-};
+type ProjectTableItem = RouterOutputs["admin"]["getProjects"]["data"][0];
 
-export const columns: ColumnDef<UserTableItem>[] = [
+export const columns: ColumnDef<ProjectTableItem>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => {

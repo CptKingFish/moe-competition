@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "@/components/ui/search";
 import { Role } from "@/db/enums";
-import DataTableFacetedFilter from "./data-table-faceted-filter";
+import DataTableFacetedFilter from "@/app/(protected)/admin/components/data-table-faceted-filter";
 import { api } from "@/trpc/react";
 
 interface DataTableToolbarProps<TData> {
@@ -38,7 +38,7 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Search
-          placeholder="Search"
+          placeholder="Search by name"
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           // usually we would want to separate a function outside of the component but for one liner code, we will just use inline function
           onChange={(event) => {
