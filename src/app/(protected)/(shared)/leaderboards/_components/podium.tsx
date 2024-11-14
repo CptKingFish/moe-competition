@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RouterOutputs } from "@/trpc/react";
 
@@ -27,7 +26,11 @@ export default function Podium({ projects }: PodiumProps) {
               2: "bg-[#F5F5F5]",
               3: "bg-[#F8F3F3]",
             };
-
+            const images = {
+              1: "1st.png",
+              2: "2nd.png",
+              3: "3rd.png",
+            };
             return (
               <motion.div
                 key={winner?.rank as string}
@@ -66,9 +69,9 @@ export default function Podium({ projects }: PodiumProps) {
                   animate="animate"
                 >
                   <motion.img
-                    src={"Icon.svg"}
+                    src={images[winner?.rank as keyof typeof images]}
                     alt={`${winner?.name} icon`}
-                    className="mx-auto h-12 w-12 rounded-full"
+                    className="mx-auto h-16 rounded-full"
                     variants={avatarVariants}
                     initial="initial"
                     animate="animate"
@@ -81,8 +84,7 @@ export default function Podium({ projects }: PodiumProps) {
                       animate="animate"
                     >
                       <img
-                        src={"Icon.svg"}
-                        // src={winner?.projectImage ?? ""}
+                        src={projects[index]?.bannerImg ?? ""}
                         alt={`${winner?.name} preview`}
                         className="rounded-md"
                         width={80}

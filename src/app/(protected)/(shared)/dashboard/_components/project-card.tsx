@@ -19,6 +19,7 @@ interface ProjectCardProps {
   category: string;
   competition: string;
   subjectLevel: SubjectLevel;
+  bannerImg: string;
 }
 
 const Tag = ({
@@ -42,12 +43,13 @@ export default function ProjectCard({
   category,
   competition,
   subjectLevel,
+  bannerImg,
 }: ProjectCardProps) {
   return (
     <Card className="min-w-0 overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 hover:cursor-pointer hover:shadow-lg">
       <CardHeader className="p-0">
         <img
-          src={"Icon.svg"}
+          src={bannerImg}
           alt={title}
           className="h-28 w-full object-cover md:h-32"
         />

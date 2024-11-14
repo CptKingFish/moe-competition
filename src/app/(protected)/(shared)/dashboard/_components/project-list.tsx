@@ -169,6 +169,7 @@ export default function ProjectList({
             category={project.category ?? ""}
             competition={project.competition ?? ""}
             subjectLevel={project.subjectLevel}
+            bannerImg={project.bannerImg ?? ""}
           />
         ))}
         {isFetching && (

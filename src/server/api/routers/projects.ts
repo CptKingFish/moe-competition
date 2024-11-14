@@ -7,7 +7,7 @@ import { z } from "zod";
 
 export const projectsRouter = createTRPCRouter({
   getFeaturedProjects: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db
+    const projects = await ctx.db
       .selectFrom("Project")
       .leftJoin("User", "Project.authorEmail", "User.email")
       .leftJoin(
@@ -26,6 +26,7 @@ export const projectsRouter = createTRPCRouter({
         "ProjectCategory.name as category",
         "Project.subjectLevel",
         "Project.projectUrl",
+        "Project.bannerImg",
         ctx.db.fn.count("Vote.id").as("totalVotes"),
       ])
       .groupBy([
@@ -37,11 +38,34 @@ export const projectsRouter = createTRPCRouter({
         "ProjectCategory.name",
         "Project.subjectLevel",
         "Project.projectUrl",
+        "Project.bannerImg",
       ])
       .orderBy("totalVotes", "desc")
       .orderBy("Project.submittedAt", "desc")
       .limit(5)
       .execute();
+
+    return projects.map((project) => {
+      let imageSrc: string | null = null;
+
+      if (project.bannerImg) {
+        const imageBuffer = Buffer.from(project.bannerImg);
+        const encodedBannerImg = imageBuffer.toString("base64");
+
+        // Determine MIME type using magic numbers
+        const bannerImgMimeType = magicNumberToMimeType(imageBuffer);
+
+        if (bannerImgMimeType) {
+          imageSrc = `data:${bannerImgMimeType};base64,${encodedBannerImg}`;
+        } else {
+          console.warn("Unknown image format for project ID:", project.id);
+        }
+      }
+      return {
+        ...project,
+        bannerImg: imageSrc,
+      };
+    });
   }),
   getProjectCategories: publicProcedure.query(async ({ ctx }) => {
     return ctx.db
@@ -85,6 +109,7 @@ export const projectsRouter = createTRPCRouter({
           "Competition.name as competition",
           "Project.subjectLevel",
           "Project.projectUrl",
+          "Project.bannerImg",
           ctx.db.fn.count("Vote.id").as("totalVotes"),
         ])
         .groupBy([
@@ -97,6 +122,7 @@ export const projectsRouter = createTRPCRouter({
           "Competition.name",
           "Project.subjectLevel",
           "Project.projectUrl",
+          "Project.bannerImg",
         ])
         .orderBy("Project.submittedAt", "desc")
         .orderBy("totalVotes", "desc")
@@ -115,7 +141,27 @@ export const projectsRouter = createTRPCRouter({
 
       const projects = await query.execute();
 
-      return projects;
+      return projects.map((project) => {
+        let imageSrc: string | null = null;
+
+        if (project.bannerImg) {
+          const imageBuffer = Buffer.from(project.bannerImg);
+          const encodedBannerImg = imageBuffer.toString("base64");
+
+          // Determine MIME type using magic numbers
+          const bannerImgMimeType = magicNumberToMimeType(imageBuffer);
+
+          if (bannerImgMimeType) {
+            imageSrc = `data:${bannerImgMimeType};base64,${encodedBannerImg}`;
+          } else {
+            console.warn("Unknown image format for project ID:", project.id);
+          }
+        }
+        return {
+          ...project,
+          bannerImg: imageSrc,
+        };
+      });
     }),
   getProjectById: publicProcedure
     .input(z.string())
@@ -212,6 +258,7 @@ export const projectsRouter = createTRPCRouter({
         "Competition.name as competition",
         "Project.subjectLevel",
         "Project.projectUrl",
+        "Project.bannerImg",
         ctx.db.fn.count("Vote.id").as("totalVotes"),
         sql`DENSE_RANK() OVER (ORDER BY COUNT("Vote"."id") DESC)`.as("rank"),
       ])
@@ -225,11 +272,12 @@ export const projectsRouter = createTRPCRouter({
         "Competition.name",
         "Project.subjectLevel",
         "Project.projectUrl",
+        "Project.bannerImg",
       ])
       .where("Competition.startDate", "<=", currentDate)
       .where("Competition.endDate", ">=", currentDate);
 
-    return ctx.db
+    const projects = await ctx.db
       .with("RankedProjects", (cte) =>
         cte.selectFrom(rankedProjectsCTE.as("sub")).selectAll(),
       )
@@ -238,5 +286,27 @@ export const projectsRouter = createTRPCRouter({
       .where("RankedProjects.rank", "<=", 10)
       .orderBy("RankedProjects.rank", "asc")
       .execute();
+
+    return projects.map((project) => {
+      let imageSrc: string | null = null;
+
+      if (project.bannerImg) {
+        const imageBuffer = Buffer.from(project.bannerImg);
+        const encodedBannerImg = imageBuffer.toString("base64");
+
+        // Determine MIME type using magic numbers
+        const bannerImgMimeType = magicNumberToMimeType(imageBuffer);
+
+        if (bannerImgMimeType) {
+          imageSrc = `data:${bannerImgMimeType};base64,${encodedBannerImg}`;
+        } else {
+          console.warn("Unknown image format for project ID:", project.id);
+        }
+      }
+      return {
+        ...project,
+        bannerImg: imageSrc,
+      };
+    });
   }),
 });
