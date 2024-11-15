@@ -11,7 +11,7 @@ import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
 } from "@/app/(protected)/admin/hooks/use-data-table";
-import { RouterOutputs } from "@/trpc/react";
+import { type RouterOutputs } from "@/trpc/react";
 
 type ProjectTableItem = RouterOutputs["admin"]["getProjects"]["data"][0];
 
@@ -30,68 +30,108 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
             {row.getValue("name")}
           </Link>
         </Button>
-        <div className="font-light">{row.original.id}</div>
+        {/* <div className="font-light">{row.original.id}</div> */}
       </>
     ),
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "category",
+    header: "Category",
     cell: ({ row }) => {
-      const email = row.original.email;
+      const category = row.original.category;
       return (
         <div>
           <Badge variant="outline" className="mr-2">
-            {email}
+            {category}
           </Badge>
         </div>
       );
     },
   },
   {
-    accessorKey: "school",
-    header: "School",
+    accessorKey: "subjectLevel",
+    header: "Subject Level",
     cell: ({ row }) => {
-      const school = row.original.school ?? "N/A";
+      const subjectLevel = row.original.subjectLevel;
       return (
         <div>
           <Badge variant="outline" className="mr-2">
-            {school}
+            {subjectLevel}
           </Badge>
         </div>
       );
     },
   },
   {
-    accessorKey: "role",
-    header: "Role",
+    accessorKey: "competition",
+    header: "Competition",
     cell: ({ row }) => {
-      const role = Object.values(row.original.role);
+      const competition = row.original.competition;
       return (
         <div>
           <Badge variant="outline" className="mr-2">
-            {role}
+            {competition}
           </Badge>
         </div>
+      );
+    },
+  },
+  {
+    accessorKey: "author",
+    header: "Author",
+    cell: ({ row }) => {
+      const authorName = row.original.author;
+      const authorEmail = row.original.authorEmail;
+      return (
+        <>
+          <Button className="p-0" variant="link">
+            <Link href={`/admin/users/${row.original.id}`}>{authorName}</Link>
+          </Button>
+          <div className="font-light">{authorEmail}</div>
+        </>
+      );
+    },
+  },
+  {
+    accessorKey: "submittedBy",
+    header: "Submitted By",
+    cell: ({ row }) => {
+      const submittedByName = row.original.submittedBy;
+      const submittedByEmail = row.original.submittedByEmail;
+      return (
+        <>
+          <Button className="p-0" variant="link">
+            <Link href={`/admin/users/${row.original.id}`}>
+              {submittedByName}
+            </Link>
+          </Button>
+          <div className="font-light">{submittedByEmail}</div>
+        </>
       );
     },
   },
 ];
 
-export const searchableColumns: DataTableSearchableColumn<UserTableItem>[] = [
-  {
-    id: "name",
-    placeholder: "Search by name",
-  },
-];
+export const searchableColumns: DataTableSearchableColumn<ProjectTableItem>[] =
+  [
+    {
+      id: "name",
+      placeholder: "Search by name",
+    },
+  ];
 
-export const filterableColumns: DataTableFilterableColumn<UserTableItem>[] = [
-  {
-    id: "role",
-    title: "Role",
-  },
-  {
-    id: "school",
-    title: "School",
-  },
-];
+export const filterableColumns: DataTableFilterableColumn<ProjectTableItem>[] =
+  [
+    {
+      id: "category",
+      title: "Category",
+    },
+    {
+      id: "subjectLevel",
+      title: "Subject Level",
+    },
+    {
+      id: "competition",
+      title: "Competition",
+    },
+  ];

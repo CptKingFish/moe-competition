@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import UsersTab from "./tabs/users/users-tab";
+import ProjectsTab from "./tabs/projects/projects-tab";
 
 const AdminPanelPage = async ({
   searchParams,
@@ -20,7 +21,9 @@ const AdminPanelPage = async ({
           </div>
         </TabsContent>
         <TabsContent value="projects">
-          <p>Projects content goes here.</p>
+          <div className="mb-4">
+            <ProjectsTab searchParams={searchParams} />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

@@ -31,7 +31,7 @@ export const columns: ColumnDef<UserTableItem>[] = [
             {row.getValue("name")}
           </Link>
         </Button>
-        <div className="font-light">{row.original.id}</div>
+        <div className="font-light">{row.original.email}</div>
       </>
     ),
   },

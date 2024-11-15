@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 
 import DataTablePagination from "@/app/(protected)/admin/components/data-table-pagination";
-import DataTableToolbar from "@/app/(protected)/admin/tabs/users/components/data-table-toolbar";
+import DataTableToolbar from "@/app/(protected)/admin/tabs/projects/components/data-table-toolbar";
 import useDataTable from "@/app/(protected)/admin/hooks/use-data-table";
 import { searchableColumns, filterableColumns } from "./columns";
 
