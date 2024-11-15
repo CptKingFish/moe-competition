@@ -1,16 +1,15 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import UsersTab from "./tabs/users/users-tab";
-import ProjectsTab from "./tabs/projects/projects-tab";
-
+import { redirect } from "next/navigation";
 const AdminPanelPage = async ({
   searchParams,
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) => {
+  redirect("/admin/users");
   return (
     <div>
-      <Tabs defaultValue="users">
+      {/* <Tabs defaultValue="users">
         <TabsList>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
@@ -25,7 +24,7 @@ const AdminPanelPage = async ({
             <ProjectsTab searchParams={searchParams} />
           </div>
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import DataTable from "@/app/(protected)/admin/tabs/projects/components/data-table";
-import { columns } from "@/app/(protected)/admin/tabs/projects/components/columns";
+import DataTable from "@/app/(protected)/admin/projects/components/data-table";
+import { columns } from "@/app/(protected)/admin/projects/components/columns";
 import { api } from "@/trpc/server";
 import { type SubjectLevel } from "@/db/enums";
 

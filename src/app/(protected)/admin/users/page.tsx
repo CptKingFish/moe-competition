@@ -1,5 +1,5 @@
-import DataTable from "@/app/(protected)/admin/tabs/users/components/data-table";
-import { columns } from "@/app/(protected)/admin/tabs/users/components/columns";
+import DataTable from "@/app/(protected)/admin/users/components/data-table";
+import { columns } from "@/app/(protected)/admin/users/components/columns";
 import { api } from "@/trpc/server";
 import { type Role } from "@/db/enums";
 
