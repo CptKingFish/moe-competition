@@ -1,6 +1,7 @@
 import { type Role } from "@/db/enums";
 import { getCurrentSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+import TeacherTabs from "./components/teacher-tabs";
 
 // /teacher/* routes will be wrapped with this layout
 
@@ -12,7 +13,12 @@ const TeacherLayout = async ({ children }: { children: React.ReactNode }) => {
   const userRole = session.user.role;
   if (!allowedRoles.includes(userRole)) return redirect("/");
 
-  return <main>{children}</main>;
+  return (
+    <main>
+      <TeacherTabs />
+      {children}
+    </main>
+  );
 };
 
 export default TeacherLayout;

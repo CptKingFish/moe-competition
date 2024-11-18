@@ -11,7 +11,7 @@ import { type User } from "@/db/types";
 import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
-} from "@/app/(protected)/admin/hooks/use-data-table";
+} from "@/hooks/use-data-table";
 import { RouterOutputs } from "@/trpc/react";
 
 type UserTableItem = RouterOutputs["admin"]["getUsers"]["data"][0];

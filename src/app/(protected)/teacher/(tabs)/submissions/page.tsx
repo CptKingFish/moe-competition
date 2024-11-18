@@ -1,9 +1,9 @@
-import DataTable from "@/app/(protected)/admin/projects/components/data-table";
-import { columns } from "@/app/(protected)/admin/projects/components/columns";
+import DataTable from "@/app/(protected)/teacher/(tabs)/submissions/components/data-table";
+import { columns } from "@/app/(protected)/teacher/(tabs)/submissions/components/columns";
 import { api } from "@/trpc/server";
 import { type SubjectLevel } from "@/db/enums";
 
-const ProjectsTab = async ({
+const SubmissionsTab = async ({
   searchParams,
 }: {
   searchParams: Record<string, string | string[] | undefined>;
@@ -28,7 +28,7 @@ const ProjectsTab = async ({
     ? (strCategoryIds as string).split(",")
     : undefined;
 
-  const { data, pageCount } = await api.admin.getProjects({
+  const { data, pageCount } = await api.teacher.getSubmittedProjects({
     pageIndex: Number(pageIndex) || 1,
     pageSize: Number(pageSize) || 10,
     sortBy: sortBy as string | undefined,
@@ -41,4 +41,4 @@ const ProjectsTab = async ({
   return <DataTable columns={columns} data={data} pageCount={pageCount} />;
 };
 
-export default ProjectsTab;
+export default SubmissionsTab;

@@ -10,7 +10,7 @@ import DataTableColumnHeader from "@/app/(protected)/admin/components/data-table
 import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
-} from "@/app/(protected)/admin/hooks/use-data-table";
+} from "@/hooks/use-data-table";
 import { type RouterOutputs } from "@/trpc/react";
 
 type ProjectTableItem = RouterOutputs["admin"]["getProjects"]["data"][0];

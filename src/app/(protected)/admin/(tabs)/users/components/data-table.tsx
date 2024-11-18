@@ -11,18 +11,18 @@ import {
 } from "@/components/ui/table";
 
 import DataTablePagination from "@/app/(protected)/admin/components/data-table-pagination";
-import DataTableToolbar from "@/app/(protected)/admin/projects/components/data-table-toolbar";
-import useDataTable from "@/app/(protected)/admin/hooks/use-data-table";
+import DataTableToolbar from "@/app/(protected)/admin/(tabs)/users/components/data-table-toolbar";
+import useDataTable from "@/hooks/use-data-table";
 import { searchableColumns, filterableColumns } from "./columns";
 
 import { type RouterOutputs } from "@/trpc/react";
 
-type ProjectTableItem = RouterOutputs["admin"]["getProjects"]["data"][0];
+type UserTableItem = RouterOutputs["admin"]["getUsers"]["data"][0];
 
 type DataTableProps<TValue> = {
-  columns: ColumnDef<ProjectTableItem, TValue>[];
-  data: RouterOutputs["admin"]["getProjects"]["data"];
-  pageCount: RouterOutputs["admin"]["getProjects"]["pageCount"];
+  columns: ColumnDef<UserTableItem, TValue>[];
+  data: RouterOutputs["admin"]["getUsers"]["data"];
+  pageCount: RouterOutputs["admin"]["getUsers"]["pageCount"];
 };
 
 const DataTable = <TValue,>({

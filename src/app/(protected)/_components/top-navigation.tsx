@@ -22,7 +22,10 @@ export function TopNavigation() {
     null;
 
   for (const navGroup of navigation) {
-    const item = navGroup.items.find((navItem) => navItem.url === currentPath);
+    // const item = navGroup.items.find((navItem) => navItem.url === currentPath);
+    const item = navGroup.items.find((navItem) =>
+      currentPath.includes(navItem.url),
+    );
 
     if (item) {
       dashboardInfo = {

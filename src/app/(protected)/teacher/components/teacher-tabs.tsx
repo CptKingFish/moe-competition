@@ -5,12 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const adminTabOptions = [
-  { value: "users", label: "Users" },
-  { value: "projects", label: "Projects" },
+const teacherTabOptions = [
+  { value: "submissions", label: "My Submissions" },
+  { value: "submit", label: "Submit" },
 ];
 
-const AdminTabs = () => {
+const TeacherTabs = () => {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState<string | undefined>(undefined);
 
@@ -21,9 +21,9 @@ const AdminTabs = () => {
   return (
     <Tabs className="mb-4" value={activeTab}>
       <TabsList>
-        {adminTabOptions.map((tab) => (
+        {teacherTabOptions.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value}>
-            <Link href={`/admin/${tab.value}`}>{tab.label}</Link>
+            <Link href={`/teacher/${tab.value}`}>{tab.label}</Link>
           </TabsTrigger>
         ))}
       </TabsList>
@@ -31,4 +31,4 @@ const AdminTabs = () => {
   );
 };
 
-export default AdminTabs;
+export default TeacherTabs;

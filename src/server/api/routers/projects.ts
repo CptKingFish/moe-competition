@@ -71,12 +71,14 @@ export const projectsRouter = createTRPCRouter({
     return ctx.db
       .selectFrom("ProjectCategory")
       .select(["ProjectCategory.id as value", "ProjectCategory.name as label"])
+      .orderBy("ProjectCategory.name", "asc")
       .execute();
   }),
   getCompetitions: publicProcedure.query(async ({ ctx }) => {
     return ctx.db
       .selectFrom("Competition")
       .select(["Competition.id as value", "Competition.name as label"])
+      .orderBy("Competition.name", "asc")
       .execute();
   }),
   getProjects: publicProcedure
