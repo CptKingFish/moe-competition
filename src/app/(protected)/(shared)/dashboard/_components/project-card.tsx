@@ -8,6 +8,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star } from "lucide-react";
 import { type SubjectLevel } from "@/db/enums";
+import { useRouter } from "next/navigation";
 
 interface ProjectCardProps {
   id: string;
@@ -45,8 +46,13 @@ export default function ProjectCard({
   subjectLevel,
   bannerImg,
 }: ProjectCardProps) {
+  const router = useRouter();
+
   return (
-    <Card className="min-w-0 overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 hover:cursor-pointer hover:shadow-lg">
+    <Card
+      className="min-w-0 overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 hover:cursor-pointer hover:shadow-lg"
+      onClick={() => router.push(`/projects/${id}`)}
+    >
       <CardHeader className="p-0">
         <img
           src={bannerImg}
