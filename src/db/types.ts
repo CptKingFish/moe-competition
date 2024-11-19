@@ -1,69 +1,69 @@
 import type { ColumnType } from "kysely";
-export type Generated<T> =
-  T extends ColumnType<infer S, infer I, infer U>
-    ? ColumnType<S, I | undefined, U>
-    : ColumnType<T, T | undefined, T>;
+export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
+  ? ColumnType<S, I | undefined, U>
+  : ColumnType<T, T | undefined, T>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 import type { Role, SubjectLevel, ProjectType } from "./enums";
 
 export type Competition = {
-  id: string;
-  name: string;
-  description: string;
-  startDate: Generated<Timestamp>;
-  endDate: Generated<Timestamp>;
-  createdById: string;
+    id: string;
+    name: string;
+    description: string;
+    startDate: Generated<Timestamp>;
+    endDate: Generated<Timestamp>;
+    createdById: string;
 };
 export type Project = {
-  id: string;
-  name: string;
-  description: string | null;
-  submittedAt: Generated<Timestamp>;
-  submittedById: string;
-  author: string;
-  authorEmail: string;
-  competitionId: string;
-  projectUrl: string;
-  subjectLevel: SubjectLevel;
-  projectType: ProjectType;
-  projectCategoryId: string;
-  youtubeUrl: string | null;
-  bannerImg: Buffer | null;
+    id: string;
+    name: string;
+    description: string | null;
+    submittedAt: Generated<Timestamp>;
+    submittedById: string;
+    author: string;
+    authorEmail: string;
+    competitionId: string;
+    projectUrl: string;
+    subjectLevel: SubjectLevel;
+    projectType: ProjectType;
+    projectCategoryId: string;
+    youtubeUrl: string | null;
+    bannerImg: Buffer | null;
+    approvedById: string | null;
 };
 export type ProjectCategory = {
-  id: string;
-  name: string;
+    id: string;
+    name: string;
 };
 export type School = {
-  id: string;
-  name: string;
+    id: string;
+    name: string;
 };
 export type Session = {
-  id: string;
-  userId: string;
-  expiresAt: Generated<Timestamp>;
+    id: string;
+    userId: string;
+    expiresAt: Generated<Timestamp>;
 };
 export type User = {
-  id: string;
-  googleId: string;
-  name: string;
-  email: string;
-  picture: string;
-  role: Role;
-  schoolId: string | null;
+    id: string;
+    googleId: string;
+    name: string;
+    email: string;
+    picture: string;
+    role: Role;
+    schoolId: string | null;
 };
 export type Vote = {
-  id: string;
-  userId: string;
-  projectId: string;
+    id: string;
+    userId: string;
+    projectId: string;
 };
 export type DB = {
-  Competition: Competition;
-  Project: Project;
-  ProjectCategory: ProjectCategory;
-  School: School;
-  Session: Session;
-  User: User;
-  Vote: Vote;
+    Competition: Competition;
+    Project: Project;
+    ProjectCategory: ProjectCategory;
+    School: School;
+    Session: Session;
+    User: User;
+    Vote: Vote;
 };

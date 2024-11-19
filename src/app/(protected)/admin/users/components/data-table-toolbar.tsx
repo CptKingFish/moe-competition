@@ -3,9 +3,10 @@
 import { Cross2Icon } from "@radix-ui/react-icons";
 import type { Table } from "@tanstack/react-table";
 
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "@/components/ui/search";
-import { SubjectLevel } from "@/db/enums";
+import { Role } from "@/db/enums";
 import DataTableFacetedFilter from "@/app/(protected)/admin/components/data-table-faceted-filter";
 import { api } from "@/trpc/react";
 
@@ -15,15 +16,23 @@ interface DataTableToolbarProps<TData> {
 
 const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
   const isFiltered = table.getState().columnFilters.length > 0;
-  const { data: categoriesData } = api.projects.getProjectCategories.useQuery();
-  const { data: competitionsData } = api.projects.getCompetitions.useQuery();
+  const { data: schoolsData } = api.admin.getAllSchoolNames.useQuery();
 
-  const subjectLevelOptions = Object.values(SubjectLevel).map(
-    (subjectLevel) => ({
-      label: subjectLevel,
-      value: subjectLevel,
-    }),
-  );
+  const formattedSchools = useMemo(() => {
+    if (!schoolsData) {
+      return [];
+    }
+
+    return schoolsData.map((school) => ({
+      label: school.name,
+      value: school.id,
+    }));
+  }, [schoolsData]);
+
+  const roleOptions = Object.values(Role).map((role) => ({
+    label: role,
+    value: role,
+  }));
 
   return (
     <div className="flex items-center justify-between">
@@ -38,27 +47,19 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
           }}
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {table.getColumn("subjectLevel") && (
+        {table.getColumn("role") && (
           <DataTableFacetedFilter
-            column={table.getColumn("subjectLevel")}
-            title="Subject Level"
-            options={subjectLevelOptions}
+            column={table.getColumn("role")}
+            title="Role"
+            options={roleOptions}
             table={table}
           />
         )}
-        {table.getColumn("category") && (
+        {table.getColumn("school") && (
           <DataTableFacetedFilter
-            column={table.getColumn("category")}
-            title="Category"
-            options={categoriesData ?? []}
-            table={table}
-          />
-        )}
-        {table.getColumn("competition") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("competition")}
-            title="Competition"
-            options={competitionsData ?? []}
+            column={table.getColumn("school")}
+            title="School"
+            options={formattedSchools}
             table={table}
           />
         )}
