@@ -132,11 +132,7 @@ export const teacherRouter = createTRPCRouter({
           "Project.submittedById",
           "submittedByUser.id",
         )
-        .leftJoin(
-          "User as approvedByUser",
-          "Project.approvedById",
-          "approvedByUser.id",
-        )
+        .leftJoin("User as approver", "Project.approverId", "approver.id")
         .leftJoin("Competition", "Project.competitionId", "Competition.id")
         .leftJoin(
           "ProjectCategory",
@@ -146,10 +142,10 @@ export const teacherRouter = createTRPCRouter({
         .select([
           "Project.id",
           "Project.name",
-          "submittedByUser.name as submittedBy",
-          "submittedByUser.email as submittedByEmail",
-          "approvedByUser.name as approvedBy",
-          "approvedByUser.email as approvedByEmail",
+          // "submittedByUser.name as submittedBy",
+          // "submittedByUser.email as submittedByEmail",
+          "approver.name as approver",
+          "approver.email as approverEmail",
           "approvalStatus",
           "Project.submittedAt",
           "Project.author",

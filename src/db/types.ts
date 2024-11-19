@@ -29,7 +29,7 @@ export type Project = {
     projectCategoryId: string;
     youtubeUrl: string | null;
     bannerImg: Buffer | null;
-    approvedById: string | null;
+    approverId: string | null;
     approvalStatus: Generated<ApprovalStatus>;
 };
 export type ProjectCategory = {

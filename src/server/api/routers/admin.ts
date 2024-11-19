@@ -2,7 +2,9 @@ import { z } from "zod";
 
 import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
 import { db } from "@/database";
-import { Role, SubjectLevel } from "@/db/enums";
+import { ApprovalStatus, Role, SubjectLevel } from "@/db/enums";
+import { getCurrentSession } from "@/lib/session";
+import { TRPCError } from "@trpc/server";
 
 export const adminRouter = createTRPCRouter({
   getUsers: adminProcedure
@@ -114,6 +116,9 @@ export const adminRouter = createTRPCRouter({
         selectedCompetitionIds: z.array(z.string()).optional(),
         selectedSubjectLevels: z.array(z.nativeEnum(SubjectLevel)).optional(),
         selectedCategoryIds: z.array(z.string()).optional(),
+        selectedApprovedStatus: z
+          .array(z.nativeEnum(ApprovalStatus))
+          .optional(),
         pageIndex: z.number().default(1),
         pageSize: z.number().default(10),
         sortBy: z.string().optional(),
@@ -159,6 +164,7 @@ export const adminRouter = createTRPCRouter({
           "Competition.name as competition",
           "Project.subjectLevel",
           "ProjectCategory.name as category",
+          "Project.approvalStatus",
         ]);
 
       let countQuery = db
@@ -224,6 +230,19 @@ export const adminRouter = createTRPCRouter({
         );
       }
 
+      if (input.selectedApprovedStatus?.length) {
+        query = query.where(
+          "Project.approvalStatus",
+          "in",
+          input.selectedApprovedStatus,
+        );
+        countQuery = countQuery.where(
+          "Project.approvalStatus",
+          "in",
+          input.selectedApprovedStatus,
+        );
+      }
+
       // Apply ordering, pagination, and execute the query
       const data = await query
         .orderBy(`Project.${orderByField}`, orderDirection)
@@ -240,5 +259,30 @@ export const adminRouter = createTRPCRouter({
         data,
         pageCount,
       };
+    }),
+  updateProjectApprovalStatus: adminProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        approvalStatus: z.nativeEnum(ApprovalStatus),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const session = await getCurrentSession();
+      if (!session.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message:
+            "You must be logged in to update a project's approval status",
+        });
+      }
+      const result = await ctx.db
+        .updateTable("Project")
+        .set({
+          approvalStatus: input.approvalStatus,
+          approverId: session.user.id,
+        })
+        .where("id", "=", input.projectId)
+        .execute();
     }),
 });

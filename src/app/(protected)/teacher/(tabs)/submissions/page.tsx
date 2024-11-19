@@ -16,7 +16,7 @@ const SubmissionsTab = async ({
     competition: strCompetitionIds,
     subjectLevel: strSubjectLevels,
     category: strCategoryIds,
-    approvedBy: strApprovedByStatus,
+    approvalStatus: strApprovalStatus,
   } = searchParams;
 
   const selectedSubjectLevels = strSubjectLevels
@@ -29,8 +29,8 @@ const SubmissionsTab = async ({
     ? (strCategoryIds as string).split(",")
     : undefined;
 
-  const selectedApprovedStatus = strApprovedByStatus
-    ? (strApprovedByStatus as string).split(",")
+  const selectedApprovedStatus = strApprovalStatus
+    ? (strApprovalStatus as string).split(",")
     : undefined;
 
   const { data, pageCount } = await api.teacher.getSubmittedProjects({

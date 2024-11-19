@@ -1,7 +1,7 @@
 import DataTable from "@/app/(protected)/admin/(tabs)/projects/components/data-table";
 import { columns } from "@/app/(protected)/admin/(tabs)/projects/components/columns";
 import { api } from "@/trpc/server";
-import { type SubjectLevel } from "@/db/enums";
+import { ApprovalStatus, type SubjectLevel } from "@/db/enums";
 
 const ProjectsTab = async ({
   searchParams,
@@ -16,6 +16,7 @@ const ProjectsTab = async ({
     competition: strCompetitionIds,
     subjectLevel: strSubjectLevels,
     category: strCategoryIds,
+    approvalStatus: strApprovalStatus,
   } = searchParams;
 
   const selectedSubjectLevels = strSubjectLevels
@@ -28,6 +29,10 @@ const ProjectsTab = async ({
     ? (strCategoryIds as string).split(",")
     : undefined;
 
+  const selectedApprovedStatus = strApprovalStatus
+    ? (strApprovalStatus as string).split(",")
+    : undefined;
+
   const { data, pageCount } = await api.admin.getProjects({
     pageIndex: Number(pageIndex) || 1,
     pageSize: Number(pageSize) || 10,
@@ -36,6 +41,9 @@ const ProjectsTab = async ({
     selectedCompetitionIds,
     selectedSubjectLevels: selectedSubjectLevels as SubjectLevel[] | undefined,
     selectedCategoryIds,
+    selectedApprovedStatus: selectedApprovedStatus as
+      | ApprovalStatus[]
+      | undefined,
   });
 
   return <DataTable columns={columns} data={data} pageCount={pageCount} />;

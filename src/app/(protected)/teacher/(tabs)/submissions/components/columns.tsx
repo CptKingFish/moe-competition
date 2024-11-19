@@ -27,7 +27,7 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
     cell: ({ row }) => (
       <>
         <Button className="p-0" variant="link">
-          <Link href={`/project/${row.original.id}`}>
+          <Link href={`/projects/${row.original.id}`}>
             {row.getValue("name")}
           </Link>
         </Button>
@@ -90,28 +90,37 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
       );
     },
   },
-  {
-    accessorKey: "submittedBy",
-    header: "Submitted By",
-    cell: ({ row }) => {
-      const submittedByName = row.original.submittedBy;
-      const submittedByEmail = row.original.submittedByEmail;
-      return (
-        <>
-          <span className="font-medium">{submittedByName}</span>
-          <div className="font-light">{submittedByEmail}</div>
-        </>
-      );
-    },
-  },
+  // {
+  //   accessorKey: "submittedBy",
+  //   header: "Submitted By",
+  //   cell: ({ row }) => {
+  //     const submittedByName = row.original.submittedBy;
+  //     const submittedByEmail = row.original.submittedByEmail;
+  //     return (
+  //       <>
+  //         <span className="font-medium">{submittedByName}</span>
+  //         <div className="font-light">{submittedByEmail}</div>
+  //       </>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "approvalStatus",
     header: "Approval Status",
     cell: ({ row }) => {
       const approvalStatus = row.original.approvalStatus;
+      let variant: "outline" | "default" | "destructive" = "outline";
+      if (approvalStatus === "PENDING") {
+        variant = "outline";
+      } else if (approvalStatus === "APPROVED") {
+        variant = "default";
+      } else if (approvalStatus === "REJECTED") {
+        variant = "destructive";
+      }
+
       return (
         <div>
-          <Badge variant="outline" className="mr-2">
+          <Badge variant={variant} className="mr-2">
             {approvalStatus}
           </Badge>
         </div>
@@ -119,17 +128,17 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
     },
   },
   {
-    accessorKey: "approvedBy",
-    header: "Approved By",
+    accessorKey: "approver",
+    header: "Approver",
     cell: ({ row }) => {
-      const approvedByName = row.original.approvedBy;
-      const approvedByEmail = row.original.approvedByEmail;
+      const approver = row.original.approver;
+      const approverEmail = row.original.approverEmail;
       return (
         <>
-          {approvedByName && approvedByEmail ? (
+          {approver && approverEmail ? (
             <>
-              <span className="font-medium">{approvedByName}</span>
-              <div className="font-light">{approvedByEmail}</div>
+              <span className="font-medium">{approver}</span>
+              <div className="font-light">{approverEmail}</div>
             </>
           ) : (
             <div className="text-muted-foreground">Not approved</div>

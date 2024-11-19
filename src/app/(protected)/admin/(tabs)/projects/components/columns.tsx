@@ -11,7 +11,10 @@ import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
 } from "@/hooks/use-data-table";
-import { type RouterOutputs } from "@/trpc/react";
+import { api, type RouterOutputs } from "@/trpc/react";
+import { Check, X } from "lucide-react";
+import { toast } from "sonner";
+import ApprovalButtons from "./approval-buttons";
 
 type ProjectTableItem = RouterOutputs["admin"]["getProjects"]["data"][0];
 
@@ -110,6 +113,16 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
       );
     },
   },
+  {
+    id: "approvalStatus",
+    header: "Approve/Reject",
+    cell: ({ row }) => (
+      <ApprovalButtons
+        projectId={row.original.id}
+        currentApprovalStatus={row.original.approvalStatus}
+      />
+    ),
+  },
 ];
 
 export const searchableColumns: DataTableSearchableColumn<ProjectTableItem>[] =
@@ -133,5 +146,9 @@ export const filterableColumns: DataTableFilterableColumn<ProjectTableItem>[] =
     {
       id: "competition",
       title: "Competition",
+    },
+    {
+      id: "approvalStatus",
+      title: "Approval Status",
     },
   ];

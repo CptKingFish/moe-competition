@@ -5,7 +5,7 @@ import type { Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 import { Search } from "@/components/ui/search";
-import { SubjectLevel } from "@/db/enums";
+import { ApprovalStatus, SubjectLevel } from "@/db/enums";
 import DataTableFacetedFilter from "@/app/(protected)/admin/components/data-table-faceted-filter";
 import { api } from "@/trpc/react";
 
@@ -22,6 +22,13 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
     (subjectLevel) => ({
       label: subjectLevel,
       value: subjectLevel,
+    }),
+  );
+
+  const approvedStatusOptions = Object.values(ApprovalStatus).map(
+    (approvalStatus) => ({
+      label: approvalStatus,
+      value: approvalStatus,
     }),
   );
 
@@ -59,6 +66,14 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
             column={table.getColumn("competition")}
             title="Competition"
             options={competitionsData ?? []}
+            table={table}
+          />
+        )}
+        {table.getColumn("approvalStatus") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("approvalStatus")}
+            title="Approval Status"
+            options={approvedStatusOptions}
             table={table}
           />
         )}
