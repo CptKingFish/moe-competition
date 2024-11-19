@@ -4,7 +4,7 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   : ColumnType<T, T | undefined, T>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-import type { Role, SubjectLevel, ProjectType } from "./enums";
+import type { Role, SubjectLevel, ProjectType, ApprovalStatus } from "./enums";
 
 export type Competition = {
     id: string;
@@ -30,6 +30,7 @@ export type Project = {
     youtubeUrl: string | null;
     bannerImg: Buffer | null;
     approvedById: string | null;
+    approvalStatus: Generated<ApprovalStatus>;
 };
 export type ProjectCategory = {
     id: string;

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { teacherProcedure, createTRPCRouter } from "@/server/api/trpc";
 import { db } from "@/database";
-import { ProjectType, Role, SubjectLevel } from "@/db/enums";
+import { ApprovalStatus, ProjectType, Role, SubjectLevel } from "@/db/enums";
 import { TRPCError } from "@trpc/server";
 import { getCurrentSession } from "@/lib/session";
 import { createId } from "@paralleldrive/cuid2";
@@ -70,6 +70,7 @@ export const teacherRouter = createTRPCRouter({
           projectCategoryId: input.projectCategoryId,
           youtubeUrl: input.youtubeUrl ?? null,
           bannerImg: imageBuffer,
+          approvalStatus: "PENDING",
         })
         .returning("id")
         .execute();
@@ -87,6 +88,9 @@ export const teacherRouter = createTRPCRouter({
         selectedCompetitionIds: z.array(z.string()).optional(),
         selectedSubjectLevels: z.array(z.nativeEnum(SubjectLevel)).optional(),
         selectedCategoryIds: z.array(z.string()).optional(),
+        selectedApprovedStatus: z
+          .array(z.nativeEnum(ApprovalStatus))
+          .optional(),
         pageIndex: z.number().default(1),
         pageSize: z.number().default(10),
         sortBy: z.string().optional(),
@@ -123,7 +127,16 @@ export const teacherRouter = createTRPCRouter({
 
       let query = db
         .selectFrom("Project")
-        .leftJoin("User", "Project.submittedById", "User.id")
+        .leftJoin(
+          "User as submittedByUser",
+          "Project.submittedById",
+          "submittedByUser.id",
+        )
+        .leftJoin(
+          "User as approvedByUser",
+          "Project.approvedById",
+          "approvedByUser.id",
+        )
         .leftJoin("Competition", "Project.competitionId", "Competition.id")
         .leftJoin(
           "ProjectCategory",
@@ -133,8 +146,11 @@ export const teacherRouter = createTRPCRouter({
         .select([
           "Project.id",
           "Project.name",
-          "User.name as submittedBy",
-          "User.email as submittedByEmail",
+          "submittedByUser.name as submittedBy",
+          "submittedByUser.email as submittedByEmail",
+          "approvedByUser.name as approvedBy",
+          "approvedByUser.email as approvedByEmail",
+          "approvalStatus",
           "Project.submittedAt",
           "Project.author",
           "Project.authorEmail",
@@ -205,6 +221,20 @@ export const teacherRouter = createTRPCRouter({
           "Project.projectCategoryId",
           "in",
           input.selectedCategoryIds,
+        );
+      }
+
+      // Apply the approved status filter if provided
+      if (input.selectedApprovedStatus?.length) {
+        query = query.where(
+          "Project.approvalStatus",
+          "in",
+          input.selectedApprovedStatus,
+        );
+        countQuery = countQuery.where(
+          "Project.approvalStatus",
+          "in",
+          input.selectedApprovedStatus,
         );
       }
 

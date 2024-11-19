@@ -75,6 +75,7 @@ model Project {
     bannerImg         Bytes?
     approvedBy        User?           @relation("ApprovedProjects", fields: [approvedById], references: [id])
     approvedById      String?
+    approvalStatus    ApprovalStatus  @default(PENDING)
 }
 
 model Vote {
@@ -107,4 +108,10 @@ enum ProjectType {
     SCRATCH
     MICROBIT
     OTHERS
+}
+
+enum ApprovalStatus {
+    PENDING
+    APPROVED
+    REJECTED
 }

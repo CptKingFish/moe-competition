@@ -25,6 +25,11 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
     }),
   );
 
+  const approvedStatusOptions = [
+    { label: "Approved", value: "approved" },
+    { label: "Pending", value: "pending" },
+  ];
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
@@ -59,6 +64,14 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
             column={table.getColumn("competition")}
             title="Competition"
             options={competitionsData ?? []}
+            table={table}
+          />
+        )}
+        {table.getColumn("approvalStatus") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("approvalStatus")}
+            title="Approved By"
+            options={approvedStatusOptions}
             table={table}
           />
         )}

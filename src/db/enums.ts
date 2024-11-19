@@ -16,3 +16,9 @@ export const ProjectType = {
     OTHERS: "OTHERS"
 } as const;
 export type ProjectType = (typeof ProjectType)[keyof typeof ProjectType];
+export const ApprovalStatus = {
+    PENDING: "PENDING",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED"
+} as const;
+export type ApprovalStatus = (typeof ApprovalStatus)[keyof typeof ApprovalStatus];

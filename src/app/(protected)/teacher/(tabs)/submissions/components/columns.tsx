@@ -27,11 +27,10 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
     cell: ({ row }) => (
       <>
         <Button className="p-0" variant="link">
-          <Link href={`/admin/users/${row.original.id}`}>
+          <Link href={`/project/${row.original.id}`}>
             {row.getValue("name")}
           </Link>
         </Button>
-        {/* <div className="font-light">{row.original.id}</div> */}
       </>
     ),
   },
@@ -85,9 +84,7 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
       const authorEmail = row.original.authorEmail;
       return (
         <>
-          <Button className="p-0" variant="link">
-            <Link href={`/admin/users/${row.original.id}`}>{authorName}</Link>
-          </Button>
+          <span className="font-medium">{authorName}</span>
           <div className="font-light">{authorEmail}</div>
         </>
       );
@@ -101,12 +98,42 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
       const submittedByEmail = row.original.submittedByEmail;
       return (
         <>
-          <Button className="p-0" variant="link">
-            <Link href={`/admin/users/${row.original.id}`}>
-              {submittedByName}
-            </Link>
-          </Button>
+          <span className="font-medium">{submittedByName}</span>
           <div className="font-light">{submittedByEmail}</div>
+        </>
+      );
+    },
+  },
+  {
+    accessorKey: "approvalStatus",
+    header: "Approval Status",
+    cell: ({ row }) => {
+      const approvalStatus = row.original.approvalStatus;
+      return (
+        <div>
+          <Badge variant="outline" className="mr-2">
+            {approvalStatus}
+          </Badge>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "approvedBy",
+    header: "Approved By",
+    cell: ({ row }) => {
+      const approvedByName = row.original.approvedBy;
+      const approvedByEmail = row.original.approvedByEmail;
+      return (
+        <>
+          {approvedByName && approvedByEmail ? (
+            <>
+              <span className="font-medium">{approvedByName}</span>
+              <div className="font-light">{approvedByEmail}</div>
+            </>
+          ) : (
+            <div className="text-muted-foreground">Not approved</div>
+          )}
         </>
       );
     },
@@ -134,5 +161,9 @@ export const filterableColumns: DataTableFilterableColumn<ProjectTableItem>[] =
     {
       id: "competition",
       title: "Competition",
+    },
+    {
+      id: "approvalStatus",
+      title: "Approval Status",
     },
   ];
