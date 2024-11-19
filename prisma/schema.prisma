@@ -14,18 +14,19 @@ datasource db {
 }
 
 model User {
-    id           String        @id @default(cuid())
-    googleId     String        @unique
-    name         String
-    email        String        @unique
-    picture      String
-    sessions     Session[]
-    role         Role
-    competitions Competition[]
-    projects     Project[]
-    votes        Vote[]
-    school       School?       @relation(fields: [schoolId], references: [id])
-    schoolId     String?
+    id                String        @id @default(cuid())
+    googleId          String        @unique
+    name              String
+    email             String        @unique
+    picture           String
+    sessions          Session[]
+    role              Role
+    competitions      Competition[]
+    submittedProjects Project[]     @relation("SubmittedProjects")
+    votes             Vote[]
+    school            School?       @relation(fields: [schoolId], references: [id])
+    schoolId          String?
+    approvedProjects  Project[]     @relation("ApprovedProjects")
 }
 
 model Session {
@@ -58,7 +59,7 @@ model Project {
     name              String
     description       String?
     submittedAt       DateTime        @default(now()) @db.Timestamptz
-    submittedBy       User            @relation(fields: [submittedById], references: [id])
+    submittedBy       User            @relation("SubmittedProjects", fields: [submittedById], references: [id])
     submittedById     String
     author            String
     authorEmail       String
@@ -72,6 +73,9 @@ model Project {
     projectCategoryId String
     youtubeUrl        String?
     bannerImg         Bytes?
+    approvedBy        User?           @relation("ApprovedProjects", fields: [approvedById], references: [id])
+    approvedById      String?
+    approvalStatus    ApprovalStatus  @default(PENDING)
 }
 
 model Vote {
@@ -104,4 +108,10 @@ enum ProjectType {
     SCRATCH
     MICROBIT
     OTHERS
+}
+
+enum ApprovalStatus {
+    PENDING
+    APPROVED
+    REJECTED
 }

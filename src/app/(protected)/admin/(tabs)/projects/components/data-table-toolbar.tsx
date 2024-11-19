@@ -3,7 +3,6 @@
 import { Cross2Icon } from "@radix-ui/react-icons";
 import type { Table } from "@tanstack/react-table";
 
-import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "@/components/ui/search";
 import { SubjectLevel } from "@/db/enums";
@@ -30,7 +29,7 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Search
-          placeholder="Search"
+          placeholder="Search by name"
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           // usually we would want to separate a function outside of the component but for one liner code, we will just use inline function
           onChange={(event) => {

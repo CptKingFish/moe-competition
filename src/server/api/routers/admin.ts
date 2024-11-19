@@ -99,7 +99,11 @@ export const adminRouter = createTRPCRouter({
       };
     }),
   getAllSchoolNames: adminProcedure.query(async () => {
-    const data = await db.selectFrom("School").select(["id", "name"]).execute();
+    const data = await db
+      .selectFrom("School")
+      .select(["id", "name"])
+      .orderBy("School.name", "asc")
+      .execute();
 
     return data;
   }),
