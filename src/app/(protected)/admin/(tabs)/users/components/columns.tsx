@@ -27,9 +27,7 @@ export const columns: ColumnDef<UserTableItem>[] = [
     cell: ({ row }) => (
       <>
         <Button className="p-0" variant="link">
-          <Link href={`/admin/users/${row.original.id}`}>
-            {row.getValue("name")}
-          </Link>
+          <Link href={`/users/${row.original.id}`}>{row.getValue("name")}</Link>
         </Button>
         <div className="font-light">{row.original.email}</div>
       </>

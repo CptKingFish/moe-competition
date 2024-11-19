@@ -26,7 +26,7 @@ model User {
     votes             Vote[]
     school            School?       @relation(fields: [schoolId], references: [id])
     schoolId          String?
-    approvedProjects  Project[]     @relation("ApprovedProjects")
+    approverProjects  Project[]     @relation("ApproverProjects")
 }
 
 model Session {
@@ -73,8 +73,8 @@ model Project {
     projectCategoryId String
     youtubeUrl        String?
     bannerImg         Bytes?
-    approvedBy        User?           @relation("ApprovedProjects", fields: [approvedById], references: [id])
-    approvedById      String?
+    approver          User?           @relation("ApproverProjects", fields: [approverId], references: [id])
+    approverId        String?
     approvalStatus    ApprovalStatus  @default(PENDING)
 }
 

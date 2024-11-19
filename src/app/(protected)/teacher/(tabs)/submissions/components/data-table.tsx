@@ -10,8 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import DataTablePagination from "@/app/(protected)/admin/components/data-table-pagination";
-import DataTableToolbar from "@/app/(protected)/admin/(tabs)/projects/components/data-table-toolbar";
+import DataTablePagination from "@/app/(protected)/teacher/components/data-table-pagination";
+import DataTableToolbar from "@/app/(protected)/teacher/(tabs)/submissions/components/data-table-toolbar";
 import useDataTable from "@/hooks/use-data-table";
 import { searchableColumns, filterableColumns } from "./columns";
 

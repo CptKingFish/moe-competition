@@ -38,7 +38,6 @@ const DataTableFacetedFilter = <TData, TValue>({
   options,
   table,
 }: DataTableFacetedFilterProps<TData, TValue>) => {
-  const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
 
   return (
