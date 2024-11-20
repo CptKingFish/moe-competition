@@ -84,10 +84,11 @@ export const projectsRouter = createTRPCRouter({
   getProjects: publicProcedure
     .input(
       z.object({
-        subject: z.nativeEnum(SubjectLevel).nullable(),
-        competition: z.string().nullable(),
-        category: z.string().nullable(),
+        subject: z.nativeEnum(SubjectLevel).nullable().optional(),
+        competition: z.string().nullable().optional(),
+        category: z.string().nullable().optional(),
         offSet: z.number(),
+        excludeId: z.string().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -142,6 +143,9 @@ export const projectsRouter = createTRPCRouter({
       if (input.category) {
         query = query.where("ProjectCategory.id", "=", input.category);
       }
+      if (input.excludeId) {
+        query = query.where("Project.id", "<>", input.excludeId);
+      }
 
       const projects = await query.execute();
 
@@ -192,6 +196,7 @@ export const projectsRouter = createTRPCRouter({
           "Project.projectUrl",
           "Project.youtubeUrl",
           "Project.bannerImg",
+          "Project.projectType",
           ctx.db.fn.count("Vote.id").as("totalVotes"),
         ])
         .groupBy([
@@ -205,6 +210,7 @@ export const projectsRouter = createTRPCRouter({
           "Project.subjectLevel",
           "Project.projectUrl",
           "Project.youtubeUrl",
+          "Project.projectType",
           "Project.bannerImg",
         ])
         .where("Project.id", "=", input)

@@ -24,7 +24,7 @@ const page = async ({ params }: pageProps) => {
           </div>
         </div>
       </div>
-      <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-4">
+      <div className="mb-8 grid grid-cols-1 lg:gap-3 lg:grid-cols-4">
         <ProjectContent project={project} />
       </div>
     </div>

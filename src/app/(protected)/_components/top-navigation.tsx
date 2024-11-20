@@ -20,7 +20,7 @@ export function TopNavigation() {
   const currentPath = usePathname();
   let dashboardInfo: { section: string; path: string; label: string } | null =
     null;
-
+  console.log(currentPath);
   for (const navGroup of navigation) {
     // const item = navGroup.items.find((navItem) => navItem.url === currentPath);
     const item = navGroup.items.find((navItem) =>
@@ -34,6 +34,12 @@ export function TopNavigation() {
         label: item.title,
       };
       break;
+    } else if (/^\/projects(\/|$)/.test(currentPath)) {
+      dashboardInfo = {
+        section: "Main",
+        path: currentPath,
+        label: "Project",
+      };
     }
   }
 
