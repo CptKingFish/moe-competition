@@ -12,12 +12,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { RouterOutputs } from "@/trpc/react";
+import { useRouter } from "next/navigation";
 
 interface BannerProps {
   projects: RouterOutputs["projects"]["getFeaturedProjects"];
 }
 
 export function Banner({ projects }: BannerProps) {
+  const router = useRouter();
+
   return (
     <Carousel
       // className="mx-auto max-w-sm md:max-w-md lg:max-w-full"
@@ -33,7 +36,10 @@ export function Banner({ projects }: BannerProps) {
           <CarouselItem key={index}>
             <div>
               <Card>
-                <CardContent className="h-ful relative flex flex-col p-0 md:h-48 md:flex-row">
+                <CardContent
+                  className="h-ful relative flex flex-col p-0 hover:cursor-pointer md:h-48 md:flex-row"
+                  onClick={() => router.push(`/projects/${project.id}`)}
+                >
                   <div className="h-2/3 basis-2/3 md:h-full">
                     <img
                       className="h-full w-full rounded-t-xl object-cover md:rounded-e-none md:rounded-s-xl"

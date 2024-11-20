@@ -112,6 +112,7 @@ export const projectsRouter = createTRPCRouter({
           "Project.subjectLevel",
           "Project.projectUrl",
           "Project.bannerImg",
+          "Project.youtubeUrl",
           ctx.db.fn.count("Vote.id").as("totalVotes"),
         ])
         .groupBy([
@@ -125,6 +126,7 @@ export const projectsRouter = createTRPCRouter({
           "Project.subjectLevel",
           "Project.projectUrl",
           "Project.bannerImg",
+          "Project.youtubeUrl",
         ])
         .orderBy("Project.submittedAt", "desc")
         .orderBy("totalVotes", "desc")

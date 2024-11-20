@@ -1,14 +1,17 @@
+"use client";
+
 import { RouterOutputs } from "@/trpc/react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ThumbsUp } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface LeaderboardCardProps {
   projects: RouterOutputs["projects"]["getTop10Projects"];
 }
 
 export default function LeaderboardCard({ projects }: LeaderboardCardProps) {
+  const router = useRouter();
+
   if (!projects || projects.length === 0) {
     return (
       <p className="text-center text-muted-foreground">
@@ -23,6 +26,7 @@ export default function LeaderboardCard({ projects }: LeaderboardCardProps) {
         <Card
           key={project.rank as string}
           className="min-w-0 overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 hover:cursor-pointer hover:shadow-lg"
+          onClick={() => router.push(`/projects/${project.id}`)}
         >
           <CardContent className="p-0">
             <div className="flex flex-col sm:flex-row">
