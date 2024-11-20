@@ -28,9 +28,23 @@ export default function LeaderboardCard({ projects }: LeaderboardCardProps) {
           className="min-w-0 overflow-hidden border-2 transition-all duration-300 hover:-translate-y-1 hover:cursor-pointer hover:shadow-lg"
           onClick={() => router.push(`/projects/${project.id}`)}
         >
-          <CardContent className="p-0">
+          <CardContent className="relative p-0">
+            {["1", "2", "3"].includes(project.rank as string) ? (
+              <img
+                className="absolute right-4 top-[55%] w-10 sm:right-6 sm:top-6 sm:w-12"
+                src={`/${getRankSuffix(project.rank as string)}.png`}
+                alt={`${getRankSuffix(project.rank as string)} place`}
+              />
+            ) : (
+              <div className="absolute right-4 top-[55%] flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-lg font-bold text-black sm:right-6 sm:top-6 sm:h-12 sm:w-12">
+                {project.rank as string}
+              </div>
+            )}
+            <span className="absolute bottom-4 right-4 font-semibold sm:bottom-6 sm:right-6">
+              {project.totalVotes} votes
+            </span>
             <div className="flex flex-col sm:flex-row">
-              <div className="relative h-48 w-full sm:w-1/3">
+              <div className="h-28 md:h-48 w-full sm:w-1/3">
                 <img
                   src={project.bannerImg ?? ""}
                   alt={`${project.name} project image`}
@@ -38,17 +52,6 @@ export default function LeaderboardCard({ projects }: LeaderboardCardProps) {
                 />
 
                 {/* Define rank image with appropriate suffix */}
-                {["1", "2", "3"].includes(project.rank as string) ? (
-                  <img
-                    className="absolute left-2 top-2 w-12"
-                    src={`/${getRankSuffix(project.rank as string)}.png`}
-                    alt={`${getRankSuffix(project.rank as string)} place`}
-                  />
-                ) : (
-                  <div className="absolute left-2 top-2 flex h-12 w-12 items-center justify-center rounded-full bg-white text-lg font-bold text-black">
-                    {project.rank as string}
-                  </div>
-                )}
               </div>
 
               <div className="flex-grow p-4 sm:p-6">
@@ -69,11 +72,6 @@ export default function LeaderboardCard({ projects }: LeaderboardCardProps) {
                         by {project.author}
                       </p>
                     </div>
-                  </div>
-                  <div className="flex items-center self-start rounded-full bg-secondary px-3 py-1 text-secondary-foreground sm:self-center">
-                    <span className="font-semibold">
-                      {project.totalVotes} votes
-                    </span>
                   </div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">

@@ -1,17 +1,70 @@
 "use client";
 
-import { RouterOutputs } from "@/trpc/react";
+import { api, RouterOutputs } from "@/trpc/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link, Youtube } from "lucide-react";
+import { Link, PackageX, Youtube } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { useCallback, useEffect, useRef, useState } from "react";
+import RecommendCard from "./recommend-card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProjectContentProps {
   project: RouterOutputs["projects"]["getProjectById"];
 }
 
 export default function ProjectContent({ project }: ProjectContentProps) {
+  const [offSet, setOffSet] = useState(0);
+
+  const observerRef = useRef<HTMLDivElement | null>(null);
+  const [projects, setProjects] = useState<
+    RouterOutputs["projects"]["getProjects"]
+  >([]);
+  const [hasMore, setHasMore] = useState(true);
+
+  const { refetch, isFetching } = api.projects.getProjects.useQuery(
+    {
+      excludeId: project.id,
+      offSet,
+    },
+    { enabled: false },
+  );
+
+  console.log(projects);
+
+  const loadMoreProjects = useCallback(async () => {
+    if (isFetching || !hasMore) return;
+
+    const { data } = await refetch();
+
+    if (data && data.length > 0) {
+      setProjects((prevProjects) =>
+        offSet === 0 ? data : [...prevProjects, ...data],
+      );
+      setOffSet((prevOffset) => prevOffset + data.length);
+    } else {
+      setHasMore(false);
+    }
+  }, [isFetching, hasMore, refetch, offSet]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          void loadMoreProjects();
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    if (observerRef.current) observer.observe(observerRef.current);
+
+    return () => {
+      if (observerRef.current) observer.unobserve(observerRef.current);
+    };
+  }, [loadMoreProjects]);
+
   return (
     <>
       <div className="col-span-3">
@@ -26,10 +79,15 @@ export default function ProjectContent({ project }: ProjectContentProps) {
                 <div className="flex flex-col items-center justify-center">
                   <div className="relative w-full max-w-4xl">
                     <iframe
-                      src="https://scratch.mit.edu/projects/628351249/embed"
-                      frameBorder="0"
+                      src={
+                        project.projectType === "SCRATCH"
+                          ? convertToScratchEmbedUrl(project.projectUrl)
+                          : project.projectType === "MICROBIT"
+                            ? convertToMakeCodeRunUrl(project.projectUrl)
+                            : (project.projectUrl ?? "")
+                      }
                       allowFullScreen={true}
-                      className="h-[402px] w-full md:h-[502px] lg:h-[602px]"
+                      className="h-[402px] w-full lg:h-[472px] 2xl:h-502px]"
                     ></iframe>
                   </div>
                   <span className="my-4 flex items-center border-l-4 border-yellow-500 bg-yellow-100 p-2 text-sm font-medium text-yellow-700">
@@ -130,24 +188,37 @@ export default function ProjectContent({ project }: ProjectContentProps) {
         </Card>
       </div>
 
-      <div className="col-span-1">test</div>
-      {/* <Card className="col-span-1 border-none shadow-none">
-        <CardHeader className="mb-6 p-0">
-          <CardTitle>Author</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="flex items-center space-x-4">
-            <Avatar>
-              <AvatarImage src="/placeholder.svg" alt="Author" />
-              <AvatarFallback>AU</AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-lg font-semibold">John Doe</p>
-              <p className="text-sm text-muted-foreground">Project Creator</p>
+      <div className="col-span-1 space-y-4">
+        {projects.map((project) => (
+          <RecommendCard key={project.id} project={project} />
+        ))}
+        {isFetching && (
+          <>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded-lg bg-card p-4 shadow-sm">
+                <Skeleton className="h-20 w-full rounded-md" />
+                <Skeleton className="mt-4 h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="mt-4 h-10 w-10 rounded-full" />
+              </div>
+            ))}
+          </>
+        )}
+        {!hasMore && (
+          <div className="col-span-full mt-4">
+            <div className="flex flex-col items-center justify-center p-4 text-center">
+              <PackageX className="mb-4 h-12 w-12 text-muted-foreground" />
+              <p className="text-xl font-semibold text-foreground">
+                No more projects
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                You&apos;ve reached the end of the list.
+              </p>
             </div>
           </div>
-        </CardContent>
-      </Card> */}
+        )}
+        <div ref={observerRef} className="h-4" />
+      </div>
     </>
   );
 }
@@ -164,6 +235,35 @@ function convertToYoutubeEmbed(url: string) {
   } else {
     return url;
   }
+}
+
+function convertToScratchEmbedUrl(url: string) {
+  const urlObject = new URL(url);
+
+  // Ensure the URL is a valid Scratch project URL
+  if (
+    urlObject.hostname === "scratch.mit.edu" &&
+    urlObject.pathname.startsWith("/projects/")
+  ) {
+    return `${urlObject.origin}${urlObject.pathname}/embed`;
+  }
+
+  return;
+}
+
+function convertToMakeCodeRunUrl(url: string) {
+  const urlObject = new URL(url);
+
+  // Ensure the URL is a valid MakeCode project URL
+  if (
+    urlObject.hostname === "makecode.microbit.org" &&
+    urlObject.pathname.startsWith("/_")
+  ) {
+    const projectId = urlObject.pathname.slice(2); // Extract the ID after "/_"
+    return `${urlObject.origin}/#pub:_${projectId}`;
+  }
+
+  return;
 }
 
 const Tag = ({
