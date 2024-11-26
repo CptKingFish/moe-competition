@@ -159,7 +159,11 @@ const SelectSchoolForm = ({
             />
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={() => logoutUser()}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => logoutUser()}
+            >
               Log out
             </Button>
             <Button type="submit">Proceed</Button>

@@ -33,7 +33,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { ProjectType, SubjectLevel } from "@/db/enums";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ImageUpload from "@/app/(protected)/teacher/components/image-upload";
 import { api, type RouterOutputs } from "@/trpc/react";
 import { Textarea } from "@/components/ui/textarea";
@@ -78,17 +78,18 @@ const projectTypes = Object.values(ProjectType).map((projectType) => ({
   value: projectType,
 }));
 
-const SubmitForm = ({
-  projectCategories,
-  competitions,
-}: {
-  projectCategories: RouterOutputs["projects"]["getProjectCategories"];
-  competitions: RouterOutputs["projects"]["getCompetitions"];
-}) => {
+const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
   const [openTrack, setOpenTrack] = useState(false);
   const [openProjectType, setOpenProjectType] = useState(false);
   const [openProjectCategory, setOpenProjectCategory] = useState(false);
   const [openCompetition, setOpenCompetition] = useState(false);
+
+  const { data: projectCategories } =
+    api.projects.getProjectCategories.useQuery();
+  const { data: competitions } = api.projects.getCompetitions.useQuery();
+
+  const { data: submission, isSuccess: projectFetched } =
+    api.teacher.getProjectById.useQuery(submissionId);
 
   const { mutate: submitProject, isPending: isSubmittingProject } =
     api.teacher.submitProject.useMutation();
@@ -105,8 +106,29 @@ const SubmitForm = ({
       studentName: "",
       studentEmail: "",
       description: "",
+      youtubeUrl: "",
     },
   });
+
+  useEffect(() => {
+    if (projectFetched) {
+      const formattedSubmission = {
+        competitionId: submission.competitionId ?? undefined,
+        projectTitle: submission.name,
+        projectCategoryId: submission.projectCategoryId ?? undefined,
+        track: submission.subjectLevel,
+        projectType: submission.projectType,
+        projectUrl: submission.projectUrl,
+        studentName: submission.author,
+        studentEmail: submission.authorEmail,
+        youtubeUrl: submission.youtubeUrl ?? "",
+        description: submission.description ?? "",
+        bannerImg: undefined,
+      };
+
+      form.reset(formattedSubmission);
+    }
+  }, [form, projectFetched, submission]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -117,7 +139,7 @@ const SubmitForm = ({
         bannerImg: undefined,
       };
       try {
-        submitProject(inputData);
+        // submitProject(inputData);
         toast.success("Project submitted successfully.");
         form.reset();
       } catch (error) {
@@ -141,7 +163,7 @@ const SubmitForm = ({
       console.log(inputData);
 
       try {
-        submitProject(inputData);
+        // submitProject(inputData);
         toast.success("Project submitted successfully.");
         form.reset();
       } catch (error) {
@@ -159,7 +181,7 @@ const SubmitForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="flex min-h-screen flex-col items-center justify-center md:flex-row md:items-start">
+        <div className="flex flex-col items-center justify-center md:flex-row md:items-start">
           <div className="w-full max-w-md space-y-8 py-5 md:m-5 md:w-1/2">
             {/* <span className="font-semibold">Project Information</span> */}
             <FormField
@@ -183,7 +205,7 @@ const SubmitForm = ({
                           )}
                         >
                           {field.value
-                            ? competitions.find(
+                            ? competitions?.find(
                                 (competition) =>
                                   competition.value === field.value,
                               )?.label
@@ -198,7 +220,7 @@ const SubmitForm = ({
                         <CommandList>
                           <CommandEmpty>No competitions found.</CommandEmpty>
                           <CommandGroup>
-                            {competitions.map((competition) => (
+                            {competitions?.map((competition) => (
                               <CommandItem
                                 value={competition.label}
                                 key={competition.value}
@@ -270,7 +292,7 @@ const SubmitForm = ({
                           )}
                         >
                           {field.value
-                            ? projectCategories.find(
+                            ? projectCategories?.find(
                                 (category) => category.value === field.value,
                               )?.label
                             : "Select Category"}
@@ -284,7 +306,7 @@ const SubmitForm = ({
                         <CommandList>
                           <CommandEmpty>No categories found.</CommandEmpty>
                           <CommandGroup>
-                            {projectCategories.map((category) => (
+                            {projectCategories?.map((category) => (
                               <CommandItem
                                 value={category.label}
                                 key={category.value}
@@ -590,4 +612,4 @@ const SubmitForm = ({
   );
 };
 
-export default SubmitForm;
+export default UpdateSubmissionForm;

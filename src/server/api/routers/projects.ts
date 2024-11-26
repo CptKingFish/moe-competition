@@ -189,6 +189,7 @@ export const projectsRouter = createTRPCRouter({
           "Project.name",
           "Project.description",
           "Project.author",
+          "Project.authorEmail",
           "User.picture as authorAvatar",
           "ProjectCategory.name as category",
           "Competition.name as competition",

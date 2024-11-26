@@ -6,6 +6,7 @@ import { ApprovalStatus, ProjectType, Role, SubjectLevel } from "@/db/enums";
 import { TRPCError } from "@trpc/server";
 import { getCurrentSession } from "@/lib/session";
 import { createId } from "@paralleldrive/cuid2";
+import { magicNumberToMimeType } from "@/lib/utils";
 
 export const teacherRouter = createTRPCRouter({
   submitProject: teacherProcedure
@@ -249,6 +250,66 @@ export const teacherRouter = createTRPCRouter({
       return {
         data,
         pageCount,
+      };
+    }),
+  getProjectById: teacherProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.db
+        .selectFrom("Project")
+        .leftJoin("User", "Project.authorEmail", "User.email")
+        .leftJoin(
+          "ProjectCategory",
+          "Project.projectCategoryId",
+          "ProjectCategory.id",
+        )
+        .leftJoin("Competition", "Project.competitionId", "Competition.id")
+        .leftJoin("Vote", "Project.id", "Vote.projectId")
+        .select([
+          "Project.id",
+          "Project.name",
+          "Project.description",
+          "Project.author",
+          "Project.authorEmail",
+          "User.picture as authorAvatar",
+          "ProjectCategory.id as projectCategoryId",
+          "Competition.id as competitionId",
+          "Project.subjectLevel",
+          "Project.projectUrl",
+          "Project.youtubeUrl",
+          // "Project.bannerImg",
+          "Project.projectType",
+        ])
+        .where("Project.id", "=", input)
+        .executeTakeFirst();
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // Encode the bannerImg if it exists
+      // let imageSrc: string | null = null;
+
+      // if (project.bannerImg) {
+      //   const imageBuffer = Buffer.from(project.bannerImg);
+      //   const encodedBannerImg = imageBuffer.toString("base64");
+
+      //   // Determine MIME type using magic numbers
+      //   const bannerImgMimeType = magicNumberToMimeType(imageBuffer);
+
+      //   if (bannerImgMimeType) {
+      //     imageSrc = `data:${bannerImgMimeType};base64,${encodedBannerImg}`;
+      //   } else {
+      //     console.warn("Unknown image format for project ID:", project.id);
+      //   }
+      // }
+
+      return {
+        ...project,
+        // imageSrc,
       };
     }),
 });

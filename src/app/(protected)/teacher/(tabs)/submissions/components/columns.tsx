@@ -13,6 +13,8 @@ import {
 } from "@/hooks/use-data-table";
 import { type RouterOutputs } from "@/trpc/react";
 
+import EditDialog from "./edit-dialog";
+
 type ProjectTableItem =
   RouterOutputs["teacher"]["getSubmittedProjects"]["data"][0];
 
@@ -90,20 +92,6 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
       );
     },
   },
-  // {
-  //   accessorKey: "submittedBy",
-  //   header: "Submitted By",
-  //   cell: ({ row }) => {
-  //     const submittedByName = row.original.submittedBy;
-  //     const submittedByEmail = row.original.submittedByEmail;
-  //     return (
-  //       <>
-  //         <span className="font-medium">{submittedByName}</span>
-  //         <div className="font-light">{submittedByEmail}</div>
-  //       </>
-  //     );
-  //   },
-  // },
   {
     accessorKey: "approvalStatus",
     header: "Approval Status",
@@ -145,6 +133,13 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
           )}
         </>
       );
+    },
+  },
+  {
+    id: "edit",
+    header: "",
+    cell: ({ row }) => {
+      return <EditDialog submissionId={row.original.id} />;
     },
   },
 ];

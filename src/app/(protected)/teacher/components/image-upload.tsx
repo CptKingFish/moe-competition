@@ -62,7 +62,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 className="hidden"
                 ref={fileInputRef}
               />
-              <Button onClick={handleButtonClick} variant="outline">
+              <Button
+                type="button"
+                onClick={handleButtonClick}
+                variant="outline"
+              >
                 Choose File
               </Button>
               <span className="ml-3 text-sm text-gray-500">
