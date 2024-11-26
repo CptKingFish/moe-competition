@@ -19,6 +19,8 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
 
   if (!Object.values(RoleTypes).includes(userRole)) return redirect("/");
 
+  if (user.schoolId === null) return redirect("/select-school");
+
   return (
     <SidebarProvider>
       <AppSidebar user={user} />
@@ -31,9 +33,7 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
           </div>
         </header>
         <ScrollArea className="h-[calc(100vh-4rem)] flex-1 overflow-x-auto overflow-y-auto p-4">
-          <div className="container mx-auto">
-            {children}
-          </div>
+          <div className="container mx-auto">{children}</div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
       </div>
