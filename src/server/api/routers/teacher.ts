@@ -290,7 +290,7 @@ export const teacherRouter = createTRPCRouter({
         });
       }
 
-      // Encode the bannerImg if it exists
+      // // Encode the bannerImg if it exists
       // let imageSrc: string | null = null;
 
       // if (project.bannerImg) {
@@ -310,6 +310,43 @@ export const teacherRouter = createTRPCRouter({
       return {
         ...project,
         // imageSrc,
+      };
+    }),
+  getBannerImgByProjectId: teacherProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.db
+        .selectFrom("Project")
+        .where("id", "=", input)
+        .select("bannerImg")
+        .executeTakeFirst();
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // Encode the bannerImg if it exists
+      let imageSrc: string | null = null;
+
+      if (project.bannerImg) {
+        const imageBuffer = Buffer.from(project.bannerImg);
+        const encodedBannerImg = imageBuffer.toString("base64");
+
+        // Determine MIME type using magic numbers
+        const bannerImgMimeType = magicNumberToMimeType(imageBuffer);
+
+        if (bannerImgMimeType) {
+          imageSrc = `data:${bannerImgMimeType};base64,${encodedBannerImg}`;
+        } else {
+          console.warn("Unknown image format");
+        }
+      }
+
+      return {
+        imageSrc,
       };
     }),
 });

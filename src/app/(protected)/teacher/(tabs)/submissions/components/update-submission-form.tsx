@@ -27,6 +27,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 import { Check, ChevronsUpDown } from "lucide-react";
 
@@ -38,6 +39,7 @@ import ImageUpload from "@/app/(protected)/teacher/components/image-upload";
 import { api, type RouterOutputs } from "@/trpc/react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { fetchBannerImgByProjectId } from "../actions/fetch-submission";
 
 const formSchema = z.object({
   competitionId: z.string(),
@@ -83,6 +85,9 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
   const [openProjectType, setOpenProjectType] = useState(false);
   const [openProjectCategory, setOpenProjectCategory] = useState(false);
   const [openCompetition, setOpenCompetition] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | undefined>(
+    undefined,
+  );
 
   const { data: projectCategories } =
     api.projects.getProjectCategories.useQuery();
@@ -127,8 +132,14 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
       };
 
       form.reset(formattedSubmission);
+
+      void fetchBannerImgByProjectId(submissionId).then((project) => {
+        if (project.imageSrc) {
+          setUploadedImageUrl(project.imageSrc);
+        }
+      });
     }
-  }, [form, projectFetched, submission]);
+  }, [form, projectFetched, submission, submissionId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -529,6 +540,21 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
             </Button> */}
           </div>
           <div className="w-full max-w-md space-y-8 py-5 md:m-5 md:w-1/2">
+            {uploadedImageUrl && (
+              <div className="mt-4">
+                <p className="mb-2 text-sm font-medium">
+                  Previously uploaded image:
+                </p>
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                  <Image
+                    src={uploadedImageUrl}
+                    alt="Preview"
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              </div>
+            )}
             <Controller
               control={form.control}
               name="bannerImg"
