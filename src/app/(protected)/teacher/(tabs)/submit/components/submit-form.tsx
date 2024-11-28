@@ -90,21 +90,22 @@ const SubmitForm = ({
   const [openProjectCategory, setOpenProjectCategory] = useState(false);
   const [openCompetition, setOpenCompetition] = useState(false);
 
-  const { mutate: submitProject, isPending: isSubmittingProject } =
+  const { mutateAsync: submitProject, isPending: isSubmittingProject } =
     api.teacher.submitProject.useMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       competitionId: undefined,
-      projectTitle: "",
+      projectTitle: undefined,
       projectCategoryId: undefined,
-      track: "G1",
-      projectType: "SCRATCH",
-      projectUrl: "",
-      studentName: "",
-      studentEmail: "",
-      description: "",
+      track: undefined,
+      projectType: undefined,
+      projectUrl: undefined,
+      studentName: undefined,
+      studentEmail: undefined,
+      description: undefined,
+      youtubeUrl: undefined,
     },
   });
 
@@ -117,7 +118,7 @@ const SubmitForm = ({
         bannerImg: undefined,
       };
       try {
-        submitProject(inputData);
+        await submitProject(inputData);
         toast.success("Project submitted successfully.");
         form.reset();
       } catch (error) {
@@ -130,7 +131,7 @@ const SubmitForm = ({
     const reader = new FileReader();
     reader.readAsDataURL(values.bannerImg); // Read file as Data URL (base64)
 
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const base64data = reader.result as string;
 
       const inputData = {
@@ -141,7 +142,7 @@ const SubmitForm = ({
       console.log(inputData);
 
       try {
-        submitProject(inputData);
+        await submitProject(inputData);
         toast.success("Project submitted successfully.");
         form.reset();
       } catch (error) {

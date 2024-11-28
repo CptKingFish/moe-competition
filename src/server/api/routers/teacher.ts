@@ -82,6 +82,77 @@ export const teacherRouter = createTRPCRouter({
         success: true,
       };
     }),
+  updateProject: teacherProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        projectTitle: z.string().min(3),
+        track: z.nativeEnum(SubjectLevel),
+        projectType: z.nativeEnum(ProjectType),
+        projectUrl: z.string().url(),
+        studentName: z.string().min(3),
+        studentEmail: z.string().email(),
+        youtubeUrl: z.string().url().optional(),
+        description: z.string().optional(),
+        bannerImg: z.string().optional(),
+        competitionId: z.string(),
+        projectCategoryId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      let imageBuffer: Buffer | null = null;
+      if (input.bannerImg) {
+        const parts = input.bannerImg.split(",");
+        if (parts.length > 1 && parts[1]) {
+          imageBuffer = Buffer.from(parts[1], "base64");
+        } else {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid base64 image",
+          });
+        }
+      }
+
+      // Retrieve the user ID from the session
+      const { user } = await getCurrentSession();
+
+      if (!user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User not authenticated",
+        });
+      }
+
+      // Dynamically build the update object
+      const updateData: Record<string, unknown> = {
+        name: input.projectTitle,
+        description: input.description ?? null,
+        author: input.studentName,
+        authorEmail: input.studentEmail,
+        competitionId: input.competitionId,
+        projectUrl: input.projectUrl,
+        subjectLevel: input.track,
+        projectType: input.projectType,
+        projectCategoryId: input.projectCategoryId,
+        youtubeUrl: input.youtubeUrl ?? null,
+      };
+
+      // Include bannerImg only if it's not null
+      if (imageBuffer) {
+        updateData.bannerImg = imageBuffer;
+      }
+
+      // Perform an update query on the Project table
+      await db
+        .updateTable("Project")
+        .set(updateData)
+        .where("id", "=", input.projectId)
+        .execute();
+
+      return {
+        success: true,
+      };
+    }),
   getSubmittedProjects: teacherProcedure
     .input(
       z.object({
@@ -277,7 +348,6 @@ export const teacherRouter = createTRPCRouter({
           "Project.subjectLevel",
           "Project.projectUrl",
           "Project.youtubeUrl",
-          // "Project.bannerImg",
           "Project.projectType",
         ])
         .where("Project.id", "=", input)
@@ -290,26 +360,8 @@ export const teacherRouter = createTRPCRouter({
         });
       }
 
-      // // Encode the bannerImg if it exists
-      // let imageSrc: string | null = null;
-
-      // if (project.bannerImg) {
-      //   const imageBuffer = Buffer.from(project.bannerImg);
-      //   const encodedBannerImg = imageBuffer.toString("base64");
-
-      //   // Determine MIME type using magic numbers
-      //   const bannerImgMimeType = magicNumberToMimeType(imageBuffer);
-
-      //   if (bannerImgMimeType) {
-      //     imageSrc = `data:${bannerImgMimeType};base64,${encodedBannerImg}`;
-      //   } else {
-      //     console.warn("Unknown image format for project ID:", project.id);
-      //   }
-      // }
-
       return {
         ...project,
-        // imageSrc,
       };
     }),
   getBannerImgByProjectId: teacherProcedure

@@ -1,17 +1,7 @@
 "use client";
 
-import { type ColumnDef } from "@tanstack/react-table";
-
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import DataTableColumnHeader from "@/app/(protected)/teacher/components/data-table-column-header";
 
-import {
-  type DataTableFilterableColumn,
-  type DataTableSearchableColumn,
-} from "@/hooks/use-data-table";
-import { type RouterOutputs } from "@/trpc/react";
 import { Pencil } from "lucide-react";
 
 import {
@@ -34,7 +24,7 @@ const EditDialog = ({ submissionId }: { submissionId: string }) => {
           <Pencil size={20} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-11/12 sm:max-w-[720px]">
+      <DialogContent className="max-h-10/12 sm:max-w-[720px]">
         <DialogHeader>
           <DialogTitle>Edit submission</DialogTitle>
           <DialogDescription>
@@ -43,9 +33,6 @@ const EditDialog = ({ submissionId }: { submissionId: string }) => {
           </DialogDescription>
         </DialogHeader>
         <UpdateSubmissionForm submissionId={submissionId} />
-        <DialogFooter>
-          <Button type="submit">Save changes</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -96,22 +96,22 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
   const { data: submission, isSuccess: projectFetched } =
     api.teacher.getProjectById.useQuery(submissionId);
 
-  const { mutate: submitProject, isPending: isSubmittingProject } =
-    api.teacher.submitProject.useMutation();
+  const { mutateAsync: updateProject, isPending: isUpdatingProject } =
+    api.teacher.updateProject.useMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       competitionId: undefined,
-      projectTitle: "",
+      projectTitle: undefined,
       projectCategoryId: undefined,
-      track: "G1",
-      projectType: "SCRATCH",
-      projectUrl: "",
-      studentName: "",
-      studentEmail: "",
-      description: "",
-      youtubeUrl: "",
+      track: undefined,
+      projectType: undefined,
+      projectUrl: undefined,
+      studentName: undefined,
+      studentEmail: undefined,
+      description: undefined,
+      youtubeUrl: undefined,
     },
   });
 
@@ -126,8 +126,8 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
         projectUrl: submission.projectUrl,
         studentName: submission.author,
         studentEmail: submission.authorEmail,
-        youtubeUrl: submission.youtubeUrl ?? "",
-        description: submission.description ?? "",
+        youtubeUrl: submission.youtubeUrl ?? undefined,
+        description: submission.description ?? undefined,
         bannerImg: undefined,
       };
 
@@ -142,15 +142,15 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
   }, [form, projectFetched, submission, submissionId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-
     if (!values.bannerImg) {
-      const inputData = {
+      const updateData = {
+        projectId: submissionId,
         ...values,
         bannerImg: undefined,
       };
+
       try {
-        // submitProject(inputData);
+        await updateProject(updateData);
         toast.success("Project submitted successfully.");
         form.reset();
       } catch (error) {
@@ -163,18 +163,17 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
     const reader = new FileReader();
     reader.readAsDataURL(values.bannerImg); // Read file as Data URL (base64)
 
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const base64data = reader.result as string;
 
-      const inputData = {
+      const updateData = {
+        projectId: submissionId,
         ...values,
         bannerImg: base64data,
       };
 
-      console.log(inputData);
-
       try {
-        // submitProject(inputData);
+        await updateProject(updateData);
         toast.success("Project submitted successfully.");
         form.reset();
       } catch (error) {
@@ -615,7 +614,7 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
             <Button
               className="w-full"
               type="submit"
-              disabled={isSubmittingProject}
+              disabled={isUpdatingProject}
             >
               Submit
             </Button>
@@ -626,7 +625,7 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
               variant="secondary"
               className="w-full"
               type="reset"
-              disabled={isSubmittingProject}
+              disabled={isUpdatingProject}
               onClick={() => form.reset()}
             >
               Reset
