@@ -5,6 +5,7 @@ import type { Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 import { Search } from "@/components/ui/search";
+import AddCategoryDialog from "./add-category-dialog";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -38,6 +39,7 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
           </Button>
         )}
       </div>
+      <AddCategoryDialog />
     </div>
   );
 };

@@ -40,6 +40,7 @@ import { api, type RouterOutputs } from "@/trpc/react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { fetchBannerImgByProjectId } from "../actions/fetch-submission";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   competitionId: z.string(),
@@ -81,6 +82,8 @@ const projectTypes = Object.values(ProjectType).map((projectType) => ({
 }));
 
 const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
+  const router = useRouter();
+
   const [openTrack, setOpenTrack] = useState(false);
   const [openProjectType, setOpenProjectType] = useState(false);
   const [openProjectCategory, setOpenProjectCategory] = useState(false);
@@ -152,7 +155,7 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
       try {
         await updateProject(updateData);
         toast.success("Project submitted successfully.");
-        form.reset();
+        router.refresh();
       } catch (error) {
         console.error("Error submitting project:", error);
         toast.error("Error submitting project.");

@@ -5,6 +5,8 @@ import type { Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 import { Search } from "@/components/ui/search";
+import { Plus } from "lucide-react";
+import AddCompetitionDialog from "./add-competition-dialog";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -38,6 +40,7 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
           </Button>
         )}
       </div>
+      <AddCompetitionDialog />
     </div>
   );
 };

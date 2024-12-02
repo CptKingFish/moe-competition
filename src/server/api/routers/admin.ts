@@ -459,10 +459,18 @@ export const adminRouter = createTRPCRouter({
         description: z.string().optional(),
         startDate: z.date(),
         endDate: z.date(),
-        createdById: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const session = await getCurrentSession();
+
+      if (!session.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You must be logged in to create a competition",
+        });
+      }
+
       const result = await ctx.db
         .insertInto("Competition")
         .values({
@@ -471,7 +479,7 @@ export const adminRouter = createTRPCRouter({
           description: "",
           startDate: new Date(),
           endDate: new Date(),
-          createdById: input.createdById,
+          createdById: session.user.id,
         })
         .returning("id")
         .execute();

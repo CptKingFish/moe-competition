@@ -135,6 +135,7 @@ export const teacherRouter = createTRPCRouter({
         projectType: input.projectType,
         projectCategoryId: input.projectCategoryId,
         youtubeUrl: input.youtubeUrl ?? null,
+        approvalStatus: "PENDING",
       };
 
       // Include bannerImg only if it's not null

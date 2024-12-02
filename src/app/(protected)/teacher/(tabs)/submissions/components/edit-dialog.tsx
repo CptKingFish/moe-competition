@@ -24,7 +24,7 @@ const EditDialog = ({ submissionId }: { submissionId: string }) => {
           <Pencil size={20} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-10/12 sm:max-w-[720px]">
+      <DialogContent className="max-h-fit sm:max-w-[720px]">
         <DialogHeader>
           <DialogTitle>Edit submission</DialogTitle>
           <DialogDescription>

@@ -39,13 +39,13 @@ model Session {
 
 model School {
     id    String @id
-    name  String
+    name  String @unique
     users User[]
 }
 
 model Competition {
     id          String    @id
-    name        String
+    name        String    @unique
     description String
     startDate   DateTime  @default(now()) @db.Timestamptz
     endDate     DateTime  @default(now()) @db.Timestamptz
