@@ -1,7 +1,12 @@
 import { z } from "zod";
-import { protectedProcedure, createTRPCRouter } from "@/server/api/trpc";
+import {
+  protectedProcedure,
+  createTRPCRouter,
+  adminProcedure,
+} from "@/server/api/trpc";
 import { getCurrentSession } from "@/lib/session";
 import { TRPCError } from "@trpc/server";
+import { createId } from "@paralleldrive/cuid2";
 
 export const schoolRouter = createTRPCRouter({
   getAllSchoolNames: protectedProcedure.query(async ({ ctx }) => {

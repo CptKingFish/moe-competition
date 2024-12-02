@@ -8,6 +8,9 @@ import { useEffect, useState } from "react";
 const adminTabOptions = [
   { value: "users", label: "Users" },
   { value: "projects", label: "Projects" },
+  { value: "competitions", label: "Competitions" },
+  { value: "categories", label: "Categories" },
+  { value: "schools", label: "Schools" },
 ];
 
 const AdminTabs = () => {

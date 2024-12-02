@@ -5,6 +5,7 @@ import { db } from "@/database";
 import { ApprovalStatus, Role, SubjectLevel } from "@/db/enums";
 import { getCurrentSession } from "@/lib/session";
 import { TRPCError } from "@trpc/server";
+import { createId } from "@paralleldrive/cuid2";
 
 export const adminRouter = createTRPCRouter({
   getUsers: adminProcedure
@@ -284,5 +285,291 @@ export const adminRouter = createTRPCRouter({
         })
         .where("id", "=", input.projectId)
         .execute();
+    }),
+  getSchools: adminProcedure
+    .input(
+      z.object({
+        searchName: z.string().optional(),
+        pageIndex: z.number().default(1),
+        pageSize: z.number().default(10),
+        sortBy: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const validOrderByFields = ["name"] as const;
+      let orderByField: (typeof validOrderByFields)[number] = "name";
+      let orderDirection: "asc" | "desc" = "desc";
+
+      // Parse the sortBy input if provided
+      if (input.sortBy) {
+        const sortParts = input.sortBy.split(".");
+        const field = sortParts[0];
+        const order = sortParts[1];
+
+        if (
+          field &&
+          validOrderByFields.includes(field as typeof orderByField)
+        ) {
+          orderByField = field as typeof orderByField;
+          orderDirection = order === "desc" ? "desc" : "asc";
+        }
+      }
+
+      let query = ctx.db
+        .selectFrom("School")
+        .leftJoin("User", "School.id", "User.schoolId")
+        .select([
+          "School.id as id",
+          "School.name as name",
+          ctx.db.fn.count("User.id").as("totalUsers"),
+        ])
+        .groupBy(["School.id"]);
+
+      let countQuery = ctx.db
+        .selectFrom("School")
+        .select((eb) => [eb.fn.count("School.id").as("count")]);
+
+      if (input.searchName) {
+        query = query.where("School.name", "ilike", `%${input.searchName}%`);
+        countQuery = countQuery.where(
+          "School.name",
+          "ilike",
+          `%${input.searchName}%`,
+        );
+      }
+
+      const data = await query
+        .orderBy(`School.${orderByField}`, orderDirection)
+        .limit(input.pageSize)
+        .offset((input.pageIndex - 1) * input.pageSize)
+        .execute();
+
+      // Execute the count query
+      const countResult = await countQuery.executeTakeFirst();
+      const totalCount = Number(countResult?.count ?? 0);
+      const pageCount = Math.ceil(totalCount / input.pageSize);
+
+      return {
+        data,
+        pageCount,
+      };
+    }),
+  createSchool: adminProcedure
+    .input(
+      z.object({
+        name: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.db
+        .insertInto("School")
+        .values({
+          id: createId(),
+          name: input.name,
+        })
+        .returning("id")
+        .execute();
+
+      return {
+        success: true,
+      };
+    }),
+  getCompetitions: adminProcedure
+    .input(
+      z.object({
+        searchName: z.string().optional(),
+        pageIndex: z.number().default(1),
+        pageSize: z.number().default(10),
+        sortBy: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const validOrderByFields = ["name", "startDate", "endDate"] as const;
+      let orderByField: (typeof validOrderByFields)[number] = "name";
+      let orderDirection: "asc" | "desc" = "desc";
+
+      // Parse the sortBy input if provided
+      if (input.sortBy) {
+        const sortParts = input.sortBy.split(".");
+        const field = sortParts[0];
+        const order = sortParts[1];
+
+        if (
+          field &&
+          validOrderByFields.includes(field as typeof orderByField)
+        ) {
+          orderByField = field as typeof orderByField;
+          orderDirection = order === "desc" ? "desc" : "asc";
+        }
+      }
+
+      let query = ctx.db
+        .selectFrom("Competition")
+        .leftJoin("User", "Competition.createdById", "User.id")
+        .leftJoin("Project", "Competition.id", "Project.competitionId")
+        .select([
+          "Competition.id as id",
+          "Competition.name as name",
+          "Competition.description as description",
+          "Competition.startDate as startDate",
+          "Competition.endDate as endDate",
+          "User.name as createdBy",
+          "User.email as createdByEmail",
+          ctx.db.fn.count("Project.id").as("totalProjects"),
+        ])
+        .groupBy(["Competition.id", "User.name", "User.email"]);
+
+      let countQuery = ctx.db
+        .selectFrom("Competition")
+        .select((eb) => [eb.fn.count("Competition.id").as("count")]);
+
+      if (input.searchName) {
+        query = query.where(
+          "Competition.name",
+          "ilike",
+          `%${input.searchName}%`,
+        );
+        countQuery = countQuery.where(
+          "Competition.name",
+          "ilike",
+          `%${input.searchName}%`,
+        );
+      }
+
+      const data = await query
+        .orderBy(`Competition.${orderByField}`, orderDirection)
+        .limit(input.pageSize)
+        .offset((input.pageIndex - 1) * input.pageSize)
+        .execute();
+
+      // Execute the count query
+      const countResult = await countQuery.executeTakeFirst();
+      const totalCount = Number(countResult?.count ?? 0);
+      const pageCount = Math.ceil(totalCount / input.pageSize);
+
+      return {
+        data,
+        pageCount,
+      };
+    }),
+  createCompetition: adminProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        startDate: z.date(),
+        endDate: z.date(),
+        createdById: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.db
+        .insertInto("Competition")
+        .values({
+          id: createId(),
+          name: input.name,
+          description: "",
+          startDate: new Date(),
+          endDate: new Date(),
+          createdById: input.createdById,
+        })
+        .returning("id")
+        .execute();
+
+      return {
+        success: true,
+      };
+    }),
+  getProjectCategories: adminProcedure
+    .input(
+      z.object({
+        searchName: z.string().optional(),
+        pageIndex: z.number().default(1),
+        pageSize: z.number().default(10),
+        sortBy: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const validOrderByFields = ["name"] as const;
+      let orderByField: (typeof validOrderByFields)[number] = "name";
+      let orderDirection: "asc" | "desc" = "desc";
+
+      // Parse the sortBy input if provided
+      if (input.sortBy) {
+        const sortParts = input.sortBy.split(".");
+        const field = sortParts[0];
+        const order = sortParts[1];
+
+        if (
+          field &&
+          validOrderByFields.includes(field as typeof orderByField)
+        ) {
+          orderByField = field as typeof orderByField;
+          orderDirection = order === "desc" ? "desc" : "asc";
+        }
+      }
+
+      let query = ctx.db
+        .selectFrom("ProjectCategory")
+        .leftJoin("Project", "ProjectCategory.id", "Project.projectCategoryId")
+        .select([
+          "ProjectCategory.id as id",
+          "ProjectCategory.name as name",
+          ctx.db.fn.count("Project.id").as("totalProjects"),
+        ])
+        .groupBy(["ProjectCategory.id"]);
+
+      let countQuery = ctx.db
+        .selectFrom("ProjectCategory")
+        .select((eb) => [eb.fn.count("ProjectCategory.id").as("count")]);
+
+      if (input.searchName) {
+        query = query.where(
+          "ProjectCategory.name",
+          "ilike",
+          `%${input.searchName}%`,
+        );
+        countQuery = countQuery.where(
+          "ProjectCategory.name",
+          "ilike",
+          `%${input.searchName}%`,
+        );
+      }
+
+      const data = await query
+        .orderBy(`ProjectCategory.${orderByField}`, orderDirection)
+        .limit(input.pageSize)
+        .offset((input.pageIndex - 1) * input.pageSize)
+        .execute();
+
+      // Execute the count query
+      const countResult = await countQuery.executeTakeFirst();
+      const totalCount = Number(countResult?.count ?? 0);
+      const pageCount = Math.ceil(totalCount / input.pageSize);
+
+      return {
+        data,
+        pageCount,
+      };
+    }),
+  createProjectCategory: adminProcedure
+    .input(
+      z.object({
+        name: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.db
+        .insertInto("ProjectCategory")
+        .values({
+          id: createId(),
+          name: input.name,
+        })
+        .returning("id")
+        .execute();
+
+      return {
+        success: true,
+      };
     }),
 });
