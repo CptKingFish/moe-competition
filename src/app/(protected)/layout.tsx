@@ -19,7 +19,8 @@ const ProtectedLayout = async ({ children }: { children: React.ReactNode }) => {
 
   if (!Object.values(RoleTypes).includes(userRole)) return redirect("/");
 
-  if (user.schoolId === null) return redirect("/select-school");
+  if (user.schoolId === null && userRole !== "ADMIN")
+    return redirect("/select-school");
 
   return (
     <SidebarProvider>
