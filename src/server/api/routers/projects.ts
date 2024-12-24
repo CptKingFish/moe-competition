@@ -74,13 +74,35 @@ export const projectsRouter = createTRPCRouter({
       .orderBy("ProjectCategory.name", "asc")
       .execute();
   }),
-  getCompetitions: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db
-      .selectFrom("Competition")
-      .select(["Competition.id as value", "Competition.name as label"])
-      .orderBy("Competition.name", "asc")
-      .execute();
-  }),
+  getCompetitions: publicProcedure
+    .input(
+      z
+        .object({
+          onlyOngoing: z.boolean().optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const currentDate = new Date();
+
+      // Build the base query
+      let query = ctx.db
+        .selectFrom("Competition")
+        .select(["id as value", "name as label"])
+        .orderBy("name", "asc");
+
+      // Add filter for only ongoing competitions if 'onlyOngoing' is true
+      if (input?.onlyOngoing) {
+        query = query
+          .where("startDate", "<=", currentDate)
+          .where("endDate", ">=", currentDate);
+      }
+
+      // Execute the query
+      const competitions = await query.execute();
+
+      return competitions;
+    }),
   getProjects: publicProcedure
     .input(
       z.object({

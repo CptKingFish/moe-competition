@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -160,9 +160,9 @@ const SubmitForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="flex min-h-screen flex-col items-center justify-center md:flex-row md:items-start">
-          <div className="w-full max-w-md space-y-8 py-5 md:m-5 md:w-1/2">
-            {/* <span className="font-semibold">Project Information</span> */}
+        <div className="flex flex-col items-center justify-center md:flex-row md:items-start">
+          <div className="w-full max-w-md space-y-8 md:m-5 md:w-1/2">
+            <span className="font-semibold">Project Information</span>
             <FormField
               control={form.control}
               name="competitionId"
@@ -322,70 +322,6 @@ const SubmitForm = ({
             />
             <FormField
               control={form.control}
-              name="track"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Track</FormLabel>
-                  <Popover open={openTrack} onOpenChange={setOpenTrack}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            "w-full justify-between",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          {field.value
-                            ? tracks.find(
-                                (track) => track.value === field.value,
-                              )?.label
-                            : "Select Track"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput placeholder="Search Track..." />
-                        <CommandList>
-                          <CommandEmpty>No tracks found.</CommandEmpty>
-                          <CommandGroup>
-                            {tracks.map((track) => (
-                              <CommandItem
-                                value={track.label}
-                                key={track.value}
-                                onSelect={() => {
-                                  form.setValue("track", track.value);
-                                  setOpenTrack(false);
-                                }}
-                              >
-                                {track.label}
-                                <Check
-                                  className={cn(
-                                    "ml-auto",
-                                    track.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0",
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  {/* <FormDescription>
-                This is the language that will be used in the dashboard.
-              </FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="projectType"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
@@ -471,63 +407,6 @@ const SubmitForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="studentName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Student Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Name" {...field} />
-                  </FormControl>
-                  {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="studentEmail"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Student Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Email" {...field} />
-                  </FormControl>
-                  {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* <Button className="w-full" type="submit">
-              Submit
-            </Button> */}
-          </div>
-          <div className="w-full max-w-md space-y-8 py-5 md:m-5 md:w-1/2">
-            <Controller
-              control={form.control}
-              name="bannerImg"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel className={fieldState.error ? "text-red-500" : ""}>
-                    Upload Banner Image
-                  </FormLabel>
-                  <FormControl>
-                    <ImageUpload
-                      value={field.value}
-                      onChange={(value) => field.onChange(value)}
-                      onBlur={field.onBlur}
-                      error={fieldState.error}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             {/* <ImageUpload /> */}
             <FormField
               control={form.control}
@@ -561,8 +440,140 @@ const SubmitForm = ({
                 </FormItem>
               )}
             />
+            {/* <Button className="w-full" type="submit">
+              Submit
+            </Button> */}
+          </div>
+          <div className="w-full max-w-md space-y-8 md:m-5 md:w-1/2">
+            <Controller
+              control={form.control}
+              name="bannerImg"
+              render={({ field, fieldState }) => (
+                <FormItem className="mt-8">
+                  <FormLabel className={fieldState.error ? "text-red-500" : ""}>
+                    Upload Banner Image
+                  </FormLabel>
+                  <FormControl>
+                    <ImageUpload
+                      value={field.value}
+                      onChange={(value) => field.onChange(value)}
+                      onBlur={field.onBlur}
+                      error={fieldState.error}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="m-2"></div>
+            <span className="font-semibold">Student Information</span>
+            <FormField
+              control={form.control}
+              name="studentName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Student Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Name" {...field} />
+                  </FormControl>
+                  {/* <FormDescription>
+                This is your public display name.
+              </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="studentEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Student Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Email" {...field} />
+                  </FormControl>
+                  {/* <FormDescription>
+                This is your public display name.
+              </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="track"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Track</FormLabel>
+                  <Popover open={openTrack} onOpenChange={setOpenTrack}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value
+                            ? tracks.find(
+                                (track) => track.value === field.value,
+                              )?.label
+                            : "Select Track"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Search Track..." />
+                        <CommandList>
+                          <CommandEmpty>No tracks found.</CommandEmpty>
+                          <CommandGroup>
+                            {tracks.map((track) => (
+                              <CommandItem
+                                value={track.label}
+                                key={track.value}
+                                onSelect={() => {
+                                  form.setValue("track", track.value);
+                                  setOpenTrack(false);
+                                }}
+                              >
+                                {track.label}
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    track.value === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {/* <FormDescription>
+                This is the language that will be used in the dashboard.
+              </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
+        <div className="mt-3 flex items-center justify-center space-x-4">
+          <div className="flex-grow border-t border-gray-300"></div>
+          <Button variant="outline" size="icon">
+            <Plus />
+          </Button>
+          <div className="flex-grow border-t border-gray-300"></div>
+        </div>
+
         <div className="flex flex-col items-center justify-center md:flex-row">
           <div className="m-5 w-3/4 max-w-md md:w-1/2">
             <Button

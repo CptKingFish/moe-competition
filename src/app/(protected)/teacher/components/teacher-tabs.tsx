@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const teacherTabOptions = [
-  { value: "submissions", label: "My Submissions" },
+  { value: "submissions", label: "School's Submissions" },
   { value: "submit", label: "Submit" },
 ];
 

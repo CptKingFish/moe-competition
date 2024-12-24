@@ -20,6 +20,7 @@ export type Project = {
     description: string | null;
     submittedAt: Generated<Timestamp>;
     submittedById: string;
+    linkedSchoolId: string;
     author: string;
     authorEmail: string;
     competitionId: string;

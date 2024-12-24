@@ -139,6 +139,14 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
     id: "edit",
     header: "",
     cell: ({ row }) => {
+      const competitionEndDate = row.original.competitionEndDate;
+
+      if (
+        competitionEndDate !== null &&
+        new Date(competitionEndDate) < new Date()
+      ) {
+        return null;
+      }
       return <EditDialog submissionId={row.original.id} />;
     },
   },

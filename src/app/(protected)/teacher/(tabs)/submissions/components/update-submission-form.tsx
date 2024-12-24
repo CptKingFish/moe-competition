@@ -195,8 +195,8 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col items-center justify-center md:flex-row md:items-start">
-          <div className="w-full max-w-md space-y-8 py-5 md:m-5 md:w-1/2">
-            {/* <span className="font-semibold">Project Information</span> */}
+          <div className="w-full max-w-md space-y-8 md:m-5 md:w-1/2">
+            <span className="font-semibold">Project Information</span>
             <FormField
               control={form.control}
               name="competitionId"
@@ -354,70 +354,7 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="track"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Track</FormLabel>
-                  <Popover open={openTrack} onOpenChange={setOpenTrack}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            "w-full justify-between",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          {field.value
-                            ? tracks.find(
-                                (track) => track.value === field.value,
-                              )?.label
-                            : "Select Track"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput placeholder="Search Track..." />
-                        <CommandList>
-                          <CommandEmpty>No tracks found.</CommandEmpty>
-                          <CommandGroup>
-                            {tracks.map((track) => (
-                              <CommandItem
-                                value={track.label}
-                                key={track.value}
-                                onSelect={() => {
-                                  form.setValue("track", track.value);
-                                  setOpenTrack(false);
-                                }}
-                              >
-                                {track.label}
-                                <Check
-                                  className={cn(
-                                    "ml-auto",
-                                    track.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0",
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  {/* <FormDescription>
-                This is the language that will be used in the dashboard.
-              </FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <FormField
               control={form.control}
               name="projectType"
@@ -505,14 +442,15 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
                 </FormItem>
               )}
             />
+            {/* <ImageUpload /> */}
             <FormField
               control={form.control}
-              name="studentName"
+              name="youtubeUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Student Name</FormLabel>
+                  <FormLabel>Youtube URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="Name" {...field} />
+                    <Input placeholder="URL" {...field} />
                   </FormControl>
                   {/* <FormDescription>
                 This is your public display name.
@@ -523,12 +461,12 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
             />
             <FormField
               control={form.control}
-              name="studentEmail"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Student Email</FormLabel>
+                  <FormLabel>Project Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="Email" {...field} />
+                    <Textarea placeholder="Description" {...field} />
                   </FormControl>
                   {/* <FormDescription>
                 This is your public display name.
@@ -541,7 +479,7 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
               Submit
             </Button> */}
           </div>
-          <div className="w-full max-w-md space-y-8 py-5 md:m-5 md:w-1/2">
+          <div className="w-full max-w-md space-y-8 md:m-5 md:w-1/2">
             {uploadedImageUrl && (
               <div className="mt-4">
                 <p className="mb-2 text-sm font-medium">
@@ -577,15 +515,16 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
                 </FormItem>
               )}
             />
-            {/* <ImageUpload /> */}
+            <div className="m-2"></div>
+            <span className="font-semibold">Student Information</span>
             <FormField
               control={form.control}
-              name="youtubeUrl"
+              name="studentName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Youtube URL</FormLabel>
+                  <FormLabel>Student Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="URL" {...field} />
+                    <Input placeholder="Name" {...field} />
                   </FormControl>
                   {/* <FormDescription>
                 This is your public display name.
@@ -596,15 +535,79 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
             />
             <FormField
               control={form.control}
-              name="description"
+              name="studentEmail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Description</FormLabel>
+                  <FormLabel>Student Email</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Description" {...field} />
+                    <Input placeholder="Email" {...field} />
                   </FormControl>
                   {/* <FormDescription>
                 This is your public display name.
+              </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="track"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Track</FormLabel>
+                  <Popover open={openTrack} onOpenChange={setOpenTrack}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value
+                            ? tracks.find(
+                                (track) => track.value === field.value,
+                              )?.label
+                            : "Select Track"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Search Track..." />
+                        <CommandList>
+                          <CommandEmpty>No tracks found.</CommandEmpty>
+                          <CommandGroup>
+                            {tracks.map((track) => (
+                              <CommandItem
+                                value={track.label}
+                                key={track.value}
+                                onSelect={() => {
+                                  form.setValue("track", track.value);
+                                  setOpenTrack(false);
+                                }}
+                              >
+                                {track.label}
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    track.value === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {/* <FormDescription>
+                This is the language that will be used in the dashboard.
               </FormDescription> */}
                   <FormMessage />
                 </FormItem>

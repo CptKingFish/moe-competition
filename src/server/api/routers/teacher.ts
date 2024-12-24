@@ -42,7 +42,7 @@ export const teacherRouter = createTRPCRouter({
       // Retrieve the user ID from the session
       const { user } = await getCurrentSession();
 
-      if (!user) {
+      if (!user?.schoolId) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "User not authenticated",
@@ -50,6 +50,7 @@ export const teacherRouter = createTRPCRouter({
       }
 
       const submittedById = user.id;
+      const linkedSchoolId = user.schoolId;
 
       // Get the current timestamp
       const submittedAt = new Date();
@@ -62,6 +63,7 @@ export const teacherRouter = createTRPCRouter({
           description: input.description ?? null,
           submittedAt,
           submittedById,
+          linkedSchoolId,
           author: input.studentName,
           authorEmail: input.studentEmail,
           competitionId: input.competitionId,
@@ -123,6 +125,31 @@ export const teacherRouter = createTRPCRouter({
         });
       }
 
+      // Check if the competition is ongoing
+      const competition = await db
+        .selectFrom("Competition")
+        .select(["startDate", "endDate"])
+        .where("id", "=", input.competitionId)
+        .executeTakeFirst();
+
+      if (!competition) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Competition not found",
+        });
+      }
+
+      const now = new Date();
+      if (
+        now < new Date(competition.startDate) ||
+        now > new Date(competition.endDate)
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You can only edit projects from ongoing competitions.",
+        });
+      }
+
       // Dynamically build the update object
       const updateData: Record<string, unknown> = {
         name: input.projectTitle,
@@ -170,9 +197,9 @@ export const teacherRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { session } = await getCurrentSession();
+      const { user } = await getCurrentSession();
 
-      if (!session) {
+      if (!user) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "User not authenticated",
@@ -215,8 +242,6 @@ export const teacherRouter = createTRPCRouter({
         .select([
           "Project.id",
           "Project.name",
-          // "submittedByUser.name as submittedBy",
-          // "submittedByUser.email as submittedByEmail",
           "approver.name as approver",
           "approver.email as approverEmail",
           "approvalStatus",
@@ -226,8 +251,9 @@ export const teacherRouter = createTRPCRouter({
           "Competition.name as competition",
           "Project.subjectLevel",
           "ProjectCategory.name as category",
+          "Competition.endDate as competitionEndDate",
         ])
-        .where("Project.submittedById", "=", session.userId);
+        .where("Project.linkedSchoolId", "=", user.schoolId);
 
       let countQuery = db
         .selectFrom("Project")
@@ -239,7 +265,7 @@ export const teacherRouter = createTRPCRouter({
           "ProjectCategory.id",
         )
         .select((eb) => [eb.fn.count("Project.id").as("count")])
-        .where("Project.submittedById", "=", session.userId);
+        .where("Project.linkedSchoolId", "=", user.schoolId);
 
       // Apply the name filter if provided
       if (input.searchName) {
