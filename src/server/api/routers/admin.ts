@@ -101,6 +101,58 @@ export const adminRouter = createTRPCRouter({
         pageCount,
       };
     }),
+  assignUserToRole: adminProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        email: z.string().email(),
+        role: z.nativeEnum(Role),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      console.log("input", input);
+
+      // Search for the user with the provided email
+      const user = await db
+        .selectFrom("User")
+        .select(["id", "email"])
+        .where("User.email", "=", input.email)
+        .executeTakeFirst();
+
+      console.log("user", user);
+
+      if (user) {
+        await db
+          .updateTable("User")
+          .set({
+            role: input.role,
+          })
+          .where("id", "=", user.id)
+          .execute();
+        console.log("user updated");
+      } else {
+        // If the user exists, update the user's role // If the user doesn't exist, create new user with the provided email and role
+        await db
+          .insertInto("User")
+          .values({
+            id: createId(),
+            name: input.name,
+            email: input.email,
+            role: input.role,
+          })
+          .execute();
+        console.log("user created");
+      }
+
+      // const result = await ctx.db
+      //   .updateTable("User")
+      //   .set({
+      //     approvalStatus: input.role,
+      //     approverId: session.user.id,
+      //   })
+      //   .where("id", "=", input.projectId)
+      //   .execute();
+    }),
   getAllSchoolNames: adminProcedure.query(async () => {
     const data = await db
       .selectFrom("School")
@@ -110,6 +162,28 @@ export const adminRouter = createTRPCRouter({
 
     return data;
   }),
+  renameSchool: adminProcedure
+    .input(z.object({ id: z.string(), name: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await db
+        .updateTable("School")
+        .set({ name: input.name })
+        .where("id", "=", input.id)
+        .execute();
+    }),
+  mergeSchools: adminProcedure
+    .input(z.object({ fromId: z.string(), toId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await db.transaction().execute(async (trx) => {
+        await trx
+          .updateTable("User")
+          .set({ schoolId: input.toId })
+          .where("schoolId", "=", input.fromId)
+          .execute();
+
+        await trx.deleteFrom("School").where("id", "=", input.fromId).execute();
+      });
+    }),
   getProjects: adminProcedure
     .input(
       z.object({

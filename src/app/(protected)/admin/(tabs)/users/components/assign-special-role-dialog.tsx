@@ -13,25 +13,28 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import AddSchoolForm from "./add-school-form";
+import AssignSpecialRoleForm from "./assign-special-role-form";
 
-const AddSchoolDialog = () => {
+const AssignSpecialRoleDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button className="p-2">
-          <Plus size={20} /> Add School
+          <Plus size={20} /> Assign Special Role
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-fit sm:max-w-[720px]">
         <DialogHeader>
-          <DialogTitle>Add School</DialogTitle>
-          <DialogDescription>Add a new school.</DialogDescription>
+          <DialogTitle>Assign Special Role</DialogTitle>
+          <DialogDescription>
+            Assign a user email to a special role (TEACHER / ADMIN). Note that
+            unassigned users will have the &apos;STUDENT&apos; role.
+          </DialogDescription>
         </DialogHeader>
-        <AddSchoolForm />
+        <AssignSpecialRoleForm />
       </DialogContent>
     </Dialog>
   );
 };
 
-export default AddSchoolDialog;
+export default AssignSpecialRoleDialog;

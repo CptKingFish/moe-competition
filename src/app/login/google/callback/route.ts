@@ -58,10 +58,23 @@ export async function GET(request: Request): Promise<Response> {
   const existingUser = await db
     .selectFrom("User")
     .selectAll()
-    .where("User.googleId", "=", googleUserId)
+    // .where("User.googleId", "=", googleUserId)
+    .where("User.email", "=", email)
     .executeTakeFirst();
 
   if (existingUser) {
+    if (!existingUser.googleId) {
+      await db
+        .updateTable("User")
+        .set({
+          name: username,
+          googleId: googleUserId,
+          picture,
+        })
+        .where("User.id", "=", existingUser.id)
+        .execute();
+    }
+
     const sessionToken = await generateSessionToken();
     const session = await createSession(sessionToken, existingUser.id);
     const response = new Response(null, {

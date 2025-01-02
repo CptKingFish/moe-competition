@@ -48,10 +48,10 @@ export type Session = {
 };
 export type User = {
     id: string;
-    googleId: string;
-    name: string;
+    googleId: string | null;
+    name: string | null;
     email: string;
-    picture: string;
+    picture: string | null;
     role: Role;
     schoolId: string | null;
 };

@@ -9,6 +9,7 @@ import { Search } from "@/components/ui/search";
 import { Role } from "@/db/enums";
 import DataTableFacetedFilter from "@/app/(protected)/admin/components/data-table-faceted-filter";
 import { api } from "@/trpc/react";
+import AssignSpecialRoleDialog from "./assign-special-role-dialog";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -74,6 +75,7 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
           </Button>
         )}
       </div>
+      <AssignSpecialRoleDialog />
     </div>
   );
 };
