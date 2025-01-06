@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 const teacherTabOptions = [
   { value: "submissions", label: "School's Submissions" },
+  { value: "drafts", label: "Drafts" },
   { value: "submit", label: "Submit" },
 ];
 

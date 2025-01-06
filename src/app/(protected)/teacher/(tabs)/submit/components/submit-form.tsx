@@ -93,6 +93,9 @@ const SubmitForm = ({
   const { mutateAsync: submitProject, isPending: isSubmittingProject } =
     api.teacher.submitProject.useMutation();
 
+  const { mutateAsync: saveProjectDraft, isPending: isSavingProjectDraft } =
+    api.teacher.saveProjectDraft.useMutation();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -157,12 +160,61 @@ const SubmitForm = ({
     };
   }
 
+  async function onSaveAsDraft() {
+    const values = form.getValues();
+    console.log(values);
+
+    if (!values.bannerImg) {
+      const inputData = {
+        ...values,
+        bannerImg: undefined,
+      };
+      try {
+        await saveProjectDraft(inputData);
+        toast.success("Project saved as draft successfully.");
+        form.reset();
+      } catch (error) {
+        console.error("Error saving project as draft:", error);
+        toast.error("Error saving project as draft.");
+      }
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(values.bannerImg); // Read file as Data URL (base64)
+
+    reader.onloadend = async () => {
+      const base64data = reader.result as string;
+
+      const inputData = {
+        ...values,
+        bannerImg: base64data,
+      };
+
+      console.log(inputData);
+
+      try {
+        await saveProjectDraft(inputData);
+        toast.success("Project saved as draft successfully.");
+        form.reset();
+      } catch (error) {
+        console.error("Error saving project as draft:", error);
+        toast.error("Error saving project as draft.");
+      }
+    };
+
+    reader.onerror = (error) => {
+      console.error("Error reading file:", error);
+      toast.error("Error reading file.");
+    };
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col items-center justify-center md:flex-row md:items-start">
           <div className="w-full max-w-md space-y-8 md:m-5 md:w-1/2">
-            <span className="font-semibold">Project Information</span>
+            <span className="font-bold">Project Information</span>
             <FormField
               control={form.control}
               name="competitionId"
@@ -467,7 +519,7 @@ const SubmitForm = ({
             />
 
             <div className="m-2"></div>
-            <span className="font-semibold">Student Information</span>
+            <span className="font-bold">Student Information</span>
             <FormField
               control={form.control}
               name="studentName"
@@ -588,6 +640,18 @@ const SubmitForm = ({
           <div className="m-5 w-3/4 max-w-md md:w-1/2">
             <Button
               variant="secondary"
+              className="w-full"
+              // type="button"
+              disabled={isSavingProjectDraft}
+              onClick={onSaveAsDraft}
+            >
+              Save as draft
+            </Button>
+          </div>
+
+          <div className="m-5 w-3/4 max-w-md md:w-1/2">
+            <Button
+              variant="outline"
               className="w-full"
               type="reset"
               disabled={isSubmittingProject}

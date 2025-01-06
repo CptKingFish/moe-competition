@@ -37,6 +37,23 @@ export type ProjectCategory = {
     id: string;
     name: string;
 };
+export type ProjectDraft = {
+    id: string;
+    name: string | null;
+    description: string | null;
+    draftedAt: Generated<Timestamp>;
+    draftedById: string;
+    linkedSchoolId: string;
+    author: string | null;
+    authorEmail: string | null;
+    competitionId: string | null;
+    projectUrl: string | null;
+    subjectLevel: SubjectLevel | null;
+    projectType: ProjectType | null;
+    projectCategoryId: string | null;
+    youtubeUrl: string | null;
+    bannerImg: Buffer | null;
+};
 export type School = {
     id: string;
     name: string;
@@ -64,6 +81,7 @@ export type DB = {
     Competition: Competition;
     Project: Project;
     ProjectCategory: ProjectCategory;
+    ProjectDraft: ProjectDraft;
     School: School;
     Session: Session;
     User: User;

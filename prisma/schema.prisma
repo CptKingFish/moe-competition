@@ -14,19 +14,20 @@ datasource db {
 }
 
 model User {
-    id                String        @id @default(cuid())
-    googleId          String?       @unique
+    id                String         @id @default(cuid())
+    googleId          String?        @unique
     name              String?
-    email             String        @unique
+    email             String         @unique
     picture           String?
     sessions          Session[]
     role              Role
     competitions      Competition[]
-    submittedProjects Project[]     @relation("SubmittedProjects")
+    submittedProjects Project[]      @relation("SubmittedProjects")
     votes             Vote[]
-    school            School?       @relation(fields: [schoolId], references: [id])
+    school            School?        @relation(fields: [schoolId], references: [id])
     schoolId          String?
-    approverProjects  Project[]     @relation("ApproverProjects")
+    approverProjects  Project[]      @relation("ApproverProjects")
+    projectDrafts     ProjectDraft[] @relation("DraftedProjects")
 }
 
 model Session {
@@ -38,21 +39,23 @@ model Session {
 }
 
 model School {
-    id       String    @id
-    name     String    @unique
-    users    User[]
-    projects Project[]
+    id           String         @id
+    name         String         @unique
+    users        User[]
+    projects     Project[]
+    ProjectDraft ProjectDraft[]
 }
 
 model Competition {
-    id          String    @id
-    name        String    @unique
-    description String
-    startDate   DateTime  @default(now()) @db.Timestamptz
-    endDate     DateTime  @default(now()) @db.Timestamptz
-    createdBy   User      @relation(fields: [createdById], references: [id])
-    createdById String
-    projects    Project[]
+    id           String         @id
+    name         String         @unique
+    description  String
+    startDate    DateTime       @default(now()) @db.Timestamptz
+    endDate      DateTime       @default(now()) @db.Timestamptz
+    createdBy    User           @relation(fields: [createdById], references: [id])
+    createdById  String
+    projects     Project[]
+    ProjectDraft ProjectDraft[]
 }
 
 model Project {
@@ -81,6 +84,28 @@ model Project {
     approvalStatus    ApprovalStatus  @default(PENDING)
 }
 
+model ProjectDraft {
+    id                String           @id
+    name              String?
+    description       String?
+    draftedAt         DateTime         @default(now()) @db.Timestamptz
+    draftedBy         User             @relation("DraftedProjects", fields: [draftedById], references: [id])
+    draftedById       String
+    linkedSchool      School           @relation(fields: [linkedSchoolId], references: [id])
+    linkedSchoolId    String
+    author            String?
+    authorEmail       String?
+    competition       Competition?     @relation(fields: [competitionId], references: [id])
+    competitionId     String?
+    projectUrl        String?
+    subjectLevel      SubjectLevel?
+    projectType       ProjectType?
+    projectCategory   ProjectCategory? @relation(fields: [projectCategoryId], references: [id])
+    projectCategoryId String?
+    youtubeUrl        String?
+    bannerImg         Bytes?
+}
+
 model Vote {
     id        String  @id
     user      User    @relation(fields: [userId], references: [id])
@@ -90,9 +115,10 @@ model Vote {
 }
 
 model ProjectCategory {
-    id      String    @id
-    name    String    @unique
-    Project Project[]
+    id           String         @id
+    name         String         @unique
+    Project      Project[]
+    ProjectDraft ProjectDraft[]
 }
 
 enum Role {

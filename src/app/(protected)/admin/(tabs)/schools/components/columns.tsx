@@ -10,6 +10,7 @@ import {
   type DataTableSearchableColumn,
 } from "@/hooks/use-data-table";
 import { type RouterOutputs } from "@/trpc/react";
+import EditSchoolDialog from "./edit-school-dialog";
 type SchoolsTableItem = RouterOutputs["admin"]["getSchools"]["data"][0];
 
 export const columns: ColumnDef<SchoolsTableItem>[] = [
@@ -40,6 +41,18 @@ export const columns: ColumnDef<SchoolsTableItem>[] = [
             {totalUsers}
           </Badge>
         </div>
+      );
+    },
+  },
+  {
+    id: "edit",
+    header: "",
+    cell: ({ row }) => {
+      return (
+        <EditSchoolDialog
+          schoolId={row.original.id}
+          schoolName={row.original.name}
+        />
       );
     },
   },

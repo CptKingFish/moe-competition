@@ -72,12 +72,12 @@ export const navigation: Navigation = [
     items: [
       {
         title: "Teachers' Panel",
-        url: "/teacher",
+        url: "/teacher/submissions",
         icon: GraduationCap,
       },
       {
         title: "Admin Panel",
-        url: "/admin",
+        url: "/admin/users",
         icon: ShieldHalf,
         accessibleTo: ["ADMIN"],
       },
