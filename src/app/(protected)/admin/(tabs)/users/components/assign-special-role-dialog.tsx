@@ -28,7 +28,9 @@ const AssignSpecialRoleDialog = () => {
           <DialogTitle>Assign Special Role</DialogTitle>
           <DialogDescription>
             Assign a user email to a special role (TEACHER / ADMIN). Note that
-            unassigned users will have the &apos;STUDENT&apos; role.
+            unassigned users will have the &apos;STUDENT&apos; role. If the user
+            email already exists in the records, their name and role will be
+            updated.
           </DialogDescription>
         </DialogHeader>
         <AssignSpecialRoleForm />

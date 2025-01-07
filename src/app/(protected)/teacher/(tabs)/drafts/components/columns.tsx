@@ -15,9 +15,10 @@ import { type RouterOutputs } from "@/trpc/react";
 
 import EditDialog from "./edit-dialog";
 
-type ProjectTableItem = RouterOutputs["teacher"]["getProjectDrafts"]["data"][0];
+type ProjectDraftTableItem =
+  RouterOutputs["teacher"]["getProjectDrafts"]["data"][0];
 
-export const columns: ColumnDef<ProjectTableItem>[] = [
+export const columns: ColumnDef<ProjectDraftTableItem>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -39,7 +40,7 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
     accessorKey: "category",
     header: "Category",
     cell: ({ row }) => {
-      const category = (row.original.category as string) ?? "Unassigned";
+      const category = row.original.category! ?? "-";
       return (
         <div>
           <Badge variant="outline" className="mr-2">
@@ -53,7 +54,7 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
     accessorKey: "subjectLevel",
     header: "Subject Level",
     cell: ({ row }) => {
-      const subjectLevel = row.original.subjectLevel;
+      const subjectLevel = row.original.subjectLevel ?? "-";
       return (
         <div>
           <Badge variant="outline" className="mr-2">
@@ -67,8 +68,7 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
     accessorKey: "competition",
     header: "Competition",
     cell: ({ row }) => {
-      const competition: string =
-        (row.original.competition as string) ?? "Unassigned";
+      const competition: string = row.original.competition! ?? "-";
       return (
         <div>
           <Badge variant="outline" className="mr-2">
@@ -82,8 +82,8 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
     accessorKey: "author",
     header: "Author",
     cell: ({ row }) => {
-      const authorName = row.original.author;
-      const authorEmail = row.original.authorEmail;
+      const authorName = row.original.author ?? "-";
+      const authorEmail = row.original.authorEmail ?? "-";
       return (
         <>
           <span className="font-medium">{authorName}</span>
@@ -96,20 +96,13 @@ export const columns: ColumnDef<ProjectTableItem>[] = [
     id: "edit",
     header: "",
     cell: ({ row }) => {
-      // const competitionEndDate = row.original.competitionEndDate;
-
-      // if (
-      //   competitionEndDate !== null &&
-      //   new Date(competitionEndDate) < new Date()
-      // ) {
-      //   return null;
-      // }
-      return <EditDialog submissionId={row.original.id} />;
+      console.log("id", row.original.id);
+      return <EditDialog draftId={row.original.id} />;
     },
   },
 ];
 
-export const searchableColumns: DataTableSearchableColumn<ProjectTableItem>[] =
+export const searchableColumns: DataTableSearchableColumn<ProjectDraftTableItem>[] =
   [
     {
       id: "name",
@@ -117,7 +110,7 @@ export const searchableColumns: DataTableSearchableColumn<ProjectTableItem>[] =
     },
   ];
 
-export const filterableColumns: DataTableFilterableColumn<ProjectTableItem>[] =
+export const filterableColumns: DataTableFilterableColumn<ProjectDraftTableItem>[] =
   [
     {
       id: "category",

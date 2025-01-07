@@ -180,6 +180,7 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
         await updateProject(updateData);
         toast.success("Project submitted successfully.");
         form.reset();
+        router.refresh();
       } catch (error) {
         console.error("Error submitting project:", error);
         toast.error("Error submitting project.");

@@ -30,7 +30,7 @@ import { Input } from "@/components/ui/input";
 
 import { Check, ChevronsUpDown, Plus } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, transformEmptyToUndefined } from "@/lib/utils";
 
 import { ProjectType, SubjectLevel } from "@/db/enums";
 import { useState } from "react";
@@ -66,6 +66,10 @@ const formSchema = z.object({
       "Banner image can only be uploaded in JPEG or PNG format.",
     )
     .optional(),
+});
+
+const draftSchema = formSchema.partial().extend({
+  projectTitle: formSchema.shape.projectTitle,
 });
 
 const tracks = Object.values(SubjectLevel).map((track) => ({
@@ -161,8 +165,30 @@ const SubmitForm = ({
   }
 
   async function onSaveAsDraft() {
-    const values = form.getValues();
-    console.log(values);
+    let formValues = form.getValues();
+    formValues = transformEmptyToUndefined(formValues);
+
+    // Validate using the custom update schema
+    const parseResult = draftSchema.safeParse(formValues);
+    if (!parseResult.success) {
+      // Clear previous errors
+      Object.keys(form.formState.errors).forEach((field) => {
+        form.clearErrors(field as keyof typeof values);
+      });
+
+      // Map Zod errors to form errors
+      parseResult.error.errors.forEach(({ path, message }) => {
+        const fieldName = path[0] as keyof typeof values;
+        form.setError(fieldName, { message });
+      });
+
+      return;
+    }
+
+    // Validation succeeded: clear any remaining errors
+    form.clearErrors();
+
+    const values = parseResult.data;
 
     if (!values.bannerImg) {
       const inputData = {
@@ -215,6 +241,22 @@ const SubmitForm = ({
         <div className="flex flex-col items-center justify-center md:flex-row md:items-start">
           <div className="w-full max-w-md space-y-8 md:m-5 md:w-1/2">
             <span className="font-bold">Project Information</span>
+            <FormField
+              control={form.control}
+              name="projectTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Title *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Title" {...field} />
+                  </FormControl>
+                  {/* <FormDescription>
+                This is your public display name.
+              </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="competitionId"
@@ -286,22 +328,7 @@ const SubmitForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="projectTitle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Project Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Title" {...field} />
-                  </FormControl>
-                  {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <FormField
               control={form.control}
               name="projectCategoryId"
@@ -641,7 +668,7 @@ const SubmitForm = ({
             <Button
               variant="secondary"
               className="w-full"
-              // type="button"
+              type="button"
               disabled={isSavingProjectDraft}
               onClick={onSaveAsDraft}
             >

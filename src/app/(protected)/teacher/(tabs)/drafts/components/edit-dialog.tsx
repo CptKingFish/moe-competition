@@ -14,9 +14,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import UpdateSubmissionForm from "./update-submission-form";
+import UpdateDraftForm from "./update-draft-form";
 
-const EditDialog = ({ submissionId }: { submissionId: string }) => {
+const EditDialog = ({ draftId }: { draftId: string }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -24,15 +24,15 @@ const EditDialog = ({ submissionId }: { submissionId: string }) => {
           <Pencil size={20} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-fit sm:max-w-[720px]">
+      <DialogContent className="max-h-[95vh] overflow-y-auto sm:max-w-[720px]">
         <DialogHeader>
-          <DialogTitle>Edit submission</DialogTitle>
+          <DialogTitle>Edit draft</DialogTitle>
           <DialogDescription>
-            Make changes to your submission here. Click save when you&apos;re
-            done.
+            Make changes to your draft here. You are able to submit it as a
+            project or save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
-        <UpdateSubmissionForm submissionId={submissionId} />
+        <UpdateDraftForm draftId={draftId} />
       </DialogContent>
     </Dialog>
   );

@@ -16,39 +16,33 @@ import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-const WithdrawDialog = ({ submissionId }: { submissionId: string }) => {
+const DeleteDraftDialog = ({ draftId }: { draftId: string }) => {
   const router = useRouter();
-  const {
-    mutateAsync: withdrawSubmission,
-    isPending: isWithdrawingSubmission,
-  } = api.teacher.withdrawSubmission.useMutation();
+  const { mutateAsync: deleteDraft, isPending: isDeletingDraft } =
+    api.teacher.deleteProjectDraft.useMutation();
 
-  const withdrawSubmissionHandler = async () => {
+  const deleteDraftHandler = async () => {
     try {
-      await withdrawSubmission({
-        id: submissionId,
-      });
-      toast.success("Submission withdrawn successfully.");
+      await deleteDraft(draftId);
+      toast.success("Draft deleted successfully.");
       router.refresh();
     } catch (error) {
-      console.error("Error withdrawing submission:", error);
-      toast.error("Error withdrawing submission.");
+      console.error("Error deleting draft:", error);
+      toast.error("Error deleting draft.");
     }
   };
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button className="w-full" variant="destructive">
-          Withdraw
+          Delete Draft
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-fit sm:max-w-[720px]">
         <DialogHeader>
-          <DialogTitle className="text-red-500">
-            Withdraw submission
-          </DialogTitle>
+          <DialogTitle className="text-red-500">Delete draft</DialogTitle>
           <DialogDescription>
-            Are you sure you want to withdraw your submission? The submission
+            Are you sure you want to delete this draft submission? The draft
             will be deleted. This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
@@ -57,10 +51,10 @@ const WithdrawDialog = ({ submissionId }: { submissionId: string }) => {
             <Button
               className="w-full"
               variant="destructive"
-              disabled={isWithdrawingSubmission}
-              onClick={withdrawSubmissionHandler}
+              disabled={isDeletingDraft}
+              onClick={deleteDraftHandler}
             >
-              Withdraw
+              Delete
             </Button>
           </div>
         </div>
@@ -69,4 +63,4 @@ const WithdrawDialog = ({ submissionId }: { submissionId: string }) => {
   );
 };
 
-export default WithdrawDialog;
+export default DeleteDraftDialog;

@@ -31,7 +31,7 @@ import Image from "next/image";
 
 import { Check, ChevronsUpDown } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, transformEmptyToUndefined } from "@/lib/utils";
 
 import { ProjectType, SubjectLevel } from "@/db/enums";
 import { useEffect, useState } from "react";
@@ -39,9 +39,9 @@ import ImageUpload from "@/app/(protected)/teacher/components/image-upload";
 import { api, type RouterOutputs } from "@/trpc/react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { fetchBannerImgByProjectId } from "../actions/fetch-submission";
+import { fetchBannerImgByDraftId } from "../actions/fetch-draft";
 import { useRouter } from "next/navigation";
-import WithdrawDialog from "./withdraw-dialog";
+import DeleteDraftDialog from "./delete-draft-dialog";
 
 const formSchema = z.object({
   competitionId: z.string(),
@@ -72,6 +72,10 @@ const formSchema = z.object({
     .optional(),
 });
 
+const draftSchema = formSchema.partial().extend({
+  projectTitle: formSchema.shape.projectTitle,
+});
+
 const tracks = Object.values(SubjectLevel).map((track) => ({
   label: track,
   value: track,
@@ -82,7 +86,7 @@ const projectTypes = Object.values(ProjectType).map((projectType) => ({
   value: projectType,
 }));
 
-const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
+const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
   const router = useRouter();
 
   const [openTrack, setOpenTrack] = useState(false);
@@ -97,11 +101,17 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
     api.projects.getProjectCategories.useQuery();
   const { data: competitions } = api.projects.getCompetitions.useQuery();
 
-  const { data: submission, isSuccess: projectFetched } =
-    api.teacher.getProjectById.useQuery(submissionId);
+  const { data: draft, isSuccess: draftFetched } =
+    api.teacher.getProjectDraftById.useQuery(draftId);
 
-  const { mutateAsync: updateProject, isPending: isUpdatingProject } =
-    api.teacher.updateProject.useMutation();
+  const { mutateAsync: submitProject, isPending: isSubmittingProject } =
+    api.teacher.submitProject.useMutation();
+
+  const { mutateAsync: updateProjectDraft, isPending: isUpdatingProjectDraft } =
+    api.teacher.editProjectDraft.useMutation();
+
+  const { mutateAsync: deleteDraft, isPending: isDeletingDraft } =
+    api.teacher.deleteProjectDraft.useMutation();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -120,42 +130,47 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
   });
 
   useEffect(() => {
-    if (projectFetched) {
+    if (draftFetched) {
+      console.log("draft", draft);
       const formattedSubmission = {
-        competitionId: submission.competitionId ?? undefined,
-        projectTitle: submission.name,
-        projectCategoryId: submission.projectCategoryId ?? undefined,
-        track: submission.subjectLevel,
-        projectType: submission.projectType,
-        projectUrl: submission.projectUrl,
-        studentName: submission.author,
-        studentEmail: submission.authorEmail,
-        youtubeUrl: submission.youtubeUrl ?? undefined,
-        description: submission.description ?? undefined,
+        competitionId: draft.competitionId ?? undefined,
+        projectTitle: draft.name ?? undefined,
+        projectCategoryId: draft.projectCategoryId ?? undefined,
+        track: draft.subjectLevel ?? undefined,
+        projectType: draft.projectType ?? undefined,
+        projectUrl: draft.projectUrl ?? undefined,
+        studentName: draft.author ?? undefined,
+        studentEmail: draft.authorEmail ?? undefined,
+        youtubeUrl: draft.youtubeUrl ?? undefined,
+        description: draft.description ?? undefined,
         bannerImg: undefined,
       };
 
       form.reset(formattedSubmission);
 
-      void fetchBannerImgByProjectId(submissionId).then((project) => {
-        if (project.imageSrc) {
-          setUploadedImageUrl(project.imageSrc);
+      void fetchBannerImgByDraftId(draftId).then((draft) => {
+        if (draft.imageSrc) {
+          setUploadedImageUrl(draft.imageSrc);
         }
       });
     }
-  }, [form, projectFetched, submission, submissionId]);
+  }, [form, draftFetched, draft, draftId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
+
     if (!values.bannerImg) {
-      const updateData = {
-        projectId: submissionId,
+      const inputData = {
         ...values,
         bannerImg: undefined,
       };
-
       try {
-        await updateProject(updateData);
+        await submitProject(inputData);
+
         toast.success("Project submitted successfully.");
+        await deleteDraft(draftId);
+        toast.success("Draft has been deleted.");
+        form.reset();
         router.refresh();
       } catch (error) {
         console.error("Error submitting project:", error);
@@ -170,19 +185,95 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
     reader.onloadend = async () => {
       const base64data = reader.result as string;
 
+      const inputData = {
+        ...values,
+        bannerImg: base64data,
+      };
+
+      console.log(inputData);
+
+      try {
+        await submitProject(inputData);
+        toast.success("Project submitted successfully.");
+        await deleteDraft(draftId);
+        toast.success("Draft has been deleted.");
+        form.reset();
+        router.refresh();
+      } catch (error) {
+        console.error("Error submitting project:", error);
+        toast.error("Error submitting project.");
+      }
+    };
+
+    reader.onerror = (error) => {
+      console.error("Error reading file:", error);
+      toast.error("Error reading file.");
+    };
+  }
+
+  async function onUpdateDraft() {
+    let formValues = form.getValues();
+    formValues = transformEmptyToUndefined(formValues);
+
+    // Validate using the custom update schema
+    const parseResult = draftSchema.safeParse(formValues);
+    if (!parseResult.success) {
+      // Clear previous errors
+      Object.keys(form.formState.errors).forEach((field) => {
+        form.clearErrors(field as keyof typeof values);
+      });
+
+      // Map Zod errors to form errors
+      parseResult.error.errors.forEach(({ path, message }) => {
+        const fieldName = path[0] as keyof typeof values;
+        form.setError(fieldName, { message });
+      });
+
+      return;
+    }
+
+    // Validation succeeded: clear any remaining errors
+    form.clearErrors();
+
+    const values = parseResult.data;
+
+    if (!values.bannerImg) {
       const updateData = {
-        projectId: submissionId,
+        draftId,
+        ...values,
+        bannerImg: undefined,
+      };
+
+      try {
+        await updateProjectDraft(updateData);
+        toast.success("Draft submitted successfully.");
+        router.refresh();
+      } catch (error) {
+        console.error("Error submitting draft:", error);
+        toast.error("Error submitting draft.");
+      }
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(values.bannerImg); // Read file as Data URL (base64)
+
+    reader.onloadend = async () => {
+      const base64data = reader.result as string;
+
+      const updateData = {
+        draftId,
         ...values,
         bannerImg: base64data,
       };
 
       try {
-        await updateProject(updateData);
-        toast.success("Project submitted successfully.");
+        await updateProjectDraft(updateData);
+        toast.success("Draft submitted successfully.");
         form.reset();
       } catch (error) {
-        console.error("Error submitting project:", error);
-        toast.error("Error submitting project.");
+        console.error("Error submitting draft:", error);
+        toast.error("Error submitting draft.");
       }
     };
 
@@ -621,14 +712,26 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
             <Button
               className="w-full"
               type="submit"
-              disabled={isUpdatingProject}
+              disabled={isSubmittingProject || isUpdatingProjectDraft}
             >
-              Submit
+              Submit Project
             </Button>
           </div>
 
           <div className="m-5 w-3/4 max-w-md md:w-1/2">
-            <WithdrawDialog submissionId={submissionId} />
+            <Button
+              variant={"ghost"}
+              className="w-full"
+              type="button"
+              disabled={isSubmittingProject || isUpdatingProjectDraft}
+              onClick={onUpdateDraft}
+            >
+              Update Draft
+            </Button>
+          </div>
+
+          <div className="m-5 w-3/4 max-w-md md:w-1/2">
+            <DeleteDraftDialog draftId={draftId} />
           </div>
         </div>
       </form>
@@ -636,4 +739,4 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
   );
 };
 
-export default UpdateSubmissionForm;
+export default UpdateDraftForm;

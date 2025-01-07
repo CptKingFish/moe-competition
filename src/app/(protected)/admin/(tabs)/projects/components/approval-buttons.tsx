@@ -18,7 +18,7 @@ const ApprovalButtons = ({
 }) => {
   const router = useRouter();
   const { mutateAsync: updateProjectApprovalStatus } =
-    api.admin.assignUserToRole.useMutation();
+    api.admin.updateProjectApprovalStatus.useMutation();
 
   const onClickApprovalButton = async (
     newApprovalStatus: "APPROVED" | "REJECTED",

@@ -428,8 +428,45 @@ export const teacherRouter = createTRPCRouter({
         imageSrc,
       };
     }),
+  getBannerImgByDraftId: teacherProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.db
+        .selectFrom("ProjectDraft")
+        .where("id", "=", input)
+        .select("bannerImg")
+        .executeTakeFirst();
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Draft not found",
+        });
+      }
+
+      // Encode the bannerImg if it exists
+      let imageSrc: string | null = null;
+
+      if (project.bannerImg) {
+        const imageBuffer = Buffer.from(project.bannerImg);
+        const encodedBannerImg = imageBuffer.toString("base64");
+
+        // Determine MIME type using magic numbers
+        const bannerImgMimeType = magicNumberToMimeType(imageBuffer);
+
+        if (bannerImgMimeType) {
+          imageSrc = `data:${bannerImgMimeType};base64,${encodedBannerImg}`;
+        } else {
+          console.warn("Unknown image format");
+        }
+      }
+
+      return {
+        imageSrc,
+      };
+    }),
   withdrawSubmission: teacherProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.string(), saveAsDraft: z.boolean().optional() }))
     .mutation(async ({ ctx, input }) => {
       const { user } = await getCurrentSession();
 
@@ -440,10 +477,16 @@ export const teacherRouter = createTRPCRouter({
         });
       }
 
+      // const project = await ctx.db
+      //   .selectFrom("Project")
+      //   .where("id", "=", input.id)
+      //   .select(["approvalStatus", "submittedById", "competitionId"])
+      //   .executeTakeFirst();
+
       const project = await ctx.db
         .selectFrom("Project")
         .where("id", "=", input.id)
-        .select(["approvalStatus", "submittedById", "competitionId"])
+        .selectAll()
         .executeTakeFirst();
 
       if (!project) {
@@ -490,6 +533,30 @@ export const teacherRouter = createTRPCRouter({
       //   });
       // }
 
+      // Save the project as a draft if requested
+      if (input.saveAsDraft) {
+        await db
+          .insertInto("ProjectDraft")
+          .values({
+            id: project.id,
+            name: project.name,
+            description: project.description,
+            draftedAt: new Date(),
+            draftedById: project.submittedById,
+            linkedSchoolId: project.linkedSchoolId,
+            author: project.author,
+            authorEmail: project.authorEmail,
+            competitionId: project.competitionId,
+            projectUrl: project.projectUrl,
+            subjectLevel: project.subjectLevel,
+            projectType: project.projectType,
+            projectCategoryId: project.projectCategoryId,
+            youtubeUrl: project.youtubeUrl,
+            bannerImg: project.bannerImg,
+          })
+          .execute();
+      }
+
       await ctx.db.deleteFrom("Project").where("id", "=", input.id).execute();
 
       return {
@@ -499,7 +566,7 @@ export const teacherRouter = createTRPCRouter({
   saveProjectDraft: teacherProcedure
     .input(
       z.object({
-        projectTitle: z.string().min(3).optional(),
+        projectTitle: z.string().min(3),
         track: z.nativeEnum(SubjectLevel).optional(),
         projectType: z.nativeEnum(ProjectType).optional(),
         projectUrl: z.string().url().optional(),
@@ -526,6 +593,13 @@ export const teacherRouter = createTRPCRouter({
         }
       }
 
+      if (!input.projectTitle) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Project title is required.",
+        });
+      }
+
       // Retrieve the user ID from the session
       const { user } = await getCurrentSession();
 
@@ -546,7 +620,7 @@ export const teacherRouter = createTRPCRouter({
         .insertInto("ProjectDraft")
         .values({
           id: createId(),
-          name: input.projectTitle ?? null,
+          name: input.projectTitle,
           description: input.description ?? null,
           draftedAt,
           draftedById,
@@ -719,6 +793,153 @@ export const teacherRouter = createTRPCRouter({
       return {
         data,
         pageCount,
+      };
+    }),
+  editProjectDraft: teacherProcedure
+    .input(
+      z.object({
+        draftId: z.string(),
+        projectTitle: z.string().min(3),
+        track: z.nativeEnum(SubjectLevel).optional(),
+        projectType: z.nativeEnum(ProjectType).optional(),
+        projectUrl: z.string().url().optional(),
+        studentName: z.string().min(3).optional(),
+        studentEmail: z.string().email().optional(),
+        youtubeUrl: z.string().url().optional(),
+        description: z.string().optional(),
+        bannerImg: z.string().optional(),
+        competitionId: z.string().optional(),
+        projectCategoryId: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      let imageBuffer: Buffer | null = null;
+      if (input.bannerImg) {
+        const parts = input.bannerImg.split(",");
+        if (parts.length > 1 && parts[1]) {
+          imageBuffer = Buffer.from(parts[1], "base64");
+        } else {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid base64 image",
+          });
+        }
+      }
+
+      // Retrieve the user ID from the session
+      const { user } = await getCurrentSession();
+
+      if (!user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User not authenticated",
+        });
+      }
+
+      // Check if the competition is ongoing
+      if (input.competitionId) {
+        const competition = await db
+          .selectFrom("Competition")
+          .select(["startDate", "endDate"])
+          .where("id", "=", input.competitionId)
+          .executeTakeFirst();
+
+        if (!competition) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Competition not found",
+          });
+        }
+
+        const now = new Date();
+        if (
+          now < new Date(competition.startDate) ||
+          now > new Date(competition.endDate)
+        ) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You can only edit projects from ongoing competitions.",
+          });
+        }
+      }
+
+      // Dynamically build the update object
+      const updateData: Record<string, unknown> = {
+        name: input.projectTitle,
+        description: input.description ?? null,
+        author: input.studentName ?? null,
+        authorEmail: input.studentEmail ?? null,
+        competitionId: input.competitionId ?? null,
+        projectUrl: input.projectUrl ?? null,
+        subjectLevel: input.track ?? null,
+        projectType: input.projectType ?? null,
+        projectCategoryId: input.projectCategoryId ?? null,
+        youtubeUrl: input.youtubeUrl ?? null,
+      };
+
+      // Include bannerImg only if it's not null
+      if (imageBuffer) {
+        updateData.bannerImg = imageBuffer;
+      }
+
+      // Perform an update query on the Project table
+      await db
+        .updateTable("ProjectDraft")
+        .set(updateData)
+        .where("id", "=", input.draftId)
+        .execute();
+
+      return {
+        success: true,
+      };
+    }),
+  getProjectDraftById: teacherProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.db
+        .selectFrom("ProjectDraft")
+        .leftJoin("User", "ProjectDraft.authorEmail", "User.email")
+        .leftJoin(
+          "ProjectCategory",
+          "ProjectDraft.projectCategoryId",
+          "ProjectCategory.id",
+        )
+        .leftJoin("Competition", "ProjectDraft.competitionId", "Competition.id")
+        .select([
+          "ProjectDraft.id",
+          "ProjectDraft.name",
+          "ProjectDraft.description",
+          "ProjectDraft.author",
+          "ProjectDraft.authorEmail",
+          "User.picture as authorAvatar",
+          "ProjectCategory.id as projectCategoryId",
+          "Competition.id as competitionId",
+          "ProjectDraft.subjectLevel",
+          "ProjectDraft.projectUrl",
+          "ProjectDraft.youtubeUrl",
+          "ProjectDraft.projectType",
+        ])
+        .where("ProjectDraft.id", "=", input)
+        .executeTakeFirst();
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Draft not found",
+        });
+      }
+
+      return {
+        ...project,
+      };
+    }),
+  deleteProjectDraft: teacherProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.deleteFrom("ProjectDraft").where("id", "=", input).execute();
+
+      return {
+        success: true,
       };
     }),
 });
