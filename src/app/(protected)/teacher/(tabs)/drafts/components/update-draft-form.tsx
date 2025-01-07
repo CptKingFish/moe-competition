@@ -162,7 +162,7 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
     if (!values.bannerImg) {
       const inputData = {
         ...values,
-        bannerImg: undefined,
+        bannerImg: uploadedImageUrl ?? undefined,
       };
       try {
         await submitProject(inputData);

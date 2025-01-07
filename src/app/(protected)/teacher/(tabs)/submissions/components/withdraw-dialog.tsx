@@ -23,18 +23,38 @@ const WithdrawDialog = ({ submissionId }: { submissionId: string }) => {
     isPending: isWithdrawingSubmission,
   } = api.teacher.withdrawSubmission.useMutation();
 
-  const withdrawSubmissionHandler = async () => {
+  const withdrawAndSaveAsDraftHandler = async () => {
     try {
       await withdrawSubmission({
         id: submissionId,
+        saveAsDraft: true,
       });
-      toast.success("Submission withdrawn successfully.");
+      toast.success("Submission withdrawn and saved as draft successfully.");
       router.refresh();
     } catch (error) {
       console.error("Error withdrawing submission:", error);
       toast.error("Error withdrawing submission.");
     }
+
+    return;
   };
+
+  const withdrawAndDeleteHandler = async () => {
+    try {
+      await withdrawSubmission({
+        id: submissionId,
+        saveAsDraft: false,
+      });
+      toast.success("Submission withdrawn and deleted successfully.");
+      router.refresh();
+    } catch (error) {
+      console.error("Error withdrawing submission:", error);
+      toast.error("Error withdrawing submission.");
+    }
+
+    return;
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -56,11 +76,21 @@ const WithdrawDialog = ({ submissionId }: { submissionId: string }) => {
           <div className="m-5 w-3/4 max-w-md md:w-1/2">
             <Button
               className="w-full"
+              variant="outline"
+              disabled={isWithdrawingSubmission}
+              onClick={withdrawAndSaveAsDraftHandler}
+            >
+              Withdraw and Save as Draft
+            </Button>
+          </div>
+          <div className="m-5 w-3/4 max-w-md md:w-1/2">
+            <Button
+              className="w-full"
               variant="destructive"
               disabled={isWithdrawingSubmission}
-              onClick={withdrawSubmissionHandler}
+              onClick={withdrawAndDeleteHandler}
             >
-              Withdraw
+              Withdraw and Delete
             </Button>
           </div>
         </div>
