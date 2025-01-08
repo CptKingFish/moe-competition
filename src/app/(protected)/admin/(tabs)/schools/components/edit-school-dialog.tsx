@@ -34,7 +34,7 @@ const EditSchoolDialog = ({
         <DialogHeader>
           <DialogTitle>Edit school</DialogTitle>
           <DialogDescription>
-            Make updates to the school here. Click save when you&apos;re done.
+            Make updates to the school here. Click update when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <EditSchoolForm schoolId={schoolId} schoolName={schoolName} />

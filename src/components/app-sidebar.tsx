@@ -38,6 +38,7 @@ type NavigationItem = {
   icon: LucideIcon;
   isActive?: boolean;
   accessibleTo?: string[];
+  subUrls?: string[];
 };
 
 type NavigationGroup = {
@@ -74,12 +75,19 @@ export const navigation: Navigation = [
         title: "Teachers' Panel",
         url: "/teacher/submissions",
         icon: GraduationCap,
+        subUrls: ["/teacher/drafts", "teacher/submit"],
       },
       {
         title: "Admin Panel",
         url: "/admin/users",
         icon: ShieldHalf,
         accessibleTo: ["ADMIN"],
+        subUrls: [
+          "/admin/projects",
+          "/admin/competitions",
+          "/admin/categories",
+          "/admin/schools",
+        ],
       },
     ],
   },

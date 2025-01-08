@@ -194,9 +194,10 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
 
       try {
         await submitProject(inputData);
-        toast.success("Project submitted successfully.");
         await deleteDraft(draftId);
-        toast.success("Draft has been deleted.");
+        toast.success(
+          "Project has been submitted successfully and draft has been deleted.",
+        );
         form.reset();
         router.refresh();
       } catch (error) {

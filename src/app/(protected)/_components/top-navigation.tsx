@@ -23,9 +23,15 @@ export function TopNavigation() {
   console.log(currentPath);
   for (const navGroup of navigation) {
     // const item = navGroup.items.find((navItem) => navItem.url === currentPath);
-    const item = navGroup.items.find((navItem) =>
-      currentPath.includes(navItem.url),
-    );
+    const item = navGroup.items.find((navItem) => {
+      const isCurrentPath = currentPath.includes(navItem.url);
+      // check if the current path is a subpath of the navItem.url
+      const isSubPath = navItem.subUrls?.some((subUrl) =>
+        currentPath.includes(subUrl),
+      );
+
+      return isCurrentPath || isSubPath;
+    });
 
     if (item) {
       dashboardInfo = {
