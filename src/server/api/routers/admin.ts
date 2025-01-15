@@ -654,4 +654,22 @@ export const adminRouter = createTRPCRouter({
         success: true,
       };
     }),
+  editCategory: adminProcedure
+    .input(
+      z.object({
+        categoryId: z.string(),
+        categoryName: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { categoryId, categoryName } = input;
+
+      await ctx.db
+        .updateTable("ProjectCategory")
+        .set({ name: categoryName })
+        .where("id", "=", categoryId)
+        .execute();
+
+      return true;
+    }),
 });

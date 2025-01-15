@@ -12,6 +12,7 @@ import {
   type DataTableSearchableColumn,
 } from "@/hooks/use-data-table";
 import { type RouterOutputs } from "@/trpc/react";
+import EditCategoryDialog from "./edit-category-dialog";
 type CategoriesTableItem =
   RouterOutputs["admin"]["getProjectCategories"]["data"][0];
 
@@ -43,6 +44,19 @@ export const columns: ColumnDef<CategoriesTableItem>[] = [
             {totalProjects}
           </Badge>
         </div>
+      );
+    },
+  },
+  {
+    id: "edit",
+    header: "",
+    cell: ({ row }) => {
+      console.log("id", row.original.id);
+      return (
+        <EditCategoryDialog
+          categoryId={row.original.id}
+          categoryName={row.original.name}
+        />
       );
     },
   },

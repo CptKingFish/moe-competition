@@ -246,7 +246,7 @@ const SubmitForm = ({
               name="projectTitle"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Title *</FormLabel>
+                  <FormLabel>Project Title</FormLabel>
                   <FormControl>
                     <Input placeholder="Title" {...field} />
                   </FormControl>
@@ -645,13 +645,13 @@ const SubmitForm = ({
             />
           </div>
         </div>
-        <div className="mt-3 flex items-center justify-center space-x-4">
+        {/* <div className="mt-3 flex items-center justify-center space-x-4">
           <div className="flex-grow border-t border-gray-300"></div>
           <Button variant="outline" size="icon">
             <Plus />
           </Button>
           <div className="flex-grow border-t border-gray-300"></div>
-        </div>
+        </div> */}
 
         <div className="flex flex-col items-center justify-center md:flex-row">
           <div className="m-5 w-3/4 max-w-md md:w-1/2">
