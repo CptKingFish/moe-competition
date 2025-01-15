@@ -76,6 +76,7 @@ export type Vote = {
     id: string;
     userId: string;
     projectId: string;
+    competitionId: string;
 };
 export type DB = {
     Competition: Competition;

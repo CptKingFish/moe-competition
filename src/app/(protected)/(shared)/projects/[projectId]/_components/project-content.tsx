@@ -4,11 +4,13 @@ import { api, RouterOutputs } from "@/trpc/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link, PackageX, Youtube } from "lucide-react";
+import { Link, PackageX, ThumbsUpIcon, Youtube } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useCallback, useEffect, useRef, useState } from "react";
 import RecommendCard from "./recommend-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface ProjectContentProps {
   project: RouterOutputs["projects"]["getProjectById"];
@@ -31,7 +33,17 @@ export default function ProjectContent({ project }: ProjectContentProps) {
     { enabled: false },
   );
 
-  console.log(projects);
+  const { data: userHasVoted, refetch: refetchUserHasVoted } =
+    api.projects.checkIfUserVoted.useQuery(project.id);
+
+  const { data: votes, refetch: refetchVotesCount } =
+    api.projects.getProjectVotes.useQuery(project.id);
+
+  const { mutateAsync: voteProject, isPending: isVoting } =
+    api.projects.voteProject.useMutation();
+
+  const { mutateAsync: unvoteProject, isPending: isUnvoting } =
+    api.projects.unvoteProject.useMutation();
 
   const loadMoreProjects = useCallback(async () => {
     if (isFetching || !hasMore) return;
@@ -65,6 +77,20 @@ export default function ProjectContent({ project }: ProjectContentProps) {
     };
   }, [loadMoreProjects]);
 
+  const handleVote = async () => {
+    if (isVoting || isUnvoting) return;
+
+    if (!userHasVoted) {
+      await voteProject(project.id);
+      toast.success("You have voted successfully");
+    } else {
+      await unvoteProject(project.id);
+      toast.success("You have unvoted successfully");
+    }
+    await refetchUserHasVoted();
+    await refetchVotesCount();
+  };
+
   return (
     <>
       <div className="col-span-3">
@@ -87,7 +113,7 @@ export default function ProjectContent({ project }: ProjectContentProps) {
                             : (project.projectUrl ?? "")
                       }
                       allowFullScreen={true}
-                      className="h-[402px] w-full lg:h-[472px] 2xl:h-502px]"
+                      className="2xl:h-502px] h-[402px] w-full lg:h-[472px]"
                     ></iframe>
                   </div>
                   <span className="my-4 flex items-center border-l-4 border-yellow-500 bg-yellow-100 p-2 text-sm font-medium text-yellow-700">
@@ -119,17 +145,32 @@ export default function ProjectContent({ project }: ProjectContentProps) {
         </Card>
         <Card className="mt-8 border-none shadow-none">
           <CardContent className="p-0">
-            <div className="mb-6">
-              <div className="flex items-center space-x-4">
-                <Avatar>
-                  <AvatarImage src={project.authorAvatar ?? ""} alt="Author" />
-                  <AvatarFallback>{project.author}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold text-gray-800">
-                    {project.author}
-                  </p>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-4">
+                  <Avatar>
+                    <AvatarImage
+                      src={project.authorAvatar ?? ""}
+                      alt="Author"
+                    />
+                    <AvatarFallback>{project.author}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold text-gray-800">
+                      {project.author}
+                    </p>
+                  </div>
                 </div>
+              </div>
+              <div>
+                <Button
+                  variant={`${userHasVoted ? "default" : "outline"}`}
+                  onClick={handleVote}
+                  disabled={!votes?.isVoteable}
+                >
+                  {votes?.count ?? 0}
+                  <ThumbsUpIcon />
+                </Button>
               </div>
             </div>
             {/* Project Description */}

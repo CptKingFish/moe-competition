@@ -1,9 +1,15 @@
 import { SubjectLevel } from "@/db/enums";
 import { magicNumberToMimeType } from "@/lib/utils";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { sql } from "kysely";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { createId } from "@paralleldrive/cuid2";
+import { getCurrentSession } from "@/lib/session";
 
 export const projectsRouter = createTRPCRouter({
   getFeaturedProjects: publicProcedure.query(async ({ ctx }) => {
@@ -29,6 +35,7 @@ export const projectsRouter = createTRPCRouter({
         "Project.bannerImg",
         ctx.db.fn.count("Vote.id").as("totalVotes"),
       ])
+      .where("Project.approvalStatus", "=", "APPROVED")
       .groupBy([
         "Project.id",
         "Project.name",
@@ -138,6 +145,7 @@ export const projectsRouter = createTRPCRouter({
           "Project.youtubeUrl",
           ctx.db.fn.count("Vote.id").as("totalVotes"),
         ])
+        .where("Project.approvalStatus", "=", "APPROVED")
         .groupBy([
           "Project.id",
           "Project.name",
@@ -308,7 +316,8 @@ export const projectsRouter = createTRPCRouter({
         "Project.bannerImg",
       ])
       .where("Competition.startDate", "<=", currentDate)
-      .where("Competition.endDate", ">=", currentDate);
+      .where("Competition.endDate", ">=", currentDate)
+      .where("Project.approvalStatus", "=", "APPROVED");
 
     const projects = await ctx.db
       .with("RankedProjects", (cte) =>
@@ -342,4 +351,192 @@ export const projectsRouter = createTRPCRouter({
       };
     });
   }),
+  getProjectVotes: publicProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.db
+        .selectFrom("Project")
+        .where("id", "=", input)
+        .select(["id", "competitionId"])
+        .executeTakeFirst();
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // check if the competition is ongoing
+      const competition = await ctx.db
+        .selectFrom("Competition")
+        .where("id", "=", project.competitionId)
+        .select(["startDate", "endDate"])
+        .executeTakeFirst();
+
+      let isVoteable = false;
+
+      if (competition) {
+        const currentDate = new Date();
+        isVoteable =
+          competition.startDate <= currentDate &&
+          competition.endDate >= currentDate;
+      }
+
+      const result = await ctx.db
+        .selectFrom("Vote")
+        .select(sql<number>`count(*)`.as("votesCount"))
+        .where("projectId", "=", input)
+        .executeTakeFirst();
+
+      const votesCount = result?.votesCount ?? 0;
+
+      return {
+        count: votesCount,
+        isVoteable,
+      };
+    }),
+  voteProject: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const session = await getCurrentSession();
+
+      if (!session.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User is not authenticated",
+        });
+      }
+      const userId = session.user.id;
+
+      const existingVote = await ctx.db
+        .selectFrom("Vote")
+        .where("projectId", "=", input)
+        .where("userId", "=", userId)
+        .executeTakeFirst();
+
+      if (existingVote) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "User has already voted for this project",
+        });
+      }
+
+      const project = await ctx.db
+        .selectFrom("Project")
+        .where("id", "=", input)
+        .select("competitionId")
+        .executeTakeFirst();
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project is not linked to a competition.",
+        });
+      }
+
+      // Check if the competition is ongoing
+      const currentDate = new Date();
+
+      const competition = await ctx.db
+        .selectFrom("Competition")
+        .where("id", "=", project.competitionId)
+        .select(["startDate", "endDate"])
+        .executeTakeFirst();
+
+      if (
+        !competition ||
+        competition.startDate > currentDate ||
+        competition.endDate < currentDate
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Voting is not allowed for this competition.",
+        });
+      }
+
+      await ctx.db
+        .insertInto("Vote")
+        .values({
+          id: createId(),
+          projectId: input,
+          userId,
+          competitionId: project.competitionId,
+        })
+        .execute();
+
+      return true;
+    }),
+  unvoteProject: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const session = await getCurrentSession();
+      if (!session.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User is not authenticated",
+        });
+      }
+
+      const userId = session.user.id;
+
+      const vote = await ctx.db
+        .selectFrom("Vote")
+        .where("projectId", "=", input)
+        .where("userId", "=", userId)
+        .select(["id", "competitionId"])
+        .executeTakeFirst();
+
+      if (!vote) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Vote not found",
+        });
+      }
+
+      const competition = await ctx.db
+        .selectFrom("Competition")
+        .where("id", "=", vote.competitionId)
+        .select(["startDate", "endDate"])
+        .executeTakeFirst();
+
+      if (
+        !competition ||
+        competition.startDate > new Date() ||
+        competition.endDate < new Date()
+      ) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Unvoting is not allowed for this competition.",
+        });
+      }
+
+      await ctx.db
+        .deleteFrom("Vote")
+        .where("projectId", "=", input)
+        .where("userId", "=", userId)
+        .execute();
+
+      return true;
+    }),
+  checkIfUserVoted: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const session = await getCurrentSession();
+      if (!session.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User is not authenticated",
+        });
+      }
+
+      const userId = session.user?.id;
+      const vote = await ctx.db
+        .selectFrom("Vote")
+        .where("projectId", "=", input)
+        .where("userId", "=", userId)
+        .executeTakeFirst();
+
+      return !!vote;
+    }),
 });
