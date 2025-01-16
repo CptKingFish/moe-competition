@@ -672,4 +672,36 @@ export const adminRouter = createTRPCRouter({
 
       return true;
     }),
+  getCompetitionById: adminProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const competition = await ctx.db
+        .selectFrom("Competition")
+        .select(["id", "name", "description", "startDate", "endDate"])
+        .where("id", "=", input)
+        .executeTakeFirst();
+
+      return competition;
+    }),
+  editCompetition: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        description: z.string().optional(),
+        startDate: z.date(),
+        endDate: z.date(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, name, description, startDate, endDate } = input;
+
+      await ctx.db
+        .updateTable("Competition")
+        .set({ name, description, startDate, endDate })
+        .where("id", "=", id)
+        .execute();
+
+      return true;
+    }),
 });

@@ -97,8 +97,11 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
     api.projects.getProjectCategories.useQuery();
   const { data: competitions } = api.projects.getCompetitions.useQuery();
 
-  const { data: submission, isSuccess: projectFetched } =
-    api.teacher.getProjectById.useQuery(submissionId);
+  const {
+    data: submission,
+    isSuccess: projectFetched,
+    refetch: refetchProject,
+  } = api.teacher.getProjectById.useQuery(submissionId);
 
   const { mutateAsync: updateProject, isPending: isUpdatingProject } =
     api.teacher.updateProject.useMutation();
@@ -157,6 +160,7 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
         await updateProject(updateData);
         toast.success("Project submitted successfully.");
         router.refresh();
+        await refetchProject();
       } catch (error) {
         console.error("Error submitting project:", error);
         toast.error("Error submitting project.");

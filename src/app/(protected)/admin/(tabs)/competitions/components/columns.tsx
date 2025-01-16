@@ -12,6 +12,7 @@ import {
   type DataTableSearchableColumn,
 } from "@/hooks/use-data-table";
 import { type RouterOutputs } from "@/trpc/react";
+import EditCompetitionDialog from "./edit-competition-dialog";
 type CompetitionTableItem =
   RouterOutputs["admin"]["getCompetitions"]["data"][0];
 
@@ -88,6 +89,14 @@ export const columns: ColumnDef<CompetitionTableItem>[] = [
           </Badge>
         </div>
       );
+    },
+  },
+  {
+    id: "edit",
+    header: "",
+    cell: ({ row }) => {
+      console.log("id", row.original.id);
+      return <EditCompetitionDialog competitionId={row.original.id} />;
     },
   },
 ];
