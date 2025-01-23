@@ -30,17 +30,34 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Calendar } from "@/components/ui/calendar";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { MultiSelect } from "@/components/multi-select";
 
 const formSchema = z.object({
   name: z.string().min(3),
   description: z.string().optional(),
   startDate: z.date(),
   endDate: z.date(),
+  categoryIds: z
+    .array(z.string())
+    .min(1, { message: "Select at least one category." }),
 });
 
 const EditCompetitionForm = ({ competitionId }: { competitionId: string }) => {
   const router = useRouter();
+
+  const { data: categories } = api.admin.getProjectCategories.useQuery({});
+
+  const categoriesList = useMemo(() => {
+    if (!categories) {
+      return [];
+    }
+
+    return categories.data.map((category) => ({
+      label: category.name,
+      value: category.id,
+    }));
+  }, [categories]);
 
   const {
     data: competitionData,
@@ -58,6 +75,7 @@ const EditCompetitionForm = ({ competitionId }: { competitionId: string }) => {
       description: "",
       startDate: new Date(),
       endDate: new Date(),
+      categoryIds: [],
     },
   });
 
@@ -66,8 +84,9 @@ const EditCompetitionForm = ({ competitionId }: { competitionId: string }) => {
       const formattedCompetition = {
         name: competitionData.name,
         description: competitionData.description,
-        startDate: new Date(competitionData.startDate),
-        endDate: new Date(competitionData.endDate),
+        startDate: competitionData.startDate,
+        endDate: competitionData.endDate,
+        categoryIds: competitionData.categoryIds,
       };
 
       form.reset(formattedCompetition);
@@ -230,6 +249,27 @@ const EditCompetitionForm = ({ competitionId }: { competitionId: string }) => {
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="categoryIds"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Categories</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={categoriesList}
+                      value={field.value} // Controlled value
+                      onValueChange={field.onChange} // Controlled onChange
+                      placeholder="Categories"
+                      variant="inverted"
+                      // animation={2}
+                      maxCount={4}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
         <div className="flex flex-col items-center justify-center md:flex-row">

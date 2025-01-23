@@ -31,18 +31,38 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Calendar } from "@/components/ui/calendar";
 
+import React, { useMemo, useState } from "react";
+import { MultiSelect } from "@/components/multi-select";
+import { Cat, Dog, Fish, Rabbit, Turtle } from "lucide-react";
+
 const formSchema = z.object({
   name: z.string().min(3),
   description: z.string().optional(),
   startDate: z.date(),
   endDate: z.date(),
+  categoryIds: z
+    .array(z.string())
+    .min(1, { message: "Select at least one category." }),
 });
 
 const AddCompetitionForm = () => {
   const router = useRouter();
 
+  const { data: categories } = api.admin.getProjectCategories.useQuery({});
+
   const { mutateAsync: createCompetition, isPending: isCreatingCompetition } =
     api.admin.createCompetition.useMutation();
+
+  const categoriesList = useMemo(() => {
+    if (!categories) {
+      return [];
+    }
+
+    return categories.data.map((category) => ({
+      label: category.name,
+      value: category.id,
+    }));
+  }, [categories]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,6 +71,7 @@ const AddCompetitionForm = () => {
       description: "",
       startDate: new Date(),
       endDate: new Date(),
+      categoryIds: [],
     },
   });
 
@@ -58,6 +79,9 @@ const AddCompetitionForm = () => {
     const competitionData = {
       ...values,
     };
+
+    // console.log("Competition data:", competitionData);
+    // return;
 
     // check if end date is after start date
     if (competitionData.endDate < competitionData.startDate) {
@@ -208,6 +232,27 @@ const AddCompetitionForm = () => {
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="categoryIds"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Categories</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={categoriesList}
+                      value={field.value} // Controlled value
+                      onValueChange={field.onChange} // Controlled onChange
+                      placeholder="Categories"
+                      variant="inverted"
+                      // animation={2}
+                      maxCount={4}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
         <div className="flex flex-col items-center justify-center md:flex-row">

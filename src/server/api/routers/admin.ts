@@ -533,6 +533,7 @@ export const adminRouter = createTRPCRouter({
         description: z.string().optional(),
         startDate: z.date(),
         endDate: z.date(),
+        categoryIds: z.array(z.string()).min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -545,18 +546,59 @@ export const adminRouter = createTRPCRouter({
         });
       }
 
-      const result = await ctx.db
-        .insertInto("Competition")
-        .values({
+      // const result = await ctx.db
+      //   .insertInto("Competition")
+      //   .values({
+      //     id: createId(),
+      //     name: input.name,
+      //     description: "",
+      //     startDate: new Date(),
+      //     endDate: new Date(),
+      //     createdById: session.user.id,
+      //   })
+      //   .returning("id")
+      //   .execute();
+
+      const result = await ctx.db.transaction().execute(async (trx) => {
+        // Insert into the Competition table
+        const competitionInsertResult = await trx
+          .insertInto("Competition")
+          .values({
+            id: createId(), // Generate a unique ID
+            name: input.name,
+            description: input.description ?? "", // Use the provided description or default to an empty string
+            startDate: input.startDate,
+            endDate: input.endDate,
+            createdById: session.user.id, // Associate with the current user
+          })
+          .returning("id") // Return the ID of the newly created competition
+          .executeTakeFirst(); // Execute and take the first result
+
+        if (!competitionInsertResult) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create competition.",
+          });
+        }
+
+        const competitionId = competitionInsertResult.id;
+
+        // Prepare the data for CompetitionCategory insertion
+        const competitionCategories = input.categoryIds.map((categoryId) => ({
           id: createId(),
-          name: input.name,
-          description: "",
-          startDate: new Date(),
-          endDate: new Date(),
-          createdById: session.user.id,
-        })
-        .returning("id")
-        .execute();
+          competitionId,
+          categoryId,
+        }));
+
+        // Insert into the CompetitionCategory table
+        await trx
+          .insertInto("CompetitionCategory")
+          .values(competitionCategories)
+          .execute();
+
+        // If everything succeeds, return the competition ID
+        return { competitionId };
+      });
 
       return {
         success: true,
@@ -681,7 +723,18 @@ export const adminRouter = createTRPCRouter({
         .where("id", "=", input)
         .executeTakeFirst();
 
-      return competition;
+      const competitionCategories = await ctx.db
+        .selectFrom("CompetitionCategory")
+        .select(["categoryId"])
+        .where("competitionId", "=", input)
+        .execute();
+
+      return {
+        ...competition,
+        categoryIds: competitionCategories.map(
+          (category) => category.categoryId,
+        ),
+      };
     }),
   editCompetition: adminProcedure
     .input(
@@ -691,16 +744,35 @@ export const adminRouter = createTRPCRouter({
         description: z.string().optional(),
         startDate: z.date(),
         endDate: z.date(),
+        categoryIds: z.array(z.string()).min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, name, description, startDate, endDate } = input;
 
-      await ctx.db
-        .updateTable("Competition")
-        .set({ name, description, startDate, endDate })
-        .where("id", "=", id)
-        .execute();
+      const result = await ctx.db.transaction().execute(async (trx) => {
+        await trx
+          .deleteFrom("CompetitionCategory")
+          .where("competitionId", "=", id)
+          .execute();
+
+        const competitionCategories = input.categoryIds.map((categoryId) => ({
+          id: createId(),
+          competitionId: id,
+          categoryId,
+        }));
+
+        await trx
+          .insertInto("CompetitionCategory")
+          .values(competitionCategories)
+          .execute();
+
+        await trx
+          .updateTable("Competition")
+          .set({ name, description, startDate, endDate })
+          .where("id", "=", id)
+          .execute();
+      });
 
       return true;
     }),

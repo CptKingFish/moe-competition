@@ -14,6 +14,11 @@ export type Competition = {
     endDate: Generated<Timestamp>;
     createdById: string;
 };
+export type CompetitionCategory = {
+    id: string;
+    competitionId: string;
+    categoryId: string;
+};
 export type Project = {
     id: string;
     name: string;
@@ -80,6 +85,7 @@ export type Vote = {
 };
 export type DB = {
     Competition: Competition;
+    CompetitionCategory: CompetitionCategory;
     Project: Project;
     ProjectCategory: ProjectCategory;
     ProjectDraft: ProjectDraft;
