@@ -52,6 +52,21 @@ export const teacherRouter = createTRPCRouter({
       const submittedById = user.id;
       const linkedSchoolId = user.schoolId;
 
+      // check if category is valid for the competition
+      const category = await db
+        .selectFrom("CompetitionCategory")
+        .where("competitionId", "=", input.competitionId)
+        .where("categoryId", "=", input.projectCategoryId)
+        .select((eb) => eb.fn.count("id").as("count"))
+        .executeTakeFirst();
+
+      if (!category || category.count === "0" || category.count === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid category for the competition",
+        });
+      }
+
       // Get the current timestamp
       const submittedAt = new Date();
 
@@ -147,6 +162,21 @@ export const teacherRouter = createTRPCRouter({
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can only edit projects from ongoing competitions.",
+        });
+      }
+
+      // check if category is valid for the competition
+      const category = await db
+        .selectFrom("CompetitionCategory")
+        .where("competitionId", "=", input.competitionId)
+        .where("categoryId", "=", input.projectCategoryId)
+        .select((eb) => eb.fn.count("id").as("count"))
+        .executeTakeFirst();
+
+      if (!category || category.count === "0" || category.count === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid category for the competition",
         });
       }
 
@@ -615,6 +645,24 @@ export const teacherRouter = createTRPCRouter({
 
       // Get the current timestamp
       const draftedAt = new Date();
+
+      if (input.projectCategoryId && input.competitionId) {
+        const category = await db
+          .selectFrom("CompetitionCategory")
+          .where("competitionId", "=", input.competitionId)
+          .where("categoryId", "=", input.projectCategoryId)
+          .select((eb) => eb.fn.count("id").as("count"))
+          .executeTakeFirst();
+
+        if (!category || category.count === "0" || category.count === 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid category for the competition",
+          });
+        }
+      }
+
+      // check if category is valid for the competition
 
       const draftedProjects = await db
         .insertInto("ProjectDraft")

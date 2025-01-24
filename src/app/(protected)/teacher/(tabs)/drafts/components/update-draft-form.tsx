@@ -99,7 +99,9 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
 
   const { data: projectCategories } =
     api.projects.getProjectCategories.useQuery();
-  const { data: competitions } = api.projects.getCompetitions.useQuery();
+  const { data: competitions } = api.projects.getCompetitions.useQuery({
+    onlyOngoing: true,
+  });
 
   const { data: draft, isSuccess: draftFetched } =
     api.teacher.getProjectDraftById.useQuery(draftId);
@@ -292,6 +294,22 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
             <span className="font-semibold">Project Information</span>
             <FormField
               control={form.control}
+              name="projectTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Title" {...field} />
+                  </FormControl>
+                  {/* <FormDescription>
+                This is your public display name.
+              </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="competitionId"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
@@ -363,22 +381,6 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
             />
             <FormField
               control={form.control}
-              name="projectTitle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Project Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Title" {...field} />
-                  </FormControl>
-                  {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="projectCategoryId"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
@@ -412,29 +414,47 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
                         <CommandList>
                           <CommandEmpty>No categories found.</CommandEmpty>
                           <CommandGroup>
-                            {projectCategories?.map((category) => (
-                              <CommandItem
-                                value={category.label}
-                                key={category.value}
-                                onSelect={() => {
-                                  form.setValue(
-                                    "projectCategoryId",
-                                    category.value,
-                                  );
-                                  setOpenProjectCategory(false);
-                                }}
-                              >
-                                {category.label}
-                                <Check
-                                  className={cn(
-                                    "ml-auto",
-                                    category.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0",
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
+                            {projectCategories?.map((category) => {
+                              const selectedCompetitionId =
+                                form.getValues("competitionId");
+
+                              if (!competitions) return null;
+
+                              const selectedCompetition = competitions.find(
+                                (competition) =>
+                                  competition.value === selectedCompetitionId,
+                              );
+
+                              const allowedCategories =
+                                selectedCompetition?.categories ?? [];
+
+                              if (!allowedCategories.includes(category.value)) {
+                                return null;
+                              }
+                              return (
+                                <CommandItem
+                                  value={category.label}
+                                  key={category.value}
+                                  onSelect={() => {
+                                    form.setValue(
+                                      "projectCategoryId",
+                                      category.value,
+                                    );
+                                    setOpenProjectCategory(false);
+                                  }}
+                                >
+                                  {category.label}
+                                  <Check
+                                    className={cn(
+                                      "ml-auto",
+                                      category.value === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0",
+                                    )}
+                                  />
+                                </CommandItem>
+                              );
+                            })}
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -447,7 +467,6 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="projectType"

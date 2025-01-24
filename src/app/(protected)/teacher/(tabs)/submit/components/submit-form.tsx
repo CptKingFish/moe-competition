@@ -364,29 +364,46 @@ const SubmitForm = ({
                         <CommandList>
                           <CommandEmpty>No categories found.</CommandEmpty>
                           <CommandGroup>
-                            {projectCategories.map((category) => (
-                              <CommandItem
-                                value={category.label}
-                                key={category.value}
-                                onSelect={() => {
-                                  form.setValue(
-                                    "projectCategoryId",
-                                    category.value,
-                                  );
-                                  setOpenProjectCategory(false);
-                                }}
-                              >
-                                {category.label}
-                                <Check
-                                  className={cn(
-                                    "ml-auto",
-                                    category.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0",
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
+                            {projectCategories.map((category) => {
+                              const selectedCompetitionId =
+                                form.getValues("competitionId");
+
+                              const selectedCompetition = competitions.find(
+                                (competition) =>
+                                  competition.value === selectedCompetitionId,
+                              );
+
+                              const allowedCategories =
+                                selectedCompetition?.categories ?? [];
+
+                              if (!allowedCategories.includes(category.value)) {
+                                return null;
+                              }
+
+                              return (
+                                <CommandItem
+                                  value={category.label}
+                                  key={category.value}
+                                  onSelect={() => {
+                                    form.setValue(
+                                      "projectCategoryId",
+                                      category.value,
+                                    );
+                                    setOpenProjectCategory(false);
+                                  }}
+                                >
+                                  {category.label}
+                                  <Check
+                                    className={cn(
+                                      "ml-auto",
+                                      category.value === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0",
+                                    )}
+                                  />
+                                </CommandItem>
+                              );
+                            })}
                           </CommandGroup>
                         </CommandList>
                       </Command>

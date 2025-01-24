@@ -108,7 +108,28 @@ export const projectsRouter = createTRPCRouter({
       // Execute the query
       const competitions = await query.execute();
 
-      return competitions;
+      const competitionCategories = await ctx.db
+        .selectFrom("CompetitionCategory")
+        .select(["competitionId", "categoryId"])
+        .where(
+          "competitionId",
+          "in",
+          competitions.map((c) => c.value),
+        )
+        .execute();
+
+      const competitionWithCategories = competitions.map((competition) => {
+        const categories = competitionCategories
+          .filter((cc) => cc.competitionId === competition.value)
+          .map((cc) => cc.categoryId);
+
+        return {
+          ...competition,
+          categories,
+        };
+      });
+
+      return competitionWithCategories;
     }),
   getProjects: publicProcedure
     .input(

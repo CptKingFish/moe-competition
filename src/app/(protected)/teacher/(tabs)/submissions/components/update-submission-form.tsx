@@ -95,7 +95,9 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
 
   const { data: projectCategories } =
     api.projects.getProjectCategories.useQuery();
-  const { data: competitions } = api.projects.getCompetitions.useQuery();
+  const { data: competitions } = api.projects.getCompetitions.useQuery({
+    onlyOngoing: true,
+  });
 
   const {
     data: submission,
@@ -202,7 +204,23 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col items-center justify-center md:flex-row md:items-start">
           <div className="w-full max-w-md space-y-8 md:m-5 md:w-1/2">
-            <span className="font-semibold">Project Information</span>
+            <span className="font-semibold">Project Information</span>{" "}
+            <FormField
+              control={form.control}
+              name="projectTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Title" {...field} />
+                  </FormControl>
+                  {/* <FormDescription>
+                This is your public display name.
+              </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="competitionId"
@@ -276,22 +294,6 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
             />
             <FormField
               control={form.control}
-              name="projectTitle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Project Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Title" {...field} />
-                  </FormControl>
-                  {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="projectCategoryId"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
@@ -325,29 +327,47 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
                         <CommandList>
                           <CommandEmpty>No categories found.</CommandEmpty>
                           <CommandGroup>
-                            {projectCategories?.map((category) => (
-                              <CommandItem
-                                value={category.label}
-                                key={category.value}
-                                onSelect={() => {
-                                  form.setValue(
-                                    "projectCategoryId",
-                                    category.value,
-                                  );
-                                  setOpenProjectCategory(false);
-                                }}
-                              >
-                                {category.label}
-                                <Check
-                                  className={cn(
-                                    "ml-auto",
-                                    category.value === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0",
-                                  )}
-                                />
-                              </CommandItem>
-                            ))}
+                            {projectCategories?.map((category) => {
+                              const selectedCompetitionId =
+                                form.getValues("competitionId");
+
+                              if (!competitions) return null;
+
+                              const selectedCompetition = competitions.find(
+                                (competition) =>
+                                  competition.value === selectedCompetitionId,
+                              );
+
+                              const allowedCategories =
+                                selectedCompetition?.categories ?? [];
+
+                              if (!allowedCategories.includes(category.value)) {
+                                return null;
+                              }
+                              return (
+                                <CommandItem
+                                  value={category.label}
+                                  key={category.value}
+                                  onSelect={() => {
+                                    form.setValue(
+                                      "projectCategoryId",
+                                      category.value,
+                                    );
+                                    setOpenProjectCategory(false);
+                                  }}
+                                >
+                                  {category.label}
+                                  <Check
+                                    className={cn(
+                                      "ml-auto",
+                                      category.value === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0",
+                                    )}
+                                  />
+                                </CommandItem>
+                              );
+                            })}
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -360,7 +380,6 @@ const UpdateSubmissionForm = ({ submissionId }: { submissionId: string }) => {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="projectType"
