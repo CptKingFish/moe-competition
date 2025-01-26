@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 
 import {
   Dialog,
@@ -20,7 +20,7 @@ const AssignSpecialRoleDialog = () => {
     <Dialog>
       <DialogTrigger asChild>
         <Button className="p-2">
-          <Plus size={20} /> Assign Special Role
+          <Pencil size={20} /> Assign Special Role
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-fit sm:max-w-[720px]">
@@ -28,9 +28,9 @@ const AssignSpecialRoleDialog = () => {
           <DialogTitle>Assign Special Role</DialogTitle>
           <DialogDescription>
             Assign a user email to a special role (TEACHER / ADMIN). Note that
-            unassigned users will have the &apos;STUDENT&apos; role. If the user
-            email already exists in the records, their name and role will be
-            updated.
+            unassigned users will have the &apos;STUDENT&apos; role. If the
+            userassignUserToRole email already exists in the records, their name
+            and role will be updated.
           </DialogDescription>
         </DialogHeader>
         <AssignSpecialRoleForm />

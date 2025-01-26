@@ -11,11 +11,12 @@ const TeacherLayout = async ({ children }: { children: React.ReactNode }) => {
 
   if (!session.user) return redirect("/");
   const userRole = session.user.role;
+  const userSchoolId = session.user.schoolId;
   if (!allowedRoles.includes(userRole)) return redirect("/");
 
   return (
     <main>
-      <TeacherTabs />
+      <TeacherTabs userRole={userRole} userSchoolId={userSchoolId} />
       {children}
     </main>
   );

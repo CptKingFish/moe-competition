@@ -10,6 +10,7 @@ import { Role } from "@/db/enums";
 import DataTableFacetedFilter from "@/app/(protected)/admin/components/data-table-faceted-filter";
 import { api } from "@/trpc/react";
 import AssignSpecialRoleDialog from "./assign-special-role-dialog";
+import BulkInsertUsersDialog from "./bulk-insert-users-dialog";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -75,7 +76,12 @@ const DataTableToolbar = <TData,>({ table }: DataTableToolbarProps<TData>) => {
           </Button>
         )}
       </div>
-      <AssignSpecialRoleDialog />
+      <div>
+        <AssignSpecialRoleDialog />
+      </div>
+      <div className="ml-3">
+        <BulkInsertUsersDialog />
+      </div>
     </div>
   );
 };

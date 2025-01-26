@@ -143,15 +143,62 @@ export const adminRouter = createTRPCRouter({
           .execute();
         console.log("user created");
       }
+    }),
+  bulkInsertUsers: adminProcedure
+    .input(
+      z.array(
+        z.object({
+          name: z.string(),
+          email: z.string().email(),
+          // school: z.string().optional(),
+          role: z.nativeEnum(Role),
+        }),
+      ),
+    )
+    .mutation(async ({ ctx, input }) => {
+      console.log("Bulk input", input);
 
-      // const result = await ctx.db
-      //   .updateTable("User")
-      //   .set({
-      //     approvalStatus: input.role,
-      //     approverId: session.user.id,
-      //   })
-      //   .where("id", "=", input.projectId)
-      //   .execute();
+      // Start a transaction for atomicity
+      await ctx.db.transaction().execute(async (trx) => {
+        // Iterate over each user and perform upsert
+        for (const user of input) {
+          const existingUser = await trx
+            .selectFrom("User")
+            .select(["id", "email"])
+            .where("User.email", "=", user.email)
+            .executeTakeFirst();
+
+          if (existingUser) {
+            // Update the role if user exists
+            await trx
+              .updateTable("User")
+              .set({
+                role: user.role,
+                name: user.name,
+                // schoolId: user.school ?? existingUser.school, // Preserve existing school if not provided
+              })
+              .where("id", "=", existingUser.id)
+              .execute();
+            console.log(`User updated: ${user.email}`);
+          } else {
+            // Insert a new user if they don't exist
+            await trx
+              .insertInto("User")
+              .values({
+                id: createId(),
+                name: user.name,
+                email: user.email,
+                // school: user.school,
+                role: user.role,
+              })
+              .execute();
+            console.log(`User created: ${user.email}`);
+          }
+        }
+      });
+
+      console.log("Bulk insert/update completed");
+      return { success: true };
     }),
   getAllSchoolNames: adminProcedure.query(async () => {
     const data = await db
@@ -447,6 +494,29 @@ export const adminRouter = createTRPCRouter({
       return {
         success: true,
       };
+    }),
+  updateAssignedSchool: adminProcedure
+    .input(
+      z.object({
+        schoolId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const session = await getCurrentSession();
+      if (!session.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You must be logged in to update your assigned school",
+        });
+      }
+
+      await ctx.db
+        .updateTable("User")
+        .set({
+          schoolId: input.schoolId,
+        })
+        .where("id", "=", session.user.id)
+        .execute();
     }),
   getCompetitions: adminProcedure
     .input(
