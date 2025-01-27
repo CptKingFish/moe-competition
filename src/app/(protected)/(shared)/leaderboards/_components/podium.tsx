@@ -9,6 +9,20 @@ interface PodiumProps {
 }
 
 export default function Podium({ projects }: PodiumProps) {
+  if (projects.length < 3) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <div className="w-full max-w-md">
+          <div className="flex h-96 items-center justify-center rounded-lg bg-gray-50/50 text-center text-gray-500">
+            <p className="px-4">
+              Not enough projects to display the podium. Be the first to submit your project!
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="w-full max-w-md">
@@ -33,7 +47,7 @@ export default function Podium({ projects }: PodiumProps) {
             };
             return (
               <motion.div
-                key={winner?.rank as string}
+                key={index}
                 className={`flex flex-col items-center gap-2 ${isFirst ? "order-2" : ""}`}
                 variants={podiumVariants}
                 initial="initial"

@@ -44,7 +44,7 @@ export default function LeaderboardCard({ projects }: LeaderboardCardProps) {
               {project.totalVotes} votes
             </span>
             <div className="flex flex-col sm:flex-row">
-              <div className="h-28 md:h-48 w-full sm:w-1/3">
+              <div className="h-28 w-full sm:w-1/3 md:h-48">
                 <img
                   src={project.bannerImg ?? ""}
                   alt={`${project.name} project image`}
