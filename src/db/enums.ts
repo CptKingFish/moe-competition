@@ -7,7 +7,8 @@ export type Role = (typeof Role)[keyof typeof Role];
 export const SubjectLevel = {
     G1: "G1",
     G2: "G2",
-    G3: "G3"
+    G3: "G3",
+    Open: "Open"
 } as const;
 export type SubjectLevel = (typeof SubjectLevel)[keyof typeof SubjectLevel];
 export const ProjectType = {

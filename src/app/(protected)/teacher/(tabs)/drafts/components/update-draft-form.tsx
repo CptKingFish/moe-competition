@@ -354,6 +354,8 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
                                     competition.value,
                                   );
                                   setOpenCompetition(false);
+                                  // @ts-expect-error - resetting the project category field when competition changes
+                                  form.setValue("projectCategoryId", undefined);
                                 }}
                               >
                                 {competition.label}
@@ -412,7 +414,11 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
                       <Command>
                         <CommandInput placeholder="Search Category..." />
                         <CommandList>
-                          <CommandEmpty>No categories found.</CommandEmpty>
+                          <CommandEmpty>
+                            {form.getValues("competitionId")
+                              ? "No categories found."
+                              : "Please select a competition."}
+                          </CommandEmpty>
                           <CommandGroup>
                             {projectCategories?.map((category) => {
                               const selectedCompetitionId =
@@ -666,7 +672,7 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
               name="track"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Track</FormLabel>
+                  <FormLabel>Level</FormLabel>
                   <Popover open={openTrack} onOpenChange={setOpenTrack}>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -682,16 +688,16 @@ const UpdateDraftForm = ({ draftId }: { draftId: string }) => {
                             ? tracks.find(
                                 (track) => track.value === field.value,
                               )?.label
-                            : "Select Track"}
+                            : "Select Level"}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0">
                       <Command>
-                        <CommandInput placeholder="Search Track..." />
+                        <CommandInput placeholder="Search Level..." />
                         <CommandList>
-                          <CommandEmpty>No tracks found.</CommandEmpty>
+                          <CommandEmpty>No levels found.</CommandEmpty>
                           <CommandGroup>
                             {tracks.map((track) => (
                               <CommandItem

@@ -55,6 +55,43 @@ export async function GET(request: Request): Promise<Response> {
   const email = claims.email;
   const picture = claims.picture;
 
+  // // check if user email has the following pattern (@students.edu.sg or @moe.edu.sg)
+  // if (!email.endsWith("@students.edu.sg") && !email.endsWith("@moe.edu.sg")) {
+  //   return new Response(null, {
+  //     status: 302,
+  //     statusText: "Forbidden",
+  //     headers: {
+  //       Location: "/forbidden",
+  //     },
+  //   });
+  // }
+
+  // // extract school name from email for student users where email is in the format of <name>(<school>)@students.edu.sg
+  // // check if email is in the format of <name>(<school>)@students.edu.sg only for students with @students.edu.sg
+  // if (email.endsWith("@students.edu.sg") && !email.includes("(")) {
+  //   return new Response(null, {
+  //     status: 302,
+  //     statusText: "Forbidden",
+  //     headers: {
+  //       Location: "/forbidden",
+  //     },
+  //   });
+  // }
+
+  // const schoolMatch = email.match(/\(([^)]+)\)/);
+  // const school = schoolMatch ? schoolMatch[1] : null;
+  // if (!school) {
+  //   return new Response(null, {
+  //     status: 302,
+  //     statusText: "Forbidden",
+  //     headers: {
+  //       Location: "/forbidden",
+  //     },
+  //   });
+  // }
+
+  // console.log(`Student of school: ${school} logging in.`);
+
   const existingUser = await db
     .selectFrom("User")
     .selectAll()

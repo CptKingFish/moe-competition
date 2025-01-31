@@ -140,7 +140,7 @@ const TeacherTabs = ({
                           value: school.value,
                         });
                         setOpenAdminSchoolSelection(false);
-                        updateAdminAssignedSchool(school.value);
+                        void updateAdminAssignedSchool(school.value);
                       }}
                     >
                       {school.label}
