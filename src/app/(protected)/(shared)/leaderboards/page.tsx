@@ -1,21 +1,22 @@
 import React from "react";
-import Podium from "./_components/podium";
-import { Separator } from "@/components/ui/separator";
 import { api } from "@/trpc/server";
-import LeaderboardCard from "./_components/leaderboard-card";
+import { SubjectLevel } from "@/db/enums";
+import LeaderBoard from "./_components/LeaderBoard";
 
 const page = async () => {
-  const projects = await api.projects.getTop10Projects();
-
+  // const projects = await api.projects.getTop10Projects();
+  const projectCategories = await api.projects.getProjectCategories();
+  const competitions = await api.projects.getCompetitions();
+  const subjectLevel = Object.keys(SubjectLevel).map((key) => ({
+    value: SubjectLevel[key as keyof typeof SubjectLevel],
+    label: SubjectLevel[key as keyof typeof SubjectLevel],
+  }));
   return (
-    <div>
-      <Podium projects={projects.slice(0, 3)} />
-      <Separator className="mb-6 mt-8" />
-      <h1 className="mb-3 text-2xl font-bold tracking-tight">
-        The Top 10 Projects
-      </h1>
-      <LeaderboardCard projects={projects} />
-    </div>
+    <LeaderBoard
+      subjectOptions={subjectLevel}
+      competitionOptions={competitions}
+      categoryOptions={projectCategories}
+    />
   );
 };
 

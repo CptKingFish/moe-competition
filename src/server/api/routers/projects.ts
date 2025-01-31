@@ -297,81 +297,105 @@ export const projectsRouter = createTRPCRouter({
         imageSrc,
       };
     }),
-  getTop10Projects: publicProcedure.query(async ({ ctx }) => {
-    const currentDate = new Date();
-
-    const rankedProjectsCTE = ctx.db
-      .selectFrom("Project")
-      .leftJoin("User", "Project.authorEmail", "User.email")
-      .leftJoin(
-        "ProjectCategory",
-        "Project.projectCategoryId",
-        "ProjectCategory.id",
-      )
-      .leftJoin("Competition", "Project.competitionId", "Competition.id")
-      .leftJoin("Vote", "Project.id", "Vote.projectId")
-      .select([
-        "Project.id",
-        "Project.name",
-        "Project.description",
-        "Project.author",
-        "User.picture as authorAvatar",
-        "ProjectCategory.name as category",
-        "Competition.name as competition",
-        "Project.subjectLevel",
-        "Project.projectUrl",
-        "Project.bannerImg",
-        ctx.db.fn.count("Vote.id").as("totalVotes"),
-        sql`DENSE_RANK() OVER (ORDER BY COUNT("Vote"."id") DESC)`.as("rank"),
-      ])
-      .groupBy([
-        "Project.id",
-        "Project.name",
-        "Project.description",
-        "Project.author",
-        "User.picture",
-        "ProjectCategory.name",
-        "Competition.name",
-        "Project.subjectLevel",
-        "Project.projectUrl",
-        "Project.bannerImg",
-      ])
-      .where("Competition.startDate", "<=", currentDate)
-      .where("Competition.endDate", ">=", currentDate)
-      .where("Project.approvalStatus", "=", "APPROVED");
-
-    const projects = await ctx.db
-      .with("RankedProjects", (cte) =>
-        cte.selectFrom(rankedProjectsCTE.as("sub")).selectAll(),
-      )
-      .selectFrom("RankedProjects")
-      .selectAll()
-      .where("RankedProjects.rank", "<=", 10)
-      .orderBy("RankedProjects.rank", "asc")
-      .execute();
-
-    return projects.map((project) => {
-      let imageSrc: string | null = null;
-
-      if (project.bannerImg) {
-        const imageBuffer = Buffer.from(project.bannerImg);
-        const encodedBannerImg = imageBuffer.toString("base64");
-
-        // Determine MIME type using magic numbers
-        const bannerImgMimeType = magicNumberToMimeType(imageBuffer);
-
-        if (bannerImgMimeType) {
-          imageSrc = `data:${bannerImgMimeType};base64,${encodedBannerImg}`;
-        } else {
-          console.warn("Unknown image format for project ID:", project.id);
-        }
+  getTop10Projects: publicProcedure
+    .input(
+      z.object({
+        subject: z.nativeEnum(SubjectLevel).nullable().optional(),
+        competition: z.string().nullable().optional(),
+        category: z.string().nullable().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      let rankedProjectsCTE = ctx.db
+        .selectFrom("Project")
+        .leftJoin("User", "Project.authorEmail", "User.email")
+        .leftJoin(
+          "ProjectCategory",
+          "Project.projectCategoryId",
+          "ProjectCategory.id",
+        )
+        .leftJoin("Competition", "Project.competitionId", "Competition.id")
+        .leftJoin("Vote", "Project.id", "Vote.projectId")
+        .select([
+          "Project.id",
+          "Project.name",
+          "Project.description",
+          "Project.author",
+          "User.picture as authorAvatar",
+          "ProjectCategory.name as category",
+          "Competition.name as competition",
+          "Project.subjectLevel",
+          "Project.projectUrl",
+          "Project.bannerImg",
+          ctx.db.fn.count("Vote.id").as("totalVotes"),
+          sql`DENSE_RANK() OVER (ORDER BY COUNT("Vote"."id") DESC)`.as("rank"),
+        ])
+        .groupBy([
+          "Project.id",
+          "Project.name",
+          "Project.description",
+          "Project.author",
+          "User.picture",
+          "ProjectCategory.name",
+          "Competition.name",
+          "Project.subjectLevel",
+          "Project.projectUrl",
+          "Project.bannerImg",
+        ])
+        .where("Project.approvalStatus", "=", "APPROVED");
+      if (input.subject) {
+        rankedProjectsCTE = rankedProjectsCTE.where(
+          "Project.subjectLevel",
+          "=",
+          input.subject,
+        );
       }
-      return {
-        ...project,
-        bannerImg: imageSrc,
-      };
-    });
-  }),
+      if (input.competition) {
+        rankedProjectsCTE = rankedProjectsCTE.where(
+          "Competition.id",
+          "=",
+          input.competition,
+        );
+      }
+      if (input.category) {
+        rankedProjectsCTE = rankedProjectsCTE.where(
+          "ProjectCategory.id",
+          "=",
+          input.category,
+        );
+      }
+      const projects = await ctx.db
+        .with("RankedProjects", (cte) =>
+          cte.selectFrom(rankedProjectsCTE.as("sub")).selectAll(),
+        )
+        .selectFrom("RankedProjects")
+        .selectAll()
+        .where("RankedProjects.rank", "<=", 10)
+        .orderBy("RankedProjects.rank", "asc")
+        .execute();
+
+      return projects.map((project) => {
+        let imageSrc: string | null = null;
+
+        if (project.bannerImg) {
+          const imageBuffer = Buffer.from(project.bannerImg);
+          const encodedBannerImg = imageBuffer.toString("base64");
+
+          // Determine MIME type using magic numbers
+          const bannerImgMimeType = magicNumberToMimeType(imageBuffer);
+
+          if (bannerImgMimeType) {
+            imageSrc = `data:${bannerImgMimeType};base64,${encodedBannerImg}`;
+          } else {
+            console.warn("Unknown image format for project ID:", project.id);
+          }
+        }
+        return {
+          ...project,
+          bannerImg: imageSrc,
+        };
+      });
+    }),
   getProjectVotes: publicProcedure
     .input(z.string())
     .query(async ({ ctx, input }) => {
