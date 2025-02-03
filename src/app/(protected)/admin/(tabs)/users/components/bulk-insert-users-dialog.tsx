@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 
 import BulkInsertUsersForm from "./bulk-insert-users-form";
+import TemplateCsvDownload from "./template-csv-download";
 
 const BulkInsertUsersDialog = () => {
   return (
@@ -36,6 +37,7 @@ const BulkInsertUsersDialog = () => {
             overwritten.
           </DialogDescription>
         </DialogHeader>
+        <TemplateCsvDownload headers={["name", "email", "role"]} />
         <BulkInsertUsersForm />
       </DialogContent>
     </Dialog>
