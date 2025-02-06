@@ -210,11 +210,13 @@ export const adminRouter = createTRPCRouter({
     return data;
   }),
   renameSchool: adminProcedure
-    .input(z.object({ id: z.string(), name: z.string() }))
+    .input(
+      z.object({ id: z.string(), name: z.string(), shortname: z.string() }),
+    )
     .mutation(async ({ ctx, input }) => {
       await db
         .updateTable("School")
-        .set({ name: input.name })
+        .set({ name: input.name, shortname: input.shortname })
         .where("id", "=", input.id)
         .execute();
     }),
@@ -226,6 +228,22 @@ export const adminRouter = createTRPCRouter({
           .updateTable("User")
           .set({ schoolId: input.toId })
           .where("schoolId", "=", input.fromId)
+          .execute();
+
+        // also update the linkedSchoolId in the Project table
+
+        await trx
+          .updateTable("Project")
+          .set({ linkedSchoolId: input.toId })
+          .where("linkedSchoolId", "=", input.fromId)
+          .execute();
+
+        // also update the linkedSchoolId in the ProjectDraft table
+
+        await trx
+          .updateTable("ProjectDraft")
+          .set({ linkedSchoolId: input.toId })
+          .where("linkedSchoolId", "=", input.fromId)
           .execute();
 
         await trx.deleteFrom("School").where("id", "=", input.fromId).execute();
@@ -442,6 +460,7 @@ export const adminRouter = createTRPCRouter({
         .select([
           "School.id as id",
           "School.name as name",
+          "School.shortname as shortname",
           ctx.db.fn.count("User.id").as("totalUsers"),
         ])
         .groupBy(["School.id"]);
@@ -479,6 +498,7 @@ export const adminRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
+        shortname: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -487,6 +507,7 @@ export const adminRouter = createTRPCRouter({
         .values({
           id: createId(),
           name: input.name,
+          shortname: input.shortname,
         })
         .returning("id")
         .execute();

@@ -41,6 +41,7 @@ model Session {
 model School {
     id           String         @id
     name         String         @unique
+    shortname    String         @unique
     users        User[]
     projects     Project[]
     ProjectDraft ProjectDraft[]

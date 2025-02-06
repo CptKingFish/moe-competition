@@ -19,9 +19,11 @@ import EditSchoolForm from "./edit-school-form";
 const EditSchoolDialog = ({
   schoolId,
   schoolName,
+  shortname,
 }: {
   schoolId: string;
   schoolName: string;
+  shortname: string;
 }) => {
   return (
     <Dialog>
@@ -37,7 +39,11 @@ const EditSchoolDialog = ({
             Make updates to the school here. Click update when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
-        <EditSchoolForm schoolId={schoolId} schoolName={schoolName} />
+        <EditSchoolForm
+          schoolId={schoolId}
+          schoolName={schoolName}
+          shortname={shortname}
+        />
       </DialogContent>
     </Dialog>
   );

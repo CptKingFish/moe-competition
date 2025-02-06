@@ -49,8 +49,11 @@ const MergeSchoolsForm = () => {
   const [openFromSchool, setOpenFromSchool] = useState(false);
   const [openToSchool, setOpenToSchool] = useState(false);
 
-  const { data: schoolData, isFetched } =
-    api.school.getAllSchoolNames.useQuery();
+  const {
+    data: schoolData,
+    isFetched,
+    refetch: refetchSchools,
+  } = api.school.getAllSchoolNames.useQuery();
 
   useEffect(() => {
     if (isFetched && schoolData) {
@@ -95,6 +98,7 @@ const MergeSchoolsForm = () => {
       );
 
       router.refresh();
+      await refetchSchools();
     } catch (error) {
       console.error("Error merging schools:", error);
       toast.error("Error merging schools.");

@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(3),
+  shortname: z.string().min(1),
 });
 
 const AddSchoolForm = () => {
@@ -34,6 +35,7 @@ const AddSchoolForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      shortname: "",
     },
   });
 
@@ -68,6 +70,22 @@ const AddSchoolForm = () => {
                   <FormLabel>School Name</FormLabel>
                   <FormControl>
                     <Input placeholder="School" {...field} />
+                  </FormControl>
+                  {/* <FormDescription>
+                This is your public display name.
+              </FormDescription> */}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="shortname"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Short Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Short Name (eg: acjc)" {...field} />
                   </FormControl>
                   {/* <FormDescription>
                 This is your public display name.

@@ -62,6 +62,7 @@ export type ProjectDraft = {
 export type School = {
     id: string;
     name: string;
+    shortname: string;
 };
 export type Session = {
     id: string;

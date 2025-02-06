@@ -66,32 +66,6 @@ export async function GET(request: Request): Promise<Response> {
   //   });
   // }
 
-  // // extract school name from email for student users where email is in the format of <name>(<school>)@students.edu.sg
-  // // check if email is in the format of <name>(<school>)@students.edu.sg only for students with @students.edu.sg
-  // if (email.endsWith("@students.edu.sg") && !email.includes("(")) {
-  //   return new Response(null, {
-  //     status: 302,
-  //     statusText: "Forbidden",
-  //     headers: {
-  //       Location: "/forbidden",
-  //     },
-  //   });
-  // }
-
-  // const schoolMatch = email.match(/\(([^)]+)\)/);
-  // const school = schoolMatch ? schoolMatch[1] : null;
-  // if (!school) {
-  //   return new Response(null, {
-  //     status: 302,
-  //     statusText: "Forbidden",
-  //     headers: {
-  //       Location: "/forbidden",
-  //     },
-  //   });
-  // }
-
-  // console.log(`Student of school: ${school} logging in.`);
-
   const existingUser = await db
     .selectFrom("User")
     .selectAll()
@@ -124,15 +98,51 @@ export async function GET(request: Request): Promise<Response> {
     return response;
   }
 
+  // Check if user is a student based on email domain
+  const isStudent = email.endsWith("@students.edu.sg");
+  let schoolId: string | null = null;
+
+  if (isStudent) {
+    // Extract school short name from Google name (e.g., "John Doe (amkss)")
+    const schoolMatch = /\(([^)]+)\)/.exec(username);
+    if (schoolMatch) {
+      const schoolShortName = schoolMatch[1];
+      let school = null;
+
+      if (schoolShortName) {
+        school = await db
+          .selectFrom("School")
+          .select("id")
+          .where("shortname", "=", schoolShortName)
+          .executeTakeFirst();
+      }
+      // Find the school in the database using the short name
+
+      if (school) {
+        schoolId = school.id;
+        console.log(
+          `Student belongs to school: ${schoolShortName} (ID: ${schoolId})`,
+        );
+      } else {
+        console.log(
+          `No matching school found for short name: ${schoolShortName}`,
+        );
+      }
+    } else {
+      console.log("No school short name detected in Google name.");
+    }
+  }
+
   const user = await db
     .insertInto("User")
     .values({
+      id: createId(),
       googleId: googleUserId,
       name: username,
       role: "STUDENT",
       email,
       picture,
-      id: createId(),
+      schoolId,
     })
     .returning("id")
     .executeTakeFirstOrThrow();

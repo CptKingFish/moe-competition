@@ -26,7 +26,10 @@ const AddSchoolDialog = () => {
       <DialogContent className="max-h-fit sm:max-w-[720px]">
         <DialogHeader>
           <DialogTitle>Add School</DialogTitle>
-          <DialogDescription>Add a new school.</DialogDescription>
+          <DialogDescription>
+            Add a new school. Short name will be used to automatically detect
+            associated school from student Google name.
+          </DialogDescription>
         </DialogHeader>
         <AddSchoolForm />
       </DialogContent>

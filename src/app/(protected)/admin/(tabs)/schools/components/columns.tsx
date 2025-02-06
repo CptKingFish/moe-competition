@@ -31,6 +31,26 @@ export const columns: ColumnDef<SchoolsTableItem>[] = [
     },
   },
   {
+    accessorKey: "shortname",
+    header: ({ column }) => {
+      return (
+        <DataTableColumnHeader
+          column={column}
+          title="Short Name"
+          className="p-0"
+        />
+      );
+    },
+    cell: ({ row }) => {
+      const shortname = row.original.shortname;
+      return (
+        <>
+          <span className="font-medium">{shortname}</span>
+        </>
+      );
+    },
+  },
+  {
     accessorKey: "totalUsers",
     header: "Total Users",
     cell: ({ row }) => {
@@ -52,6 +72,7 @@ export const columns: ColumnDef<SchoolsTableItem>[] = [
         <EditSchoolDialog
           schoolId={row.original.id}
           schoolName={row.original.name}
+          shortname={row.original.shortname}
         />
       );
     },
